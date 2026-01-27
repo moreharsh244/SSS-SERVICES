@@ -1,0 +1,12 @@
+.sidebar-nav a{
+    text-decoration: none;
+    color: black;
+  }
+  .sidebar-nav a:hover{
+    background-color: #ff0000;
+    color: white;
+  }
+    .sidebar-nav a.active{
+    background-color: #ff0000;
+    color: white;
+  }
