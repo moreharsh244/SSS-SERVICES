@@ -63,6 +63,22 @@ body.admin-body{
 .product-image-thumb{ width:72px; height:72px; object-fit:cover; border-radius:8px; }
 .small-muted{ color:#6c757d; font-size:0.9rem; }
 
+/* Users list enhancements */
+.admin-card h4{ font-size:1.15rem; font-weight:600; }
+.admin-card .form-control-sm{ height:34px; border-radius:6px; }
+.admin-card .badge{ font-weight:600; }
+.table-hover tbody tr:hover{ background:#f8fafc; }
+.pw-mask{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Helvetica Neue', monospace; color:#495057; }
+.toggle-pw{ padding:0.18rem 0.45rem; font-size:0.78rem; }
+.btn-outline-primary{ border-radius:6px; }
+.btn-outline-danger{ border-radius:6px; }
+
+/* Responsive adjustments for users list */
+@media (max-width:767px){
+  .admin-card { padding: 12px; }
+  .admin-card h4{ font-size:1rem }
+}
+
 @media (max-width:767px){
   .admin-container{ padding: 0 12px; }
 }
