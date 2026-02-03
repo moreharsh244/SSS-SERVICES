@@ -46,7 +46,6 @@ if (!isset($_SESSION['is_login'])) {
             <?php echo htmlentities($_SESSION['username']); ?>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-            <li><a class="dropdown-item" href="view_product.php">Browse Products</a></li>
             <li><a class="dropdown-item" href="myorder.php">My Orders</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
