@@ -1,7 +1,17 @@
 <?php
-include('header.php');
+$include_header = false;
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (!defined('ADMIN_HEADER_INCLUDED')){
+    include('header.php');
+    define('ADMIN_HEADER_INCLUDED', true);
+    $include_header = true;
+}
 include('conn.php');
-$uid=$_POST['uid'];
+$uid = $_POST['uid'] ?? $_GET['uid'] ?? null;
+if (!$uid) {
+    header('location:view_product.php');
+    exit;
+}
 $sqlq="select * from products where pid='$uid'";
 $result=mysqli_query($con,$sqlq);
 while($row=mysqli_fetch_assoc($result)){
@@ -44,18 +54,15 @@ while($row=mysqli_fetch_assoc($result)){
                 
              </div> 
             </form>
-            
         </div>
     </div>
-</div
-
-
+</div>
 
 <?php
- 
 }
 ?>
-
-
-
-S
+<?php
+if ($include_header) {
+    include('footer.php');
+}
+?>

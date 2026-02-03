@@ -36,7 +36,7 @@ $sqlq="INSERT INTO user_login (username,password) VALUES('$username','$password'
 $result=mysqli_query($con,$sqlq);
 if($result){
     $_SESSION['is_login']=true;
-    $_SESSION['uname']=$_POST['uname'];
+    $_SESSION['username']=$_POST['uname'];
     header('location:index.php');
     exit;
 }else{

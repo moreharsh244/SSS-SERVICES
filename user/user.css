@@ -1,12 +1,81 @@
-.sidebar-nav a{
-    text-decoration: none;
-    color: black;
-  }
-  .sidebar-nav a:hover{
-    background-color: #ff0000;
-    color: white;
-  }
-    .sidebar-nav a.active{
-    background-color: #ff0000;
-    color: white;
-  }
+:root{
+  --primary: #0d6efd;
+  --muted: #6c757d;
+  --card-bg: #ffffff;
+}
+body.user-area{
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background-color: #f6f7fb;
+}
+.sidebar-nav a, .nav-link{
+  text-decoration: none;
+  color: #333;
+}
+.sidebar-nav a:hover, .nav-link:hover{
+  background-color: rgba(13,110,253,0.08);
+  color: var(--primary);
+}
+.product-card{
+  border-radius: 8px;
+  overflow: hidden;
+}
+.product-card .card-body{
+  display: flex;
+  flex-direction: column;
+}
+.product-card .card-title{
+  font-size: 0.98rem;
+  margin-bottom: 0.25rem;
+}
+.product-card .btn{
+  font-size: 0.85rem;
+}
+.hero{
+  border-radius: 8px;
+  padding: 2rem;
+  background: linear-gradient(90deg, rgba(13,110,253,0.08), rgba(13,110,253,0.02));
+}
+.search-inline{ max-width: 520px; }
+@media (max-width: 768px){
+  aside{ display: none; }
+}
+
+/* User area enhancements */
+.navbar-brand{
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  letter-spacing: .2px;
+  font-size: 1.05rem;
+  color: #0b5ed7 !important;
+}
+.navbar .form-control{
+  border-radius: 20px 6px 6px 20px;
+}
+.navbar .btn-outline-primary{
+  border-radius: 6px;
+}
+.user-area .card{
+  border: none;
+  border-radius: 10px;
+}
+.user-area .card.shadow-sm{
+  box-shadow: 0 6px 18px rgba(30,30,60,0.06);
+}
+.sidebar-nav .nav-link{
+  color: #333;
+  padding-left: .5rem;
+}
+.sidebar-nav .nav-link.active{
+  background-color: rgba(13,110,253,0.09);
+  color: var(--primary);
+  border-left: 3px solid var(--primary);
+}
+.product-card img{ transition: transform .25s ease, filter .25s; }
+.product-card:hover img{ transform: scale(1.03); filter: brightness(.98); }
+.product-card .card-body{ padding: .9rem; }
+
+/* Responsive: make sidebar collapsible on small screens */
+@media (max-width: 768px){
+  .sidebar-nav{ display:flex; gap:.5rem; }
+  aside{ display:block; }
+  .sidebar-nav .nav-link{ padding:.5rem .75rem; }
+}
