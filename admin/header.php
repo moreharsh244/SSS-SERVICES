@@ -26,15 +26,11 @@ if (!isset($_SESSION['is_login'])) {
 <!-- Primary navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="products_card.php">Shree Swami Samarth</a>
+    <a class="navbar-brand fw-bold" href="products_card.php" style="font-size: 30px;">Shree Swami Samarth</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <form class="d-flex ms-3 me-auto" action="view_product.php" method="get">
-        <input class="form-control me-2" type="search" name="q" placeholder="Search products or brands" aria-label="Search">
-        <button class="btn btn-outline-primary" type="submit">Search</button>
-      </form>
+  
 
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
         <li class="nav-item me-2">
@@ -63,11 +59,12 @@ if (!isset($_SESSION['is_login'])) {
   <div class="row">
     <div class="col-12">
       <nav class="nav nav-pills bg-white rounded shadow-sm p-2">
-        <a class="nav-link" href="products_card.php"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
         <a class="nav-link" href="add_product.php"><i class="bi bi-plus-square me-2"></i>Add Product</a>
         <a class="nav-link" href="view_product.php"><i class="bi bi-card-list me-2"></i>View Products</a>
         <a class="nav-link" href="products_card.php"><i class="bi bi-grid-3x3-gap me-2"></i>Product Cards</a>
+        <a class="nav-link" href="orders_list.php"><i class="bi bi-bag-check me-2"></i>Orders List</a>
         <a class="nav-link" href="users_list.php"><i class="bi bi-person-plus me-2"></i>Register User</a>
+
       </nav>
     </div>
   </div>

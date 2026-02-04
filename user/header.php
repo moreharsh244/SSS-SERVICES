@@ -27,15 +27,12 @@ if(!defined('HEADER_INCLUDED')) define('HEADER_INCLUDED', true);
 <!-- Primary navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="view_products.php">Shree Swami Samarth</a>
+    <a class="navbar-brand fw-bold" href="view_products.php" style="font-size: 30px;">Shree Swami Samarth</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="mainNav">
-      <form class="d-flex ms-3 me-auto" action="view_products.php" method="get">
-        <input class="form-control me-2" type="search" name="q" placeholder="Search products or brands" aria-label="Search">
-        <button class="btn btn-outline-primary" type="submit">Search</button>
+  
       </form>
 
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">

@@ -3,7 +3,7 @@ include('header.php');
 ?>
 
 
-        <div class="col-sm-6 col-md-6 col-lg-6">
+        <div class="col-sm-6 col-md-6 col-lg-6 " >
             <!-- header  -->
             <div class="alert alert-success text-center" role="alert">  
                 <h3>Add Product</h3>
