@@ -73,6 +73,20 @@ body.user-area{
 .product-card:hover img{ transform: scale(1.03); filter: brightness(.98); }
 .product-card .card-body{ padding: .9rem; }
 
+/* Build PC specific styles */
+.component-card{ border-radius:10px; overflow:hidden; transition:box-shadow .18s, transform .12s; }
+.component-card.selected{ box-shadow:0 10px 30px rgba(13,110,253,0.12); transform:translateY(-4px); border:1px solid rgba(13,110,253,0.16); }
+.component-card .select-btn{ min-width:92px; }
+.select-btn.selected{ background:var(--primary); color:#fff; border-color:var(--primary); }
+.build-summary .list-group-item{ border-radius:6px; }
+.build-summary .comp-thumb{ width:44px; height:36px; object-fit:cover; border-radius:6px; margin-right:.5rem; }
+.build-actions{ display:flex; gap:.5rem; }
+.btn-clear{ background:transparent; border:1px dashed rgba(0,0,0,0.06); }
+
+@media (max-width: 992px){
+  .build-summary .card-body{ padding:1rem; }
+}
+
 /* Responsive: make sidebar collapsible on small screens */
 @media (max-width: 768px){
   .sidebar-nav{ display:flex; gap:.5rem; }

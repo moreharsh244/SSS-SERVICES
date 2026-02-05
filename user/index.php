@@ -14,7 +14,6 @@ include('header.php');
 		</div>
 	</div>
 
-	<h5 class="mb-3">Featured Products</h5>
 	<?php include('view_products.php'); ?>
 
 <?php

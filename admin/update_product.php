@@ -6,9 +6,10 @@ $pcompany=$_POST['pcompany'];
 $pprice=$_POST['pprice'];
 $pqty=$_POST['pqty'];   
 $pamount=$_POST['pamount'];
-$pdescription=$_POST['product_description'];    
+ $pdescription=$_POST['product_description'];    
+ $pcat = isset($_POST['pcat']) ? $_POST['pcat'] : '';
 //echo $uid . ' ' . $pname . ' ' . $pcompany . ' ' . $pprice . ' ' . $pqty . ' ' . $pamount . ' ' . $pdescription;
-$sqlq="UPDATE `products` SET `pname`='$pname',`pcompany`='$pcompany',`pqty`='$pqty',`pprice`='$pprice',`pamount`='$pamount',`pdisc`='$pdescription' WHERE pid='$uid'";
+$sqlq="UPDATE `products` SET `pname`='$pname',`pcompany`='$pcompany',`pqty`='$pqty',`pprice`='$pprice',`pamount`='$pamount',`pdisc`='$pdescription', `pcat`='$pcat' WHERE pid='$uid'";
 $result=mysqli_query($con,$sqlq);
 if($result){        
     header('location:view_product.php');

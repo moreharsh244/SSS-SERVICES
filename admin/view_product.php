@@ -1,13 +1,14 @@
 <?php
 include('header.php');
 ?>
-<div class="col-sm-8  col-md-8 col-lg-8">
+<div class="col-12 col-md-10 col-lg-8 mx-auto">
     <!-- header  -->
     <div class="alert alert-success text-center" role="alert">  
         <h5>View Products</h5>
     </div> 
     <!-- header end  -->
-    <table class="table table-bordered table-striped">
+    <div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover">
         <thead>
             <tr>
                 <th>ID</th>
@@ -66,6 +67,7 @@ include('header.php');
             ?>
         </tbody>
     </table>
+    </div>
 
 </div>
 

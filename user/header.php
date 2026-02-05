@@ -57,17 +57,30 @@ if(!defined('HEADER_INCLUDED')) define('HEADER_INCLUDED', true);
 </nav>
 
 <!-- Page layout -->
-<div class="container-fluid mt-3">
+<!-- Page layout -->
+<div class="container mt-3">
   <div class="row">
-    <aside class="col-md-3 col-lg-2 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body p-2">
-          <ul class="nav flex-column">
-            <li class="nav-item"><a class="nav-link py-2" href="view_products.php">Browse Products</a></li>
-            <li class="nav-item"><a class="nav-link py-2" href="myorder.php">My Orders</a></li>
-            <li class="nav-item"><a class="nav-link py-2" href="orderstatus.php">Order Status</a></li>
-          </ul>
-        </div>
+    <div class="col-12 d-flex justify-content-center">
+      <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2">
+        <a class="nav-link" href="view_products.php"><i class="bi bi-card-list me-2"></i>Browse Products</a>
+        <a class="nav-link" href="cart.php"><i class="bi bi-hammer me-2"></i>Build PC</a>
+        <a class="nav-link" href="profile.php"><i class="bi bi-person me-2"></i>My Profile</a>
+        <a class="nav-link" href="myorder.php"><i class="bi bi-bag me-2"></i>My Orders</a>
+        <a class="nav-link" href="orderstatus.php"><i class="bi bi-truck me-2"></i>Order Status</a>
+      </nav>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <main class="col-12">
+
+<!-- Image preview modal (user) -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-transparent border-0 shadow-none">
+      <div class="modal-body text-center p-0">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+        <img id="modalImage" src="" alt="Preview" class="img-modal-img rounded">
       </div>
-    </aside>
-    <main class="col-md-9 col-lg-10">
+    </div>
+  </div>
+</div>

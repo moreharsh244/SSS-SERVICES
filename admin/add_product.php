@@ -3,7 +3,7 @@ include('header.php');
 ?>
 
 
-        <div class="col-sm-6 col-md-6 col-lg-6 " >
+        <div class="col-12 col-md-8 col-lg-6 mx-auto" >
             <!-- header  -->
             <div class="alert alert-success text-center" role="alert">  
                 <h3>Add Product</h3>
@@ -30,6 +30,22 @@ include('header.php');
                 <div class="mb-2">
                     <label for="product_amount" class="form-label">Product Amount</label>
                     <input type="text" class="form-control"  name="pamount" required>
+                </div>
+                <div class="mb-2">
+                    <label for="product_category" class="form-label">Category</label>
+                    <select class="form-select" name="pcat" required>
+                        <option value="">Select category</option>
+                        <option value="CPU">CPU</option>
+                        <option value="Motherboard">Motherboard</option>
+                        <option value="RAM">RAM</option>
+                        <option value="GPU">GPU</option>
+                        <option value="Storage">Storage</option>
+                        <option value="PSU">PSU</option>
+                        <option value="Case">Case</option>
+                        <option value="Cooler">Cooler</option>
+                        <option value="Monitor">Monitor</option>
+                        <option value="Accessory">Accessory</option>
+                    </select>
                 </div>
                 <div class="mb-2">
                     <label for="product_description" class="form-label">Product Description</label>
@@ -60,8 +76,9 @@ if(isset($_POST['add_product'])){
     $filename=$_FILES["pimg"]["name"];
     $target_dir="../productimg/";
     $target_file=$target_dir.basename($filename);
-    if(move_uploaded_file($_FILES["pimg"]["tmp_name"],$target_file)){
-       $sqlq="INSERT INTO `products` ( `pname`, `pcompany`, `pqty`, `pprice`, `pamount`, `pdisc`, `pimg`) VALUES ('$pname', '$pcompany', '$pqty', '$pprice', '$pamount', '$pdescription', '$filename')";
+     $pcat = isset($_POST['pcat']) ? $_POST['pcat'] : '';
+     if(move_uploaded_file($_FILES["pimg"]["tmp_name"],$target_file)){
+         $sqlq="INSERT INTO `products` ( `pname`, `pcompany`, `pqty`, `pprice`, `pamount`, `pdisc`, `pimg`, `pcat`) VALUES ('$pname', '$pcompany', '$pqty', '$pprice', '$pamount', '$pdescription', '$filename', '$pcat')";
     $result=mysqli_query($con,$sqlq);
     if($result){
         echo "<script>alert('Product Added Successfully');</script>";

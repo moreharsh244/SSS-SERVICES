@@ -86,10 +86,36 @@ body.admin-body{
   font-weight:700;
   box-shadow:0 4px 10px rgba(74,107,255,0.18);
 }
+.user-avatar{ /* alias for existing class used in markup */
+  width:40px;
+  height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:linear-gradient(135deg,#6c8cff,#4a6bff);
+  color:#fff;
+  font-weight:700;
+  box-shadow:0 4px 10px rgba(74,107,255,0.18);
+}
 .action-btns .btn{ margin-left:6px; }
 .search-input-group .input-group-text{ background:transparent; border:none; }
 .search-input-group .form-control{ border-left:0; }
 .table .small-muted{ color:#6c757d; }
+
+/* badge used in users list */
+.badge-total{ background:#e9ecef; color:#212529; font-weight:600; padding:0.45rem 0.6rem; border-radius:8px; }
+
+/* product card styles */
+.product-card{ border-radius:12px; border:1px solid rgba(0,0,0,0.04); transition:transform .18s,box-shadow .18s; overflow:hidden; }
+.product-card:hover{ transform:translateY(-6px); box-shadow:0 12px 30px rgba(13,110,253,0.08); }
+.product-card .card-title{ font-size:1rem; margin-bottom:.2rem; }
+.product-card .card-body{ min-height:140px; }
+/* image preview cursor */
+.img-preview{ cursor:zoom-in; }
+
+/* modal image sizing */
+.img-modal-img{ max-width:100%; max-height:80vh; display:block; margin:0 auto; }
 
 /* compact responsive tweaks */
 @media (max-width:575px){

@@ -18,7 +18,7 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
         ?>
         <div class="col-sm-6 col-md-4 col-lg-3">
             <div class="card h-100 shadow-sm product-card">
-                <img src="../productimg/<?php echo $row['pimg']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['pname']); ?>" style="height:180px;object-fit:cover;">
+                <img src="../productimg/<?php echo $row['pimg']; ?>" data-full="../productimg/<?php echo $row['pimg']; ?>" class="card-img-top img-preview" alt="<?php echo htmlspecialchars($row['pname']); ?>" style="height:180px;object-fit:cover;">
                 <div class="card-body d-flex flex-column">
                     <h6 class="card-title"><?php echo htmlspecialchars($row['pname']); ?></h6>
                     <p class="text-muted small mb-1"><?php echo htmlspecialchars($row['pcompany']); ?></p>

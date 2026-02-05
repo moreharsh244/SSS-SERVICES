@@ -22,7 +22,7 @@ if (!isset($_SESSION['is_login'])) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet">
 </head>
-<body class="user-area">
+<body class="admin-body">
 <!-- Primary navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
   <div class="container-fluid">
@@ -55,10 +55,10 @@ if (!isset($_SESSION['is_login'])) {
 <!-- navbar End  -->
 
 <!-- Sub navigation (horizontal) -->
-<div class="container mt-3 justify-content-center">
+<div class="container mt-3">
   <div class="row">
-    <div class="col-12">
-      <nav class="nav nav-pills bg-white rounded shadow-sm p-2">
+    <div class="col-12 d-flex justify-content-center">
+      <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2">
         <a class="nav-link" href="add_product.php"><i class="bi bi-plus-square me-2"></i>Add Product</a>
         <a class="nav-link" href="view_product.php"><i class="bi bi-card-list me-2"></i>View Products</a>
         <a class="nav-link" href="products_card.php"><i class="bi bi-grid-3x3-gap me-2"></i>Product Cards</a>
@@ -70,4 +70,16 @@ if (!isset($_SESSION['is_login'])) {
   </div>
   <div class="row mt-4 justify-content-center">
     <main class="col-12">
+  <!-- Image preview modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-transparent border-0 shadow-none">
+        <div class="modal-body text-center p-0">
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+          <img id="modalImage" src="" alt="Preview" class="img-modal-img rounded">
+        </div>
+      </div>
+    </div>
+  </div>
+
 <?php
