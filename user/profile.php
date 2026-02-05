@@ -59,9 +59,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                   <label class="form-label">Contact Number</label>
                   <input name="contact" class="form-control" value="<?php echo htmlspecialchars($user['c_contact'] ?? ''); ?>">
                 </div>
-                <div class="mb-2">
-                  <label class="form-label">New Password</label>
-                  <input name="password" type="password" class="form-control" placeholder="Leave blank to keep current password">
+                <div class="mb-3">
+                  <label class="form-label">Address</label>
+                  <textarea name="address" class="form-control"><?php echo htmlspecialchars($user['c_address'] ?? ''); ?></textarea>
                 </div>
                 <div class="d-flex justify-content-end">
                   <button type="submit" name="update_profile" class="btn btn-primary">Save Changes</button>

@@ -113,7 +113,7 @@ if($pq){
                     </div>
                     <div class="mb-2 row">
                         <div class="col-6">
-                            <label class="form-label">Price (USD)</label>
+                            <label class="form-label">Price</label>
                             <input id="partPrice" class="form-control" type="number" step="0.01" placeholder="0.00" readonly />
                         </div>
                     </div>
