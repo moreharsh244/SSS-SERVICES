@@ -63,7 +63,7 @@ if(!defined('HEADER_INCLUDED')) define('HEADER_INCLUDED', true);
     <div class="col-12 d-flex justify-content-center">
       <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2">
         <a class="nav-link" href="view_products.php"><i class="bi bi-card-list me-2"></i>Browse Products</a>
-        <a class="nav-link" href="cart.php"><i class="bi bi-hammer me-2"></i>Build PC</a>
+        <a class="nav-link" href="build.php"><i class="bi bi-hammer me-2"></i>Build PC</a>
         <a class="nav-link" href="profile.php"><i class="bi bi-person me-2"></i>My Profile</a>
         <a class="nav-link" href="myorder.php"><i class="bi bi-bag me-2"></i>My Orders</a>
         <a class="nav-link" href="orderstatus.php"><i class="bi bi-truck me-2"></i>Order Status</a>
