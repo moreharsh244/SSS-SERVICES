@@ -21,12 +21,7 @@ session_start();
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" name="uname" required>
             </div>
-                <div class="mb-3">
-                    <label class="form-label">Password strength</label>
-                    <div class="progress" style="height:8px;">
-                        <div id="adminPwStrength" class="progress-bar" role="progressbar" style="width:0%"></div>
-                    </div>
-                </div>
+                
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" name="pass" required>
@@ -67,16 +62,7 @@ if(isset($_POST['register'])){
     }
 }
 
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    const adminForm = document.getElementById('adminReg');
-    const adminPw = adminForm.querySelector('input[name="pass"]');
-    const bar = document.getElementById('adminPwStrength');
-    function score(s){ let sc=0; if(s.length>=8) sc+=30; if(/[0-9]/.test(s)) sc+=20; if(/[A-Z]/.test(s)) sc+=20; if(/[^A-Za-z0-9]/.test(s)) sc+=30; return Math.min(100,sc);} 
-    adminPw.addEventListener('input', function(){ const sc=score(adminPw.value); bar.style.width=sc+'%'; bar.className='progress-bar '+(sc<50?'bg-danger':sc<80?'bg-warning':'bg-success'); });
-    adminForm.addEventListener('submit', function(e){ if(!adminForm.checkValidity()){ e.preventDefault(); e.stopPropagation(); adminForm.classList.add('was-validated'); } });
-});
-</script>
+
 <?php
 include 'conn.php';
 if(isset($_POST['register'])){

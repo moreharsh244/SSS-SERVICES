@@ -59,6 +59,18 @@ if($res && mysqli_num_rows($res)>0){
     $total = number_format((float)$r['pprice'] * $qty,2);
     $status = htmlspecialchars($r['status'] ?? 'pending');
     $dstatus = htmlspecialchars($r['delivery_status'] ?? 'pending');
+
+    // map status to bootstrap badge classes
+    $badge_map = [
+      'pending' => 'bg-warning text-dark',
+      'shipped' => 'bg-info text-dark',
+      'delivered' => 'bg-success',
+      'cancelled' => 'bg-danger'
+    ];
+    $status_cls = $badge_map[strtolower($status)] ?? 'bg-secondary';
+    $dstatus_cls = $badge_map[strtolower($dstatus)] ?? 'bg-secondary';
+    $status_label = ucfirst($status);
+    $dstatus_label = ucfirst($dstatus);
     $date = $r['pdate'];
     $img = (!empty($r['prod_img'])) ? '../productimg/'.rawurlencode($r['prod_img']) : '';
 
@@ -68,18 +80,25 @@ if($res && mysqli_num_rows($res)>0){
     echo "<td>{$user}</td>";
     echo "<td>{$qty}</td>";
     echo "<td>\${$total}</td>";
-    echo "<td>{$status}</td>";
-    echo "<td>{$dstatus}</td>";
+    echo "<td><span class='badge {$status_cls}'>{$status_label}</span></td>";
+    echo "<td><span class='badge {$dstatus_cls}'>{$dstatus_label}</span></td>";
     echo "<td>{$date}</td>";
-    echo "<td class='text-center'><a href='view_purchase.php?id={$id}' class='btn btn-sm btn-outline-primary me-1'>View</a>";
-    echo "<form action='update_order.php' method='post' style='display:inline-block'>";
+    // nicer actions: view button + compact select + update button
+    echo "<td class='text-center'>";
+    echo "<div class='d-inline-flex align-items-center'>";
+    echo "<a href='view_purchase.php?id={$id}' class='btn btn-sm btn-primary me-2' title='View'><i class='bi bi-eye'></i> View</a>";
+    echo "<form action='update_order.php' method='post' class='d-inline-flex align-items-center'>";
     echo "<input type='hidden' name='id' value='{$id}'>";
-    echo "<select name='delivery_status' class='form-select form-select-sm d-inline-block' style='width:auto;display:inline-block;margin-right:6px'>";
+    echo "<div class='input-group input-group-sm' style='min-width:180px'>";
+    echo "<select name='delivery_status' class='form-select form-select-sm'>";
     $opts = ['pending','shipped','delivered','cancelled'];
     foreach($opts as $o){ $sel = ($o===$dstatus)?'selected':''; echo "<option value='{$o}' {$sel}>".ucfirst($o)."</option>"; }
     echo "</select>";
-    echo "<button class='btn btn-sm btn-outline-success' type='submit'>Update</button>";
-    echo "</form></td>";
+    echo "<button class='btn btn-success' type='submit'>Update</button>";
+    echo "</div>"; // input-group
+    echo "</form>";
+    echo "</div>";
+    echo "</td>";
     echo "</tr>";
     $i++;
   }
