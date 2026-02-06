@@ -41,12 +41,7 @@
                                                     <input type="password" class="form-control" id="password2" name="password2" required>
                                                 </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Password strength</label>
-                                                <div class="progress" style="height:8px;">
-                                                    <div id="pwStrength" class="progress-bar" role="progressbar" style="width:0%"></div>
-                                                </div>
-                                            </div>
+                                            
                                             <div class="d-grid">
                                                 <button type="submit" name="register" class="btn btn-success">Create Account</button>
                                             </div>
@@ -112,26 +107,6 @@ document.addEventListener('DOMContentLoaded', function(){
     const form = document.getElementById('regForm');
     const pw = document.getElementById('password');
     const pw2 = document.getElementById('password2');
-    const strengthBar = document.getElementById('pwStrength');
-
-    function calcStrength(s){
-        let score = 0;
-        if(s.length >= 8) score += 25;
-        if(/[0-9]/.test(s)) score += 20;
-        if(/[A-Z]/.test(s)) score += 20;
-        if(/[^A-Za-z0-9]/.test(s)) score += 20;
-        if(s.length >= 12) score += 15;
-        return Math.min(100, score);
-    }
-
-    function updateStrength(){
-        const val = pw.value || '';
-        const sc = calcStrength(val);
-        strengthBar.style.width = sc + '%';
-        strengthBar.className = 'progress-bar ' + (sc<40? 'bg-danger': sc<70? 'bg-warning':'bg-success');
-    }
-
-    pw.addEventListener('input', updateStrength);
 
     form.addEventListener('submit', function(e){
         // Bootstrap validation
@@ -140,17 +115,10 @@ document.addEventListener('DOMContentLoaded', function(){
             form.classList.add('was-validated');
             return;
         }
-        // password match
         if(pw.value !== pw2.value){
             e.preventDefault(); e.stopPropagation();
             pw2.classList.add('is-invalid');
             alert('Passwords do not match');
-            return;
-        }
-        // strength requirement
-        if(calcStrength(pw.value) < 50){
-            e.preventDefault(); e.stopPropagation();
-            alert('Please choose a stronger password (min length 8, include number/uppercase/symbol)');
             return;
         }
     });

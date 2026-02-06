@@ -13,37 +13,89 @@ session_start();
 <body>
     <?php
     include '../admin/conn.php';
+    if(!isset($con) || !$con){
+        echo "<script>alert('Database connection failed. Please contact admin.');</script>";
+    }
+
+    // Ensure password column can store full hashes (bcrypt ~60 chars)
+    if(isset($con) && $con){
+        $colInfoQ = "SELECT CHARACTER_MAXIMUM_LENGTH, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='c_password' LIMIT 1";
+        $colRes = mysqli_query($con, $colInfoQ);
+        if($colRes && mysqli_num_rows($colRes)>0){
+            $col = mysqli_fetch_assoc($colRes);
+            $len = intval($col['CHARACTER_MAXIMUM_LENGTH'] ?? 0);
+            $dt = strtolower($col['DATA_TYPE'] ?? '');
+            if(($dt === 'varchar' && $len < 100) || ($dt === 'char' && $len < 100)){
+                @mysqli_query($con, "ALTER TABLE cust_reg MODIFY c_password VARCHAR(255) NOT NULL");
+            }
+        } else {
+            // column missing? try to add it
+            @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN c_password VARCHAR(255) DEFAULT NULL");
+        }
+    }
+
     if(isset($_POST['submit'])){
-        $username = mysqli_real_escape_string($con, trim($_POST['email'] ?? ''));
+        $username = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        $sqlq = "SELECT * FROM cust_reg WHERE c_email='$username' LIMIT 1";
-        $result = mysqli_query($con, $sqlq);
-        if($result && mysqli_num_rows($result)>0){
-            $row = mysqli_fetch_assoc($result);
-            $stored = $row['c_password'];
-            $ok = false;
-            if(password_verify($password, $stored)){
-                $ok = true;
-            } elseif($stored === $password) {
-                // legacy plaintext password, rehash and update
-                $ok = true;
-                $newhash = password_hash($password, PASSWORD_DEFAULT);
-                @mysqli_query($con, "UPDATE cust_reg SET c_password='".mysqli_real_escape_string($con,$newhash)."' WHERE c_email='$username'");
-            }
+        if($username === '' || $password === ''){
+            echo "<script>alert('Please enter email and password');</script>";
+        } else {
+            // Select only needed columns that exist in our schema
+            $stmt = mysqli_prepare($con, "SELECT c_password, c_name, cid FROM cust_reg WHERE c_email = ? LIMIT 1");
+            if($stmt){
+                mysqli_stmt_bind_param($stmt, 's', $username);
+                mysqli_stmt_execute($stmt);
 
-            if($ok){
-                $_SESSION['is_login'] = true;
-                $_SESSION['username'] = $username;
-                $_SESSION['user_id'] = $row['id'] ?? $row['cid'] ?? null;
-                echo "<script>alert('Login successful!'); window.location.href='index.php';</script>"; exit;
+                if(function_exists('mysqli_stmt_get_result')){
+                    $res = mysqli_stmt_get_result($stmt);
+                    if($res && mysqli_num_rows($res) > 0){
+                        $row = mysqli_fetch_assoc($res);
+                        $stored = $row['c_password'] ?? '';
+                        $nameVal = $row['c_name'] ?? null;
+                        $idVal = $row['id'] ?? $row['cid'] ?? $row['c_id'] ?? null;
+                    } else {
+                        $stored = null;
+                    }
+                } else {
+                    // fallback for environments without mysqli_stmt_get_result
+                    mysqli_stmt_bind_result($stmt, $stored, $nameVal, $idVal);
+                    if(!mysqli_stmt_fetch($stmt)){
+                        $stored = null;
+                    }
+                }
+
+                if(!empty($stored)){
+                    $stored = trim($stored);
+                    $ok = false;
+                    if(password_verify($password, $stored)){
+                        $ok = true;
+                    } elseif($stored === $password) {
+                        // legacy plaintext password, rehash and update
+                        $ok = true;
+                        $newhash = password_hash($password, PASSWORD_DEFAULT);
+                        mysqli_query($con, "UPDATE cust_reg SET c_password='".mysqli_real_escape_string($con,$newhash)."' WHERE c_email='".mysqli_real_escape_string($con,$username)."'");
+                    }
+
+                    if($ok){
+                        $_SESSION['is_login'] = true;
+                        $_SESSION['username'] = $nameVal ?? $username;
+                        $_SESSION['user_id'] = $idVal ?? null;
+                        echo "<script>alert('Login successful!'); window.location.href='index.php';</script>"; exit;
+                    } else {
+                        echo "<script>alert('Incorrect password');</script>";
+                    }
+                } else {
+                    echo "<script>alert('No account found with that email');</script>";
+                }
+
+                mysqli_stmt_close($stmt);
+            } else {
+                echo "<script>alert('Database query failed: ".mysqli_error($con)."');</script>";
             }
         }
-        echo "<script>alert('Login Failed');</script>";
     }
-    
-    
-    
+
     ?>
 <div class="container">
     <div class="row justify-content-center">
