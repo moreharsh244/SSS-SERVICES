@@ -17,23 +17,41 @@
                     <div class="card-header bg-primary text-white text-center">
                         <h3>User Registration</h3>
                     </div>
-                    <div class="card-body shadow-lg">
-                        <form action="register.php" method="POST">
-                            <div class="mb-3">
-                                <label for="contact" class="form-label">Enter Your Contact Number</label>
-                                <input type="text" class="form-control" id="contact" name="contact" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Enter Your Email address</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Enter Your Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <button type="submit" name="register" class="btn btn-success w-100">Register</button>
-                        </form>
-                    </div>
+                                    <div class="card-body shadow-lg">
+                                        <form action="register.php" method="POST" id="regForm" class="needs-validation" novalidate>
+                                            <div class="mb-3">
+                                                <label for="name" class="form-label">Full Name</label>
+                                                <input type="text" class="form-control" id="name" name="name" required placeholder="John Doe">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="contact" class="form-label">Contact Number</label>
+                                                <input type="text" class="form-control" id="contact" name="contact" required placeholder="+91 9876543210">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="email" class="form-label">Email address</label>
+                                                <input type="email" class="form-control" id="email" name="email" required placeholder="you@example.com">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="password" class="form-label">Password</label>
+                                                    <input type="password" class="form-control" id="password" name="password" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="password2" class="form-label">Confirm Password</label>
+                                                    <input type="password" class="form-control" id="password2" name="password2" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Password strength</label>
+                                                <div class="progress" style="height:8px;">
+                                                    <div id="pwStrength" class="progress-bar" role="progressbar" style="width:0%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="d-grid">
+                                                <button type="submit" name="register" class="btn btn-success">Create Account</button>
+                                            </div>
+                                        </form>
+                                    </div>
                 </div>
             </div>
         </div>
@@ -43,31 +61,98 @@
 </html>
 <?php
 if(isset($_POST['register'])){
-    $contact=$_POST['contact'];
-    $email=$_POST['email'];
-    $password=$_POST['password'];
+    $name = trim($_POST['name'] ?? '');
+    $contact = trim($_POST['contact'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $password2 = $_POST['password2'] ?? '';
 
-    // Database connection
-    include('../admin/conn.php');
-    // Insert user data into database
-    $sqlq="select * from cust_reg where c_email='$email'";
-    $result=mysqli_query($con,$sqlq);
-    $num=mysqli_num_rows($result);
-    if($num>0){
-            echo "<script>alert('Email already registered!'); window.location.href='register.php';</script>";
-            exit();
-
+    if($password !== $password2){
+        echo "<script>alert('Passwords do not match'); window.history.back();</script>"; exit;
     }
-    $sql="INSERT INTO `cust_reg` ( `c_email`, `c_contact`, `c_password`) VALUES ('$email', '$contact', '$password')";
 
-    if(mysqli_query($con, $sql)){
-        echo "<script>alert('Registration successful!'); window.location.href='login.php';</script>";
+    include('../admin/conn.php');
+
+    // ensure columns exist
+    $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='c_name'";
+    $cres = mysqli_query($con, $col_check);
+    if(!$cres || mysqli_num_rows($cres)===0){
+        @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN c_name VARCHAR(255) DEFAULT NULL");
+    }
+    $col_check2 = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='created_at'";
+    $cres2 = mysqli_query($con, $col_check2);
+    if(!$cres2 || mysqli_num_rows($cres2)===0){
+        @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+    }
+
+    $email_esc = mysqli_real_escape_string($con, $email);
+    $sqlq = "SELECT * FROM cust_reg WHERE c_email='$email_esc' LIMIT 1";
+    $result = mysqli_query($con, $sqlq);
+    if($result && mysqli_num_rows($result) > 0){
+        echo "<script>alert('Email already registered!'); window.location.href='register.php';</script>"; exit;
+    }
+
+    $name_esc = mysqli_real_escape_string($con, $name);
+    $contact_esc = mysqli_real_escape_string($con, $contact);
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+
+    $ins = "INSERT INTO cust_reg (c_name, c_email, c_contact, c_password) VALUES ('$name_esc', '$email_esc', '$contact_esc', '$hash')";
+    if(mysqli_query($con, $ins)){
+        echo "<script>alert('Registration successful! Please login.'); window.location.href='login.php';</script>"; exit;
     } else {
-        echo "Error: " . $sql . "<br>" . mysqli_error($con);
+        echo "<script>alert('Registration failed: ".mysqli_error($con)."'); window.location.href='register.php';</script>"; exit;
     }
 
     mysqli_close($con);
 }
 
-
 ?>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const form = document.getElementById('regForm');
+    const pw = document.getElementById('password');
+    const pw2 = document.getElementById('password2');
+    const strengthBar = document.getElementById('pwStrength');
+
+    function calcStrength(s){
+        let score = 0;
+        if(s.length >= 8) score += 25;
+        if(/[0-9]/.test(s)) score += 20;
+        if(/[A-Z]/.test(s)) score += 20;
+        if(/[^A-Za-z0-9]/.test(s)) score += 20;
+        if(s.length >= 12) score += 15;
+        return Math.min(100, score);
+    }
+
+    function updateStrength(){
+        const val = pw.value || '';
+        const sc = calcStrength(val);
+        strengthBar.style.width = sc + '%';
+        strengthBar.className = 'progress-bar ' + (sc<40? 'bg-danger': sc<70? 'bg-warning':'bg-success');
+    }
+
+    pw.addEventListener('input', updateStrength);
+
+    form.addEventListener('submit', function(e){
+        // Bootstrap validation
+        if(!form.checkValidity()){
+            e.preventDefault(); e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+        // password match
+        if(pw.value !== pw2.value){
+            e.preventDefault(); e.stopPropagation();
+            pw2.classList.add('is-invalid');
+            alert('Passwords do not match');
+            return;
+        }
+        // strength requirement
+        if(calcStrength(pw.value) < 50){
+            e.preventDefault(); e.stopPropagation();
+            alert('Please choose a stronger password (min length 8, include number/uppercase/symbol)');
+            return;
+        }
+    });
+});
+</script>
