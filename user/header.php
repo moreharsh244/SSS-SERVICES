@@ -84,3 +84,47 @@ if(!defined('HEADER_INCLUDED')) define('HEADER_INCLUDED', true);
     </div>
   </div>
 </div>
+<script>
+// Intercept Build PC nav link and load build UI under navbar without full redirect
+document.addEventListener('DOMContentLoaded', function(){
+  function loadBuildFragment(){
+    fetch('build.php')
+      .then(r => r.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const frag = doc.querySelector('.container.py-4');
+        const modal = doc.getElementById('imageModalBuild');
+        const main = document.querySelector('main.col-12');
+        if(frag && main){
+          main.innerHTML = '';
+          main.appendChild(frag);
+        }
+        // append modal if present
+        if(modal){
+          // remove existing modal if any
+          const existing = document.getElementById('imageModalBuild');
+          if(existing) existing.remove();
+          document.body.appendChild(modal);
+        }
+        // execute inline scripts from fetched page
+        const scripts = doc.querySelectorAll('script');
+        scripts.forEach(s => {
+          if(!s.src){
+            try{ eval(s.textContent); }catch(e){ console.error(e); }
+          } else {
+            // ensure external scripts are loaded
+            if(!document.querySelector('script[src="'+s.src+'"]')){
+              const sc = document.createElement('script'); sc.src = s.src; document.body.appendChild(sc);
+            }
+          }
+        });
+      }).catch(console.error);
+  }
+
+  // attach handler to Build PC nav link(s)
+  document.querySelectorAll('a.nav-link[href="build.php"]').forEach(a => {
+    a.addEventListener('click', function(e){ e.preventDefault(); loadBuildFragment(); });
+  });
+});
+</script>

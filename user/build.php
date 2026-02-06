@@ -2,7 +2,9 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 if(!isset($_SESSION['is_login'])){ header('location:login.php'); exit; }
 include('../admin/conn.php');
+// user identifier: numeric id when available, otherwise store username/email for admin lookup
 $user_id = $_SESSION['user_id'] ?? $_SESSION['id'] ?? 0;
+$user_name = mysqli_real_escape_string($con, $_SESSION['username'] ?? $_SESSION['email'] ?? '');
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $name = mysqli_real_escape_string($con, $_POST['build_name'] ?? 'My Build');
     $items_json = $_POST['items_json'] ?? '';
@@ -13,13 +15,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     }
     $total = floatval($data['total'] ?? 0);
     // create builds table if not exists (defensive)
-    $sqlc = "CREATE TABLE IF NOT EXISTS `builds` (
-      `id` INT AUTO_INCREMENT PRIMARY KEY,
-      `user_id` INT NOT NULL,
-      `name` VARCHAR(255) NOT NULL,
-      `total` DECIMAL(10,2) NOT NULL DEFAULT 0,
-      `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        $sqlc = "CREATE TABLE IF NOT EXISTS `builds` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `user_id` INT NOT NULL,
+            `user_name` VARCHAR(255) DEFAULT NULL,
+            `name` VARCHAR(255) NOT NULL,
+            `total` DECIMAL(10,2) NOT NULL DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
     mysqli_query($con, $sqlc);
     $sqlc2 = "CREATE TABLE IF NOT EXISTS `build_items` (
       `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -31,8 +34,15 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
     mysqli_query($con, $sqlc2);
 
+        // ensure builds table has user_name column (in case table was created earlier)
+        $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'builds' AND COLUMN_NAME = 'user_name'";
+        $col_res = mysqli_query($con, $col_check);
+        if(!$col_res || mysqli_num_rows($col_res) === 0){
+                @mysqli_query($con, "ALTER TABLE builds ADD COLUMN user_name VARCHAR(255) DEFAULT NULL");
+        }
+
     // insert build
-    $ins = "INSERT INTO builds (user_id, name, total) VALUES ('$user_id', '$name', '$total')";
+    $ins = "INSERT INTO builds (user_id, user_name, name, total) VALUES ('$user_id', '$user_name', '$name', '$total')";
     if(mysqli_query($con, $ins)){
         $build_id = mysqli_insert_id($con);
         foreach($data['items'] as $cat => $it){
@@ -52,7 +62,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 // If not POST, show the build UI
 // fetch products for the product selector
 $products = [];
-$pq = mysqli_query($con, "SELECT pid, pname, pprice, pcat FROM products");
+$pq = mysqli_query($con, "SELECT pid, pname, pprice, pcat, pimg FROM products");
 if($pq){
     while($r = mysqli_fetch_assoc($pq)) $products[] = $r;
 }
@@ -69,6 +79,8 @@ if($pq){
         .build-card{border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
         .item-row:hover{background:#f8f9fa}
         .price{font-weight:600}
+        .item-thumb{width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px}
+        .items-list .list-group-item{display:flex;align-items:center;gap:12px}
     </style>
 </head>
 <body>
@@ -100,16 +112,23 @@ if($pq){
                     </div>
                     <div class="mb-2">
                         <label class="form-label">Product</label>
-                        <select id="partProduct" class="form-select">
-                            <option value="">Select a product from store</option>
-                            <?php foreach($products as $p){
-                                $pn = htmlspecialchars($p['pname'], ENT_QUOTES);
-                                $pp = number_format((float)$p['pprice'], 2, '.', '');
-                                $pc = htmlspecialchars($p['pcat'] ?? '', ENT_QUOTES);
-                                $pid = (int)$p['pid'];
-                                echo "<option value=\"$pid\" data-price=\"$pp\" data-category=\"$pc\">$pn</option>\n";
-                            } ?>
-                        </select>
+                        <div class="d-flex gap-2 align-items-start">
+                            <select id="partProduct" class="form-select">
+                                <option value="">Select a product from store</option>
+                                <?php foreach($products as $p){
+                                    $pn = htmlspecialchars($p['pname'], ENT_QUOTES);
+                                    $pp = number_format((float)$p['pprice'], 2, '.', '');
+                                    $pc = htmlspecialchars($p['pcat'] ?? '', ENT_QUOTES);
+                                    $pid = (int)$p['pid'];
+                                    $pimg = htmlspecialchars($p['pimg'] ?? '');
+                                    $dataimg = $pimg ? '../productimg/'.rawurlencode($pimg) : '';
+                                    echo "<option value=\"$pid\" data-price=\"$pp\" data-category=\"$pc\" data-img=\"$dataimg\">$pn</option>\n";
+                                } ?>
+                            </select>
+                            <div style="width:120px;flex:0 0 120px">
+                                <img id="prodPreview" src="../img/pc1.jpg" alt="Preview" class="img-fluid rounded" style="height:90px;object-fit:cover;width:120px;display:block;" />
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-2 row">
                         <div class="col-6">
@@ -170,17 +189,19 @@ if($pq){
             return;
         }
         let html = '<div class="list-group">';
-        items.forEach((it, idx)=>{
-            html += `<div class="list-group-item d-flex justify-content-between align-items-center item-row">
-                <div>
-                    <div class="fw-semibold">${escapeHtml(it.category)} — ${escapeHtml(it.name)}</div>
-                </div>
-                <div class="text-end">
-                    <div class="price">$${Number(it.price).toFixed(2)}</div>
-                    <button class="btn btn-sm btn-link text-danger" onclick="removeItem(${idx})">Remove</button>
-                </div>
-            </div>`;
-        });
+            items.forEach((it, idx)=>{
+                const imgHtml = it.img ? `<img src="${escapeHtml(it.img)}" class="item-thumb" onclick="showImage('${escapeHtml(it.img)}')" style="cursor:pointer">` : '';
+                html += `<div class="list-group-item items-list">
+                    ${imgHtml}
+                    <div style="flex:1">
+                        <div class="fw-semibold">${escapeHtml(it.category)} — ${escapeHtml(it.name)}</div>
+                    </div>
+                    <div class="text-end" style="min-width:120px">
+                        <div class="price">$${Number(it.price).toFixed(2)}</div>
+                        <button class="btn btn-sm btn-link text-danger" onclick="removeItem(${idx})">Remove</button>
+                    </div>
+                </div>`;
+            });
         html += '</div>';
         itemsList.innerHTML = html;
         const total = items.reduce((s,i)=>s+Number(i.price||0),0);
@@ -226,6 +247,10 @@ if($pq){
         priceInput.value = opt.dataset.price || '';
         const pcat = opt.dataset.category || '';
         if(pcat) document.getElementById('partCategory').value = pcat;
+        // update preview image
+        const img = opt.dataset.img || '';
+        const preview = document.getElementById('prodPreview');
+        if(preview){ preview.src = img || '../img/pc1.jpg'; }
     });
 
     document.getElementById('addBtn').addEventListener('click', ()=>{
@@ -236,12 +261,21 @@ if($pq){
         const name = opt.text;
         const price = parseFloat(opt.dataset.price) || 0;
         const cat = opt.dataset.category || document.getElementById('partCategory').value.trim();
-        items.push({category:cat,name:name,pid:pid,price:price});
+        const img = opt.dataset.img || '';
+        items.push({category:cat,name:name,pid:pid,price:price,img:img});
         // reset selection
         sel.value = '';
         priceInput.value = '';
         renderItems();
     });
+
+    function showImage(src){
+        if(!src) return;
+        // open in modal if available, otherwise open in new tab
+        const modalImg = document.getElementById('modalImageBuild');
+        if(modalImg){ modalImg.src = src; var m = new bootstrap.Modal(document.getElementById('imageModalBuild')); m.show(); return; }
+        window.open(src,'_blank');
+    }
 
     document.getElementById('saveBtn').addEventListener('click',(e)=>{
         e.preventDefault();
@@ -263,5 +297,16 @@ if($pq){
 </script>
 </body>
 </html>
+<!-- Image modal for build preview -->
+<div class="modal fade" id="imageModalBuild" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-body text-center p-0">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                <img id="modalImageBuild" src="" alt="Preview" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</div>
 <?php
 ?>

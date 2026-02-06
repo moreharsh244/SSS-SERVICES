@@ -63,7 +63,7 @@ if (!isset($_SESSION['is_login'])) {
         <a class="nav-link" href="view_product.php"><i class="bi bi-card-list me-2"></i>View Products</a>
         <a class="nav-link" href="products_card.php"><i class="bi bi-grid-3x3-gap me-2"></i>Product Cards</a>
         <a class="nav-link" href="orders_list.php"><i class="bi bi-bag-check me-2"></i>Orders List</a>
-        <a class="nav-link" href="users_list.php"><i class="bi bi-person-plus me-2"></i>Register User</a>
+        <a class="nav-link" href="builds.php"><i class="bi bi-hammer me-2"></i>Builds</a>
 
       </nav>
     </div>
