@@ -142,3 +142,7 @@ body.admin-body{
 @media (max-width:767px){
   .admin-container{ padding: 0 12px; }
 }
+
+/* Center commonly used form containers with shadow (used across admin pages) */
+.shadow-lg{ max-width:900px; margin-left:auto; margin-right:auto; }
+.admin-card, .card{ max-width:900px; margin-left:auto; margin-right:auto; }

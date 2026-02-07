@@ -77,9 +77,9 @@ if(isset($_POST['add_product'])){
     $target_dir="../productimg/";
     $target_file=$target_dir.basename($filename);
      $pcat = isset($_POST['pcat']) ? $_POST['pcat'] : '';
-     if(move_uploaded_file($_FILES["pimg"]["tmp_name"],$target_file)){
-         $sqlq="INSERT INTO `products` ( `pname`, `pcompany`, `pqty`, `pprice`, `pamount`, `pdisc`, `pimg`, `pcat`) VALUES ('$pname', '$pcompany', '$pqty', '$pprice', '$pamount', '$pdescription', '$filename', '$pcat')";
-    $result=mysqli_query($con,$sqlq);
+            if(move_uploaded_file($_FILES["pimg"]["tmp_name"],$target_file)){
+                $sqlq="INSERT INTO `products` ( `pname`, `pcompany`, `pqty`, `pprice`, `pamount`, `pdisc`, `pimg`, `pcat`) VALUES ('$pname', '$pcompany', '$pqty', '$pprice', '$pamount', '$pdescription', '$filename', '$pcat')";
+            $result=mysqli_query($con,$sqlq);
     if($result){
         echo "<script>alert('Product Added Successfully');</script>";
         
