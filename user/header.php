@@ -77,12 +77,6 @@ if(!empty($_SESSION['user_id'])){
       </form>
 
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-        <li class="nav-item me-2 d-flex align-items-center">
-          <a class="btn btn-sm btn-outline-warning d-flex align-items-center" href="profile.php#loyalty" title="Loyalty points">
-            <i class="bi bi-star-fill me-1"></i>
-            <span id="lp-count"><?php echo intval($loyalty_points); ?></span>&nbsp;pts
-          </a>
-        </li>
         <li class="nav-item me-2">
           <a class="btn btn-sm btn-outline-secondary" href="myorder.php">My Orders</a>
         </li>
@@ -92,7 +86,7 @@ if(!empty($_SESSION['user_id'])){
             <?php echo htmlentities($_SESSION['username']); ?>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-            <li><a class="dropdown-item" href="view_products.php">Browse Products</a></li>
+            <li><a class="dropdown-item" href="view_products.php">Products</a></li>
             <li><a class="dropdown-item" href="myorder.php">My Orders</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
@@ -109,11 +103,11 @@ if(!empty($_SESSION['user_id'])){
   <div class="row">
     <div class="col-12 d-flex justify-content-center">
       <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2">
-        <a class="nav-link" href="view_products.php"><i class="bi bi-card-list me-2"></i>Browse Products</a>
+        <a class="nav-link" href="view_products.php"><i class="bi bi-card-list me-2"></i>Products</a>
         <a class="nav-link" href="build.php"><i class="bi bi-hammer me-2"></i>Build PC</a>
         <a class="nav-link" href="profile.php"><i class="bi bi-person me-2"></i>My Profile</a>
+        <a class="nav-link" href="service.php"><i class="bi bi-tools me-2"></i>Service</a>
         <a class="nav-link" href="myorder.php"><i class="bi bi-bag me-2"></i>My Orders</a>
-        <a class="nav-link" href="orderstatus.php"><i class="bi bi-truck me-2"></i>Order Status</a>
       </nav>
     </div>
   </div>
