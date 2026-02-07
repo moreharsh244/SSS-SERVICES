@@ -22,6 +22,15 @@
 
     $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`status`) VALUES ('$pname','$username','$pprice','$qty','$pid','pending')";
     if(mysqli_query($con,$sql)){
+        // award loyalty points: 1 point per 10 currency units
+        $points = floor(($pprice * $qty) / 10);
+        if($points > 0 && !empty($username)){
+            // ensure column exists
+            $colQ = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='loyalty_points'";
+            $colR = mysqli_query($con,$colQ);
+            if(!$colR || mysqli_num_rows($colR)===0){ @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN loyalty_points INT DEFAULT 0"); }
+            mysqli_query($con, "UPDATE cust_reg SET loyalty_points = COALESCE(loyalty_points,0) + $points WHERE c_email='".mysqli_real_escape_string($con,$username)."' LIMIT 1");
+        }
         echo '<script>alert("Purchase Successful");window.location.href="view_products.php";</script>'; 
     }else{
         echo '<script>alert("Purchase Failed: '.mysqli_error($con).'");window.location.href="view_products.php";</script>'; 

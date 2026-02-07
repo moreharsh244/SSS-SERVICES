@@ -81,6 +81,16 @@ session_start();
                         $_SESSION['is_login'] = true;
                         $_SESSION['username'] = $nameVal ?? $username;
                         $_SESSION['user_id'] = $idVal ?? null;
+                        // remember-me support: set persistent token and cookie
+                        if(!empty($_POST['remember'])){
+                            @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS remember_token VARCHAR(255) NULL");
+                            @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS remember_expiry DATETIME NULL");
+                            try{ $token = bin2hex(random_bytes(32)); } catch(Exception $e){ $token = bin2hex(openssl_random_pseudo_bytes(32)); }
+                            $expiry = date('Y-m-d H:i:s', time()+30*24*3600);
+                            $tok_esc = mysqli_real_escape_string($con, $token);
+                            mysqli_query($con, "UPDATE cust_reg SET remember_token='$tok_esc', remember_expiry='$expiry' WHERE c_email='".mysqli_real_escape_string($con,$username)."' LIMIT 1");
+                            setcookie('remember', $token, time()+30*24*3600, '/', '', false, true);
+                        }
                         echo "<script>alert('Login successful!'); window.location.href='index.php';</script>"; exit;
                     } else {
                         echo "<script>alert('Incorrect password');</script>";
@@ -114,6 +124,10 @@ session_start();
                 <div class="mb-3">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
                     <input type="password" class="form-control" name="password" id="exampleInputPassword1" required>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="remember" name="remember" value="1">
+                    <label class="form-check-label" for="remember">Remember me</label>
                 </div>
                
                 <button type="submit" name="submit" class="btn btn-primary">Submit</button>

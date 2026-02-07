@@ -2,11 +2,48 @@
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
+// Attempt remember-me auto-login if session missing
 if(!isset($_SESSION['is_login'])){
-  header('location:login.php');
-  exit;
+  include('../admin/conn.php');
+  if(isset($_COOKIE['remember']) && !empty($_COOKIE['remember']) && isset($con) && $con){
+    $token = mysqli_real_escape_string($con, $_COOKIE['remember']);
+    $rq = mysqli_query($con, "SELECT c_name, c_email, cid, remember_expiry FROM cust_reg WHERE remember_token='$token' LIMIT 1");
+    if($rq && mysqli_num_rows($rq)>0){
+      $r = mysqli_fetch_assoc($rq);
+      if(!empty($r['remember_expiry']) && strtotime($r['remember_expiry']) > time()){
+        $_SESSION['is_login'] = true;
+        $_SESSION['username'] = $r['c_name'] ?? $r['c_email'];
+        $_SESSION['user_id'] = $r['cid'] ?? null;
+      } else {
+        setcookie('remember','', time()-3600, '/', '', false, true);
+      }
+    }
+  }
 }
+if(!isset($_SESSION['is_login'])){ header('location:login.php'); exit; }
 if(!defined('HEADER_INCLUDED')) define('HEADER_INCLUDED', true);
+
+// Fetch loyalty points for logged-in user if column exists (non-fatal)
+$loyalty_points = 0;
+if(!empty($_SESSION['user_id'])){
+  if(!isset($con) || !$con){ @include_once('../admin/conn.php'); }
+  $uid = intval($_SESSION['user_id']);
+  if(isset($con) && $con){
+    // Check column existence to avoid exceptions on older DBs
+    $db = '';
+    $rdb = @mysqli_query($con, "SELECT DATABASE() AS dbname");
+    if($rdb && mysqli_num_rows($rdb)>0){ $db = mysqli_fetch_assoc($rdb)['dbname']; }
+    $col_ok = false;
+    if($db){
+      $qc = @mysqli_query($con, "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='cust_reg' AND COLUMN_NAME='loyalty_points' LIMIT 1");
+      if($qc && mysqli_num_rows($qc)>0) $col_ok = true;
+    }
+    if($col_ok){
+      $rp = @mysqli_query($con, "SELECT loyalty_points FROM cust_reg WHERE cid=$uid LIMIT 1");
+      if($rp && mysqli_num_rows($rp)>0){ $rrow = mysqli_fetch_assoc($rp); $loyalty_points = intval($rrow['loyalty_points'] ?? 0); }
+    }
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -33,9 +70,19 @@ if(!defined('HEADER_INCLUDED')) define('HEADER_INCLUDED', true);
     </button>
 
   
+      <form class="d-flex me-3 position-relative" id="site-search-form" action="view_products.php" method="get" autocomplete="off">
+        <input id="site-search-input" name="q" class="form-control me-2" type="search" placeholder="Search products, brands..." aria-label="Search">
+        <button class="btn btn-success" type="submit">Search</button>
+        <div id="search-suggestions" class="list-group position-absolute shadow-sm" style="z-index:1050; top:100%; left:0; right:0; display:none;"></div>
       </form>
 
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
+        <li class="nav-item me-2 d-flex align-items-center">
+          <a class="btn btn-sm btn-outline-warning d-flex align-items-center" href="profile.php#loyalty" title="Loyalty points">
+            <i class="bi bi-star-fill me-1"></i>
+            <span id="lp-count"><?php echo intval($loyalty_points); ?></span>&nbsp;pts
+          </a>
+        </li>
         <li class="nav-item me-2">
           <a class="btn btn-sm btn-outline-secondary" href="myorder.php">My Orders</a>
         </li>
@@ -125,6 +172,42 @@ document.addEventListener('DOMContentLoaded', function(){
   // attach handler to Build PC nav link(s)
   document.querySelectorAll('a.nav-link[href="build.php"]').forEach(a => {
     a.addEventListener('click', function(e){ e.preventDefault(); loadBuildFragment(); });
+  });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const input = document.getElementById('site-search-input');
+  const suggBox = document.getElementById('search-suggestions');
+  let timer = null;
+
+  function hideSuggestions(){ suggBox.style.display='none'; suggBox.innerHTML=''; }
+
+  function renderSuggestions(items){
+    if(!items.length){ hideSuggestions(); return; }
+    suggBox.innerHTML = items.map(it=>{
+      const img = it.pimg ? '<img src="../productimg/'+it.pimg+'" style="height:36px;width:36px;object-fit:cover;margin-right:8px;border-radius:4px;">' : '';
+      return `<a href="view_products.php?q=${encodeURIComponent(it.pname)}" class="list-group-item list-group-item-action d-flex align-items-center">
+                <div class="d-flex align-items-center">${img}<div><div>${it.pname}</div><div class="small text-muted">${it.pcompany} • ₹${Number(it.pprice).toFixed(2)}</div></div></div>
+              </a>`;
+    }).join('');
+    suggBox.style.display = 'block';
+  }
+
+  input.addEventListener('input', function(){
+    const v = this.value.trim();
+    clearTimeout(timer);
+    if(!v){ hideSuggestions(); return; }
+    timer = setTimeout(()=>{
+      fetch('search_suggest.php?q='+encodeURIComponent(v))
+        .then(r=>r.json())
+        .then(renderSuggestions)
+        .catch(()=>hideSuggestions());
+    }, 220);
+  });
+
+  document.addEventListener('click', function(e){
+    if(!document.getElementById('site-search-form').contains(e.target)) hideSuggestions();
   });
 });
 </script>

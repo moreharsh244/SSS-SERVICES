@@ -3,15 +3,59 @@ if(!defined('page')) define('page','view_products');
 if(!defined('HEADER_INCLUDED')) include('header.php');
 ?>
 <div class="container">
+<?php
+include('../admin/conn.php');
+$q = isset($_GET['q']) ? mysqli_real_escape_string($con, $_GET['q']) : '';
+$company = isset($_GET['company']) ? mysqli_real_escape_string($con, $_GET['company']) : '';
+$sort = isset($_GET['sort']) ? $_GET['sort'] : '';
+
+// build company list for filter
+$companies = [];
+$cres = mysqli_query($con, "SELECT DISTINCT pcompany FROM products ORDER BY pcompany ASC");
+while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
+?>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0">All Products</h4>
     </div>
 
+        <div class="row mb-3">
+            <div class="col-12">
+                <form class="row g-2 align-items-center" method="get" action="view_products.php">
+                    <div class="col-auto">
+                        <input type="search" name="q" value="<?php echo htmlspecialchars($q); ?>" class="form-control" placeholder="Search within results">
+                    </div>
+                    <div class="col-auto">
+                        <select name="company" class="form-select">
+                            <option value="">All Brands</option>
+                            <?php foreach($companies as $comp){ ?>
+                                <option value="<?php echo htmlspecialchars($comp); ?>" <?php if($company===$comp) echo 'selected'; ?>><?php echo htmlspecialchars($comp); ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select name="sort" class="form-select">
+                            <option value="">Sort</option>
+                            <option value="price_asc" <?php if($sort==='price_asc') echo 'selected'; ?>>Price: Low to High</option>
+                            <option value="price_desc" <?php if($sort==='price_desc') echo 'selected'; ?>>Price: High to Low</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-outline-primary" type="submit">Apply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     <div class="row g-3">
         <?php
-        include('../admin/conn.php');
-        $q = isset($_GET['q']) ? mysqli_real_escape_string($con, $_GET['q']) : '';
-        $sql = "SELECT * FROM `products`" . ($q ? " WHERE pname LIKE '%$q%' OR pcompany LIKE '%$q%'" : "");
+        $where = [];
+        if($q) $where[] = "(pname LIKE '%$q%' OR pcompany LIKE '%$q%')";
+        if($company) $where[] = "pcompany = '$company'";
+        $sql = "SELECT * FROM `products`" . ($where ? " WHERE " . implode(' AND ', $where) : "");
+        if($sort === 'price_asc') $sql .= " ORDER BY pprice ASC";
+        else if($sort === 'price_desc') $sql .= " ORDER BY pprice DESC";
+        else $sql .= " ORDER BY pid DESC";
+
         $result = mysqli_query($con, $sql);
         while($row = mysqli_fetch_assoc($result)){
             $qty = (int)$row['pqty'];

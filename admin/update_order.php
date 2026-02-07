@@ -12,6 +12,42 @@ if(!$col_res || mysqli_num_rows($col_res) === 0){
 if($id>0){
   $u = "UPDATE purchase SET delivery_status='$dstatus' WHERE pid='$id' LIMIT 1";
   mysqli_query($con, $u);
+  // If marked delivered or cancelled, move to history table and remove from active purchases
+  $d_lower = strtolower($dstatus);
+  if($d_lower === 'delivered' || $d_lower === 'cancelled'){
+    $sr = mysqli_query($con, "SELECT * FROM purchase WHERE pid='$id' LIMIT 1");
+    if($sr && mysqli_num_rows($sr)>0){
+      $row = mysqli_fetch_assoc($sr);
+      // create history table if missing
+      $create = "CREATE TABLE IF NOT EXISTS `purchase_history` (
+        `pid` INT PRIMARY KEY,
+        `pname` VARCHAR(255) NOT NULL,
+        `user` VARCHAR(255) NOT NULL,
+        `pprice` DECIMAL(10,2) NOT NULL,
+        `qty` INT NOT NULL DEFAULT 1,
+        `prod_id` INT DEFAULT NULL,
+        `status` VARCHAR(50) DEFAULT 'pending',
+        `delivery_status` VARCHAR(50) DEFAULT NULL,
+        `pdate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+      @mysqli_query($con, $create);
+
+      $pname = mysqli_real_escape_string($con, $row['pname']);
+      $user = mysqli_real_escape_string($con, $row['user']);
+      $pprice = (float)($row['pprice'] ?? 0);
+      $qty = intval($row['qty'] ?? 1);
+      $prod_id = isset($row['prod_id']) && $row['prod_id'] !== null ? intval($row['prod_id']) : 'NULL';
+      $status = mysqli_real_escape_string($con, $row['status'] ?? 'pending');
+      $dstat = mysqli_real_escape_string($con, $row['delivery_status'] ?? $dstatus);
+      $pdate = mysqli_real_escape_string($con, $row['pdate']);
+
+      $ins = "INSERT INTO purchase_history (pid,pname,`user`,pprice,qty,prod_id,`status`,delivery_status,pdate) VALUES ($id,'$pname','$user',$pprice,$qty,".($prod_id==='NULL'?'NULL':$prod_id).",'$status','$dstat','$pdate') ON DUPLICATE KEY UPDATE pname=VALUES(pname), `status`=VALUES(`status`), delivery_status=VALUES(delivery_status)";
+      @mysqli_query($con, $ins);
+
+      // remove from active purchase table
+      @mysqli_query($con, "DELETE FROM purchase WHERE pid='$id' LIMIT 1");
+    }
+  }
 }
 header('Location: orders_list.php');
 exit;

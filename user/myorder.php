@@ -1,11 +1,19 @@
 <?php
 define('page','myorder');
 include('header.php');
+$view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
 ?>
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h2>My Orders</h2>
+                        <h2>My Orders</h2>
+                        <div class="mb-3">
+                            <?php if($view === 'history'): ?>
+                                <a class="btn btn-sm btn-outline-secondary" href="myorder.php">Active Orders</a>
+                            <?php else: ?>
+                                <a class="btn btn-sm btn-outline-secondary" href="myorder.php?view=history">Order History</a>
+                            <?php endif; ?>
+                        </div>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -19,10 +27,30 @@ include('header.php');
                 </thead>
                 <tbody>
                     <?php
-                    include('../admin/conn.php');
-                    $username=$_SESSION['username'];
-                    $sql="SELECT * FROM `purchase` WHERE `user`='$username'";
-                    $result=mysqli_query($con,$sql);
+                                        include('../admin/conn.php');
+                                        $username=mysqli_real_escape_string($con, $_SESSION['username']);
+                                        if($view === 'history'){
+                                            // show delivered/archive orders from purchase_history if table exists
+                                            $db = '';
+                                            $rdb = @mysqli_query($con, "SELECT DATABASE() AS dbname");
+                                            $show_res = false;
+                                            if($rdb && mysqli_num_rows($rdb)>0){ $db = mysqli_fetch_assoc($rdb)['dbname']; }
+                                            if($db){
+                                                $tbl = mysqli_real_escape_string($con, 'purchase_history');
+                                                $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
+                                                if($qc && mysqli_num_rows($qc)>0){
+                                                          // show cancelled and delivered orders in user history
+                                                          $sql = "SELECT * FROM `purchase_history` WHERE `user`='$username' AND LOWER(IFNULL(delivery_status,'')) IN ('cancelled','delivered') ORDER BY pdate DESC";
+                                                        $show_res = true;
+                                                    }
+                                            }
+                                            if(!$show_res){ $result = false; }
+                                            else { $result = mysqli_query($con,$sql); }
+                                        } else {
+                                            $sql="SELECT * FROM `purchase` WHERE `user`='$username' ORDER BY pdate DESC";
+                                            $result=mysqli_query($con,$sql);
+                                        }
+                    if($result){
                     while($row=mysqli_fetch_assoc($result)){
                         echo '<tr>';
                         echo '<td>'.$row['pname'].'</td>';
@@ -30,7 +58,7 @@ include('header.php');
                         echo '<td>'.$row['pprice'].'</td>';
                         $total=$row['pprice'] * $row['qty'];
                         echo '<td>'.$total.'</td>';
-                        echo '<td>'.$row['status'].'</td>';
+                        echo '<td>'.htmlspecialchars($row['status'] ?? $row['delivery_status'] ?? '').'</td>';
                         ?> 
                         <td>
                        <form action="myorder_details.php" method="post">
@@ -40,6 +68,9 @@ include('header.php');
                     </td>
                         <?php
                         echo '</tr>';
+                    }
+                    } else {
+                      echo "<tr><td colspan='6' class='text-center small-muted'>No orders found</td></tr>";
                     }
                     ?>
                 </tbody>
