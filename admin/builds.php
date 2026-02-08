@@ -34,15 +34,21 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['a
         mysqli_query($con, $create);
 
         if($items_r && mysqli_num_rows($items_r)>0){
-          // determine correct username for purchase.user — prefer stored user_name, otherwise lookup by user_id
-          $userName = trim($build['user_name'] ?? '');
-          if($userName === '' && !empty($build['user_id'])){
-            $uid = intval($build['user_id']);
-            $ru = mysqli_query($con, "SELECT c_name, c_email FROM cust_reg WHERE cid=$uid LIMIT 1");
-            if($ru && mysqli_num_rows($ru)>0){ $ur = mysqli_fetch_assoc($ru); $userName = $ur['c_name'] ?? $ur['c_email'] ?? $userName; }
+          // determine correct identifier for purchase.user — prefer user's email (so orders are visible in user My Orders)
+          $userIdentifier = '';
+          // if build stored an email-like user_name, use it
+          $maybe = trim($build['user_name'] ?? '');
+          if(!empty($maybe) && filter_var($maybe, FILTER_VALIDATE_EMAIL)){
+            $userIdentifier = $maybe;
           }
-          if($userName === ''){ $userName = 'user_'.$build['user_id']; }
-          $user = mysqli_real_escape_string($con, $userName);
+          // otherwise, lookup by user_id to fetch c_email (preferred) or c_name
+          if($userIdentifier === '' && !empty($build['user_id'])){
+            $uid = intval($build['user_id']);
+            $ru = mysqli_query($con, "SELECT c_email, c_name FROM cust_reg WHERE cid=$uid LIMIT 1");
+            if($ru && mysqli_num_rows($ru)>0){ $ur = mysqli_fetch_assoc($ru); $userIdentifier = $ur['c_email'] ?? $ur['c_name'] ?? ''; }
+          }
+          if($userIdentifier === ''){ $userIdentifier = 'user_'.$build['user_id']; }
+          $user = mysqli_real_escape_string($con, $userIdentifier);
           while($it = mysqli_fetch_assoc($items_r)){
             $pname = mysqli_real_escape_string($con, ($it['product_name'] ?: ('PID:'.$it['product_id'])) );
             $price = floatval($it['price']);
@@ -54,6 +60,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['a
 
         // update build status
         mysqli_query($con, "UPDATE builds SET status='accepted' WHERE id='$id' LIMIT 1");
+        // after accepting and creating purchase rows, redirect admin to orders list to view the created orders
+        header('Location: orders_list.php'); exit;
       }
     }
   }
@@ -69,7 +77,7 @@ $res = mysqli_query($con, $q);
   <div class="admin-card">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h4 class="mb-1"><i class="bi bi-hammer text-primary me-2"></i>Saved Builds</h4>
+        <h4 class="mb-1"><i class="bi bi-hammer text-primary me-2"></i>Build Requests</h4>
         <div class="small-muted">User-submitted PC customizations</div>
       </div>
       <div class="d-flex align-items-center gap-2">
