@@ -56,7 +56,8 @@ session_start();
             if($ok){
                 $_SESSION['is_login'] = true;
                 $_SESSION['username'] = $username;
-                header('location:view_product.php'); exit;
+                // redirect to admin index which shows all products (product cards)
+                header('Location: products_card.php'); exit;
             }
         }
         echo "<script>alert('login Failed');</script>";

@@ -23,8 +23,8 @@ if($db){
   <div class="admin-card">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h4 class="mb-1"><i class="bi bi-tools text-primary me-2"></i>Service Requests</h4>
-        <div class="small-muted">Requests from users</div>
+        <h4 class="mb-1"><i class="bi bi-tools text-primary me-2"></i>Support Requests</h4>
+        <div class="small-muted">Requests submitted by users</div>
       </div>
         <div>
           <span class="badge bg-secondary"><i class="bi bi-list-check me-1"></i> <?php echo ($res && is_object($res)) ? mysqli_num_rows($res) : 0; ?></span>

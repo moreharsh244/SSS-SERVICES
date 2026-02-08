@@ -85,8 +85,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
           <div class="col-md-4 d-flex align-items-center justify-content-center p-4" style="background:#f8fafc;">
             <div class="text-center">
               <div class="profile-avatar mb-3"><i class="bi bi-person-circle"></i></div>
-              <h5 class="mb-0">Account</h5>
-              <div class="text-muted small">Manage your account details</div>
+              <h5 class="mb-0">Profile</h5>
+              <div class="text-muted small">Manage your profile details</div>
             </div>
           </div>
           <div class="col-md-8 form-section">

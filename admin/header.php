@@ -48,7 +48,7 @@ if (!isset($_SESSION['is_login'])) {
             <?php echo htmlentities($_SESSION['username']); ?>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-            <li><a class="dropdown-item" href="myorder.php">My Orders</a></li>
+            <li><a class="dropdown-item" href="myorder.php">Orders</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
           </ul>
@@ -66,11 +66,11 @@ if (!isset($_SESSION['is_login'])) {
     <div class="col-12 d-flex justify-content-center">
       <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2">
         <a class="nav-link" href="add_product.php"><i class="bi bi-plus-square me-2"></i>Add Product</a>
-        <a class="nav-link" href="view_product.php"><i class="bi bi-card-list me-2"></i>View Products</a>
-        <a class="nav-link" href="products_card.php"><i class="bi bi-grid-3x3-gap me-2"></i>Product Cards</a>
-        <a class="nav-link" href="orders_list.php"><i class="bi bi-bag-check me-2"></i>Orders List</a>
-        <a class="nav-link" href="service_requests.php"><i class="bi bi-tools me-2"></i>Service Requests</a>
-        <a class="nav-link" href="builds.php"><i class="bi bi-hammer me-2"></i>Builds</a>
+        <a class="nav-link" href="view_product.php"><i class="bi bi-card-list me-2"></i>Product List</a>
+        <a class="nav-link" href="products_card.php"><i class="bi bi-grid-3x3-gap me-2"></i>Product Grid</a>
+        <a class="nav-link" href="orders_list.php"><i class="bi bi-bag-check me-2"></i>Orders</a>
+        <a class="nav-link" href="service_requests.php"><i class="bi bi-tools me-2"></i>Support Requests</a>
+        <a class="nav-link" href="builds.php"><i class="bi bi-hammer me-2"></i>Build Requests</a>
 
       </nav>
     </div>

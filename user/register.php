@@ -26,7 +26,7 @@
             <div class="auth-card bg-white">
                 <div class="p-3 text-center border-bottom">
                     <a class="brand h3" href="../index.php">Shree Swami Samarth</a>
-                    <div class="small text-muted">Create your account</div>
+                    <div class="small text-muted">Create Account</div>
                 </div>
                 <div class="p-3">
                     <form action="register.php" method="POST" id="regForm" class="needs-validation" novalidate>

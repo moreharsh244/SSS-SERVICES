@@ -6,7 +6,7 @@ $view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-                        <h2>My Orders</h2>
+                        <h2>Orders</h2>
                         <div class="mb-3">
                             <?php if($view === 'history'): ?>
                                 <a class="btn btn-sm btn-outline-secondary" href="myorder.php">Active Orders</a>
@@ -28,7 +28,13 @@ $view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
                 <tbody>
                     <?php
                                         include('../admin/conn.php');
-                                        $username=mysqli_real_escape_string($con, $_SESSION['username']);
+                                        $sessionUser = $_SESSION['username'] ?? '';
+                                        $sessionUserEsc = mysqli_real_escape_string($con, $sessionUser);
+                                        $sessionUid = $_SESSION['user_id'] ?? null;
+                                        // allow matching either by email/username or by fallback user_<id> used for legacy builds
+                                        $possibleUsers = [ $sessionUserEsc ];
+                                        if(!empty($sessionUid)) $possibleUsers[] = 'user_'.intval($sessionUid);
+                                        $userList = "'".implode("','", array_map(function($v){ return mysqli_real_escape_string($GLOBALS['con'],$v); }, $possibleUsers))."'";
                                         if($view === 'history'){
                                             // show delivered/archive orders from purchase_history if table exists
                                             $db = '';
@@ -38,16 +44,16 @@ $view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
                                             if($db){
                                                 $tbl = mysqli_real_escape_string($con, 'purchase_history');
                                                 $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
-                                                if($qc && mysqli_num_rows($qc)>0){
-                                                          // show cancelled and delivered orders in user history
-                                                          $sql = "SELECT * FROM `purchase_history` WHERE `user`='$username' AND LOWER(IFNULL(delivery_status,'')) IN ('cancelled','delivered') ORDER BY pdate DESC";
+                                                                                                if($qc && mysqli_num_rows($qc)>0){
+                                                                                                                    // show cancelled and delivered orders in user history (match possible user identifiers)
+                                                                                                                    $sql = "SELECT * FROM `purchase_history` WHERE `user` IN ({$userList}) AND LOWER(IFNULL(delivery_status,'')) IN ('cancelled','delivered') ORDER BY pdate DESC";
                                                         $show_res = true;
                                                     }
                                             }
                                             if(!$show_res){ $result = false; }
                                             else { $result = mysqli_query($con,$sql); }
                                         } else {
-                                            $sql="SELECT * FROM `purchase` WHERE `user`='$username' ORDER BY pdate DESC";
+                                            $sql="SELECT * FROM `purchase` WHERE `user` IN ({$userList}) ORDER BY pdate DESC";
                                             $result=mysqli_query($con,$sql);
                                         }
                     if($result){

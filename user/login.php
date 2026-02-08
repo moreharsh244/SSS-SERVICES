@@ -135,7 +135,7 @@ session_start();
     <div class="auth-card bg-white">
         <div class="p-4 text-center border-bottom">
             <a class="brand h3" href="../index.php">Shree Swami Samarth</a>
-            <div class="small text-muted">Welcome back — please sign in</div>
+            <div class="small text-muted">Welcome back — sign in to your account</div>
         </div>
         <div class="p-4">
             <form action="login.php<?php if(!empty($return_url)){ echo '?return='.rawurlencode($return_url); } ?>" method="post" class="needs-validation" novalidate>
@@ -153,11 +153,11 @@ session_start();
                         <input type="checkbox" class="form-check-input" id="remember" name="remember" value="1">
                         <label class="form-check-label ms-2" for="remember">Remember me</label>
                     </div>
-                    <a href="register.php" class="small">Create account</a>
+                    <a href="register.php" class="small">Register</a>
                 </div>
                 <div class="d-grid gap-2">
                     <button type="submit" name="submit" class="btn btn-primary">Sign In</button>
-                    <a href="register.php" class="btn btn-outline-secondary">Create an account</a>
+                    <a href="register.php" class="btn btn-outline-secondary">Register</a>
                 </div>
             </form>
             <script>

@@ -9,10 +9,12 @@ include('header.php');
         <div class="card-body">
           <h4 class="mb-3">Service Requests</h4>
           <?php if(isset($_GET['ok']) && $_GET['ok']==1): ?>
-            <div class="alert alert-success">Service request submitted successfully.</div>
+            <div class="alert alert-success">Support request submitted successfully.</div>
           <?php endif; ?>
 
           <p>Select a service type and fill the form:</p>
+            <h4 class="mb-3">Support Requests</h4>
+            <p>Select a support type and complete the form:</p>
           <ul class="nav nav-tabs mb-3" id="serviceTabs" role="tablist">
             <li class="nav-item" role="presentation"><button class="nav-link active" id="repair-tab" data-bs-toggle="tab" data-bs-target="#repair" type="button" role="tab">Repair</button></li>
             <li class="nav-item" role="presentation"><button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab">Installation</button></li>
