@@ -9,6 +9,16 @@ if($email){
     if($q && mysqli_num_rows($q)) $user = mysqli_fetch_assoc($q);
 }
 
+// If registration redirected here with address data, prefer those values for quick completion
+$prefill_from_get = false;
+$map = [ 'address' => 'c_address', 'city' => 'c_city', 'state' => 'c_state', 'pincode' => 'c_pincode', 'name' => 'c_name', 'contact' => 'c_contact' ];
+foreach($map as $gk => $uk){
+  if(isset($_GET[$gk]) && strlen(trim($_GET[$gk]))>0){
+    if(!is_array($user)) $user = [];
+    $user[$uk] = trim($_GET[$gk]);
+    $prefill_from_get = true;
+  }
+}
 if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
   $contact = mysqli_real_escape_string($con, $_POST['contact'] ?? '');
   $password = $_POST['password'] ?? '';
@@ -46,32 +56,36 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
 ?>
 <?php include('header.php'); ?>
 
+<style>
+  /* small, local visual polish for profile page */
+  .profile-card { max-width:900px; margin:18px auto; border-radius:12px; overflow:hidden; }
+  .profile-avatar { width:96px; height:96px; border-radius:14px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-size:34px; color:#0d6efd; }
+  .form-section { background: #fff; padding:24px; }
+</style>
 <div class="container">
   <div class="row justify-content-center">
-    <div class="col-md-9">
-      <div class="card shadow-sm mt-3">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <div style="width:84px; height:84px; border-radius:12px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--primary);">
-              <i class="bi bi-person-circle"></i>
-            </div>
-            <div>
+    <div class="col-12">
+      <div class="card shadow-sm mt-3 profile-card">
+        <div class="row g-0">
+          <div class="col-md-4 d-flex align-items-center justify-content-center p-4" style="background:#f8fafc;">
+            <div class="text-center">
+              <div class="profile-avatar mb-3"><i class="bi bi-person-circle"></i></div>
               <h5 class="mb-0">Account</h5>
               <div class="text-muted small">Manage your account details</div>
             </div>
           </div>
-
-          <?php if(!empty($err)){ echo '<div class="alert alert-danger">'.htmlspecialchars($err).'</div>'; } ?>
-            <div class="col-md-7">
-              <form method="post" class="card p-3">
+          <div class="col-md-8 form-section">
+            <?php if(!empty($err)){ echo '<div class="alert alert-danger">'.htmlspecialchars($err).'</div>'; } ?>
+            <?php if(!empty($prefill_from_get)){ echo '<div class="alert alert-info">We imported address details from registration — please confirm and save.</div>'; } ?>
+            <form method="post">
                 <h6 class="mb-3">Edit Profile</h6>
                 <div class="mb-2">
                   <label class="form-label">Full Name</label>
-                  <input name="name" class="form-control" value="<?php echo htmlspecialchars($user['c_name'] ?? ''); ?>">
+                  <input name="name" class="form-control" placeholder="Your full name" value="<?php echo htmlspecialchars($user['c_name'] ?? ''); ?>">
                 </div>
                 <div class="mb-2">
                   <label class="form-label">Contact Number</label>
-                  <input name="contact" class="form-control" value="<?php echo htmlspecialchars($user['c_contact'] ?? ''); ?>">
+                  <input name="contact" class="form-control" placeholder="Mobile number" value="<?php echo htmlspecialchars($user['c_contact'] ?? ''); ?>">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Address</label>
@@ -80,16 +94,16 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="form-label">City</label>
-                    <input name="city" class="form-control" value="<?php echo htmlspecialchars($user['c_city'] ?? ''); ?>">
+                    <input name="city" class="form-control" placeholder="City" value="<?php echo htmlspecialchars($user['c_city'] ?? ''); ?>">
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">State</label>
-                    <input name="state" class="form-control" value="<?php echo htmlspecialchars($user['c_state'] ?? ''); ?>">
+                    <input name="state" class="form-control" placeholder="State" value="<?php echo htmlspecialchars($user['c_state'] ?? ''); ?>">
                   </div>
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Pincode</label>
-                  <input name="pincode" class="form-control" value="<?php echo htmlspecialchars($user['c_pincode'] ?? ''); ?>">
+                  <input name="pincode" class="form-control" placeholder="Postal / ZIP code" value="<?php echo htmlspecialchars($user['c_pincode'] ?? ''); ?>">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">New Password (leave blank to keep)</label>
@@ -98,10 +112,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                 <div class="d-flex justify-content-end">
                   <button type="submit" name="update_profile" class="btn btn-primary">Save Changes</button>
                 </div>
-              </form>
-            </div>
+            </form>
           </div>
-
         </div>
       </div>
     </div>

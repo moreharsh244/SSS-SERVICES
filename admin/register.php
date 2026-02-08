@@ -45,6 +45,20 @@ if(isset($_POST['register'])){
         @mysqli_query($con, "ALTER TABLE user_login ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
     }
 
+    // ensure password column exists and can store hashes
+    $colInfoQ = "SELECT CHARACTER_MAXIMUM_LENGTH, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='user_login' AND COLUMN_NAME='password' LIMIT 1";
+    $colRes = mysqli_query($con, $colInfoQ);
+    if($colRes && mysqli_num_rows($colRes)>0){
+        $col = mysqli_fetch_assoc($colRes);
+        $len = intval($col['CHARACTER_MAXIMUM_LENGTH'] ?? 0);
+        $dt = strtolower($col['DATA_TYPE'] ?? '');
+        if(($dt === 'varchar' && $len < 100) || ($dt === 'char' && $len < 100)){
+            @mysqli_query($con, "ALTER TABLE user_login MODIFY password VARCHAR(255) NOT NULL");
+        }
+    } else {
+        @mysqli_query($con, "ALTER TABLE user_login ADD COLUMN password VARCHAR(255) DEFAULT NULL");
+    }
+
     $u_esc = mysqli_real_escape_string($con, $username);
     $check = mysqli_query($con, "SELECT * FROM user_login WHERE username='$u_esc' LIMIT 1");
     if($check && mysqli_num_rows($check)>0){
@@ -60,23 +74,5 @@ if(isset($_POST['register'])){
     } else {
         echo "<script>alert('Registration Failed');</script>";
     }
-}
-
-
-<?php
-include 'conn.php';
-if(isset($_POST['register'])){
-$username=$_POST['uname'];       
-$password=$_POST['pass'];
-$sqlq="INSERT INTO user_login (username,password) VALUES('$username','$password')";
-$result=mysqli_query($con,$sqlq);
-if($result){
-    $_SESSION['is_login']=true;
-    $_SESSION['username']=$_POST['uname'];
-    header('location:index.php');
-    exit;
-}else{
-    echo "<script>alert('Registration Failed');</script>";
-}
 }
 ?>

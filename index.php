@@ -10,6 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/custom.css">
     <script src="js/bootstrap.min.js"></script>
+    <style>
+      /* ensure navbar and dropdowns render above carousel images */
+      .navbar { position: relative; z-index: 4000; }
+      .navbar .dropdown-menu { z-index: 4001; }
+      /* visual tweaks */
+      .navbar-brand{ font-weight:700; font-size:1.6rem; color:#0d6efd; }
+      .nav-auth .btn{ border-radius:8px; padding:0.45rem 0.9rem; }
+      .hero-caption{ box-shadow:0 8px 30px rgba(13,110,253,0.08); }
+    </style>
 </head>
 <body>
    <!-- navbar start  -->
@@ -20,28 +29,17 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent" style="font-size: 20px;">
-      <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="index.php">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="admin/index.php">Admin Login</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Customer Login
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+      <div class="ms-3 d-flex align-items-center nav-auth justify-content-center">
+        <a class="btn btn-outline-primary me-2 d-none d-lg-inline-flex align-items-center" href="admin/index.php">Admin Login</a>
+        <div class="btn-group">
+          <button type="button" class="btn btn-primary dropdown-toggle d-inline-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">Customer</button>
+          <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="user/index.php">Login</a></li>
             <li><a class="dropdown-item" href="user/register.php">Register</a></li>
           </ul>
-        </li>
-      </ul>
-      
-      <form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-success" type="submit">Search</button>
-      </form>
+        </div>
+      </div>
     </div>
   </div>
 </nav>

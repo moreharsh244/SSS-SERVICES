@@ -51,3 +51,6 @@ footer .container{ color:var(--muted); }
 
 /* small utility tweaks */
 .container .btn-lg{ padding:0.6rem 1.05rem; }
+
+/* Ensure navbar dropdowns appear above carousels and other components */
+.navbar .dropdown-menu{ z-index:3000; }

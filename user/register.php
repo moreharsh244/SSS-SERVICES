@@ -90,6 +90,20 @@ if(isset($_POST['register'])){
 
     include('../admin/conn.php');
 
+    // ensure c_password column exists and can store hashes
+    $colInfoQ = "SELECT CHARACTER_MAXIMUM_LENGTH, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='c_password' LIMIT 1";
+    $colRes = mysqli_query($con, $colInfoQ);
+    if($colRes && mysqli_num_rows($colRes)>0){
+        $col = mysqli_fetch_assoc($colRes);
+        $len = intval($col['CHARACTER_MAXIMUM_LENGTH'] ?? 0);
+        $dt = strtolower($col['DATA_TYPE'] ?? '');
+        if(($dt === 'varchar' && $len < 100) || ($dt === 'char' && $len < 100)){
+            @mysqli_query($con, "ALTER TABLE cust_reg MODIFY c_password VARCHAR(255) NOT NULL");
+        }
+    } else {
+        @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN c_password VARCHAR(255) DEFAULT NULL");
+    }
+
     // ensure columns exist
     $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='c_name'";
     $cres = mysqli_query($con, $col_check);

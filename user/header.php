@@ -20,7 +20,12 @@ if(!isset($_SESSION['is_login'])){
     }
   }
 }
-if(!isset($_SESSION['is_login'])){ header('location:login.php'); exit; }
+if(!isset($_SESSION['is_login'])){
+  $req = $_SERVER['REQUEST_URI'] ?? '';
+  $ret = rawurlencode($req);
+  header('Location: login.php?return=' . $ret);
+  exit;
+}
 if(!defined('HEADER_INCLUDED')) define('HEADER_INCLUDED', true);
 
 // Fetch loyalty points for logged-in user if column exists (non-fatal)
@@ -59,6 +64,11 @@ if(!empty($_SESSION['user_id'])){
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ensure navbar and dropdowns render above other page components */
+    .navbar { position: relative; z-index: 4000; }
+    .navbar .dropdown-menu { z-index: 4001; }
+  </style>
 </head>
 <body class="user-area">
 <!-- Primary navbar -->

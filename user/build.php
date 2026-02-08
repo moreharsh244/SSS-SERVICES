@@ -13,6 +13,21 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         echo '<script>alert("Invalid build data");window.history.back();</script>';
         exit;
     }
+    // enforce mandatory component categories server-side
+    $required_components = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
+    $present = [];
+    foreach($data['items'] as $k => $v){
+        // client uses keys like "Category_index" so extract category part before underscore
+        $parts = explode('_', $k);
+        $cat = $parts[0] ?? $k;
+        $present[$cat] = true;
+    }
+    $missing = array_values(array_diff($required_components, array_keys($present)));
+    if(!empty($missing)){
+        $msg = 'Please add the following components to your build: ' . implode(', ', $missing);
+        echo '<script>alert("'.htmlspecialchars($msg, ENT_QUOTES).'");window.history.back();</script>';
+        exit;
+    }
     $total = floatval($data['total'] ?? 0);
     // create builds table if not exists (defensive)
         $sqlc = "CREATE TABLE IF NOT EXISTS `builds` (
@@ -181,6 +196,7 @@ if($pq){
     const items = [];
     const itemsList = document.getElementById('itemsList');
     const totalPriceEl = document.getElementById('totalPrice');
+    const REQUIRED_CATEGORIES = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
 
     function renderItems(){
         if(items.length === 0){
@@ -280,6 +296,14 @@ if($pq){
     document.getElementById('saveBtn').addEventListener('click',(e)=>{
         e.preventDefault();
         if(items.length===0){ alert('Add at least one part'); return; }
+        // check required categories are present
+        const present = {};
+        items.forEach(it=>{ present[(it.category||'').trim()] = true; });
+        const missing = REQUIRED_CATEGORIES.filter(c => !present[c]);
+        if(missing.length>0){
+            alert('Please add the following components to your build before saving: ' + missing.join(', '));
+            return;
+        }
         const buildName = document.getElementById('buildName').value.trim() || 'My Build';
         const payload = { items: {} , total: items.reduce((s,i)=>s+Number(i.price||0),0)};
         // Convert items array into simple category-keyed object for server compatibility

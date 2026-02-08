@@ -6,7 +6,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
+    <title>User Login</title>
      <link rel="stylesheet" href="../css/bootstrap.min.css">
     <script src="../js/bootstrap.min.js"></script>
 </head>
@@ -32,6 +32,12 @@ session_start();
             // column missing? try to add it
             @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN c_password VARCHAR(255) DEFAULT NULL");
         }
+    }
+
+    // preserve any return URL so form submits back with it
+    $return_url = '';
+    if(isset($_GET['return']) && strlen(trim($_GET['return']))>0){
+        $return_url = $_GET['return'];
     }
 
     if(isset($_POST['submit'])){
@@ -91,7 +97,14 @@ session_start();
                             mysqli_query($con, "UPDATE cust_reg SET remember_token='$tok_esc', remember_expiry='$expiry' WHERE c_email='".mysqli_real_escape_string($con,$username)."' LIMIT 1");
                             setcookie('remember', $token, time()+30*24*3600, '/', '', false, true);
                         }
-                        echo "<script>alert('Login successful!'); window.location.href='index.php';</script>"; exit;
+                        // if a return URL was provided, redirect there, otherwise go to index
+                        $safeRet = '';
+                        if(!empty($return_url)){
+                            // return_url comes from REQUEST_URI encoded by header; decode and use
+                            $safeRet = rawurldecode($return_url);
+                        }
+                        $dest = $safeRet ? htmlspecialchars($safeRet, ENT_QUOTES) : 'index.php';
+                        echo "<script>alert('Login successful!'); window.location.href='".$dest."';</script>"; exit;
                     } else {
                         echo "<script>alert('Incorrect password');</script>";
                     }
@@ -114,7 +127,8 @@ session_start();
                 <div class="alert alert-danger mt-5 shadow text-center" role="alert">
                     User Login
                 </div>
-            <form action="login.php" method="post" class="mt-2 shadow-lg p-4 needs-validation" novalidate>
+            <form action="login.php<?php if(!empty(
+$return_url)){ echo '?return='.rawurlencode($return_url); } ?>" method="post" class="mt-2 shadow-lg p-4 needs-validation" novalidate>
              
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Email address</label>

@@ -17,6 +17,11 @@ if(!isset($_SESSION['is_login'])){
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=BBH+Bogle&display=swap" rel="stylesheet">
+        <style>
+          /* ensure navbar and dropdowns render above other page components */
+          .navbar { position: relative; z-index: 4000; }
+          .navbar .dropdown-menu { z-index: 4001; }
+        </style>
 </head>  
 <body>
     <!-- navbar start -->
