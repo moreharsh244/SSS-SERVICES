@@ -9,6 +9,14 @@ session_start();
     <title>User Login</title>
      <link rel="stylesheet" href="../css/bootstrap.min.css">
     <script src="../js/bootstrap.min.js"></script>
+        <style>
+            body{ background: linear-gradient(180deg,#f4f7fb,#ffffff); }
+            .auth-wrapper{ min-height:80vh; display:flex; align-items:center; justify-content:center; }
+            .auth-card{ max-width:520px; width:100%; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(12,32,63,0.08); }
+            .brand{ font-weight:800; color:#0d6efd; text-decoration:none; }
+            .form-control{ border-radius:8px; }
+            .btn-primary{ border-radius:8px; }
+        </style>
 </head>
 <body>
     <?php
@@ -85,7 +93,10 @@ session_start();
 
                     if($ok){
                         $_SESSION['is_login'] = true;
-                        $_SESSION['username'] = $nameVal ?? $username;
+                        // store email as session username to allow profile lookups
+                        $_SESSION['username'] = $username;
+                        // keep a display name separately
+                        $_SESSION['display_name'] = $nameVal ?? '';
                         $_SESSION['user_id'] = $idVal ?? null;
                         // remember-me support: set persistent token and cookie
                         if(!empty($_POST['remember'])){
@@ -103,7 +114,7 @@ session_start();
                             // return_url comes from REQUEST_URI encoded by header; decode and use
                             $safeRet = rawurldecode($return_url);
                         }
-                        $dest = $safeRet ? htmlspecialchars($safeRet, ENT_QUOTES) : 'index.php';
+                        $dest = $safeRet ? htmlspecialchars($safeRet, ENT_QUOTES) : 'profile.php';
                         echo "<script>alert('Login successful!'); window.location.href='".$dest."';</script>"; exit;
                     } else {
                         echo "<script>alert('Incorrect password');</script>";
@@ -119,17 +130,15 @@ session_start();
         }
     }
 
-    ?>
-<div class="container">
-    <div class="row justify-content-center">
-    
-        <div class="col-sm-6 ">
-                <div class="alert alert-danger mt-5 shadow text-center" role="alert">
-                    User Login
-                </div>
-            <form action="login.php<?php if(!empty(
-$return_url)){ echo '?return='.rawurlencode($return_url); } ?>" method="post" class="mt-2 shadow-lg p-4 needs-validation" novalidate>
-             
+        ?>
+<div class="auth-wrapper">
+    <div class="auth-card bg-white">
+        <div class="p-4 text-center border-bottom">
+            <a class="brand h3" href="../index.php">Shree Swami Samarth</a>
+            <div class="small text-muted">Welcome back — please sign in</div>
+        </div>
+        <div class="p-4">
+            <form action="login.php<?php if(!empty($return_url)){ echo '?return='.rawurlencode($return_url); } ?>" method="post" class="needs-validation" novalidate>
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Email address</label>
                     <input type="email" class="form-control" name="email" aria-describedby="emailHelp" required>
@@ -139,34 +148,32 @@ $return_url)){ echo '?return='.rawurlencode($return_url); } ?>" method="post" cl
                     <label for="exampleInputPassword1" class="form-label">Password</label>
                     <input type="password" class="form-control" name="password" id="exampleInputPassword1" required>
                 </div>
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="remember" name="remember" value="1">
-                    <label class="form-check-label" for="remember">Remember me</label>
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember" value="1">
+                        <label class="form-check-label ms-2" for="remember">Remember me</label>
+                    </div>
+                    <a href="register.php" class="small">Create account</a>
                 </div>
-               
-                <button type="submit" name="submit" class="btn btn-primary">Submit</button>
-                <a href="register.php" class="btn btn-success">Register Here</a>
-            
-
-                        </form>
-                        <script>
-                        (function(){
-                            'use strict'
-                            var forms = document.querySelectorAll('.needs-validation')
-                            Array.prototype.slice.call(forms).forEach(function (form) {
-                                form.addEventListener('submit', function (event) {
-                                    if (!form.checkValidity()) {
-                                        event.preventDefault()
-                                        event.stopPropagation()
-                                    }
-                                    form.classList.add('was-validated')
-                                }, false)
-                            })
-                        })()
-                        </script>
+                <div class="d-grid gap-2">
+                    <button type="submit" name="submit" class="btn btn-primary">Sign In</button>
+                    <a href="register.php" class="btn btn-outline-secondary">Create an account</a>
+                </div>
+            </form>
+            <script>
+                (function(){
+                    'use strict'
+                    var forms = document.querySelectorAll('.needs-validation')
+                    Array.prototype.slice.call(forms).forEach(function (form) {
+                        form.addEventListener('submit', function (event) {
+                            if (!form.checkValidity()) { event.preventDefault(); event.stopPropagation(); }
+                            form.classList.add('was-validated')
+                        }, false)
+                    })
+                })()
+            </script>
         </div>
     </div>
 </div>
-    
 </body>
 </html>

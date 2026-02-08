@@ -9,6 +9,12 @@ if($email){
     if($q && mysqli_num_rows($q)) $user = mysqli_fetch_assoc($q);
 }
 
+// format registration time if present
+$reg_time = '';
+if(isset($user['created_at']) && strlen(trim($user['created_at']))>0){
+  $reg_time = date('d M Y, H:i', strtotime($user['created_at']));
+}
+
 // If registration redirected here with address data, prefer those values for quick completion
 $prefill_from_get = false;
 $map = [ 'address' => 'c_address', 'city' => 'c_city', 'state' => 'c_state', 'pincode' => 'c_pincode', 'name' => 'c_name', 'contact' => 'c_contact' ];
@@ -27,10 +33,17 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
   $state = mysqli_real_escape_string($con, $_POST['state'] ?? '');
   $pincode = mysqli_real_escape_string($con, $_POST['pincode'] ?? '');
   if($email){
+    // ensure address columns exist (best-effort)
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_address TEXT NULL");
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_city VARCHAR(128) NULL");
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_state VARCHAR(128) NULL");
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_pincode VARCHAR(32) NULL");
+    // ensure updated_at column exists to track profile changes
+    $updColQ = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='updated_at' LIMIT 1";
+    $updColRes = mysqli_query($con, $updColQ);
+    if(!$updColRes || mysqli_num_rows($updColRes)===0){
+      @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN updated_at TIMESTAMP NULL DEFAULT NULL");
+    }
 
     $name = mysqli_real_escape_string($con, $_POST['name'] ?? '');
     $parts = [];
@@ -44,6 +57,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
       $hash = password_hash($password, PASSWORD_DEFAULT);
       $parts[] = "c_password='".mysqli_real_escape_string($con,$hash)."'";
     }
+    // record profile update time
+    $parts[] = "updated_at=NOW()";
     $upd = "UPDATE cust_reg SET " . implode(', ', $parts) . " WHERE c_email='".mysqli_real_escape_string($con,$email)."' LIMIT 1";
     if(mysqli_query($con, $upd)){
       echo "<script>alert('Profile updated successfully'); window.location='profile.php';</script>";

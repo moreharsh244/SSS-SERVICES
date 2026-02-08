@@ -30,13 +30,13 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent" style="font-size: 20px;">
 
-      <div class="ms-3 d-flex align-items-center nav-auth justify-content-center">
-        <a class="btn btn-outline-primary me-2 d-none d-lg-inline-flex align-items-center" href="admin/index.php">Admin Login</a>
+      <div class="mx-auto d-flex align-items-center nav-auth">
+        <a class="btn btn-outline-primary me-3 d-none d-lg-inline-flex align-items-center" href="admin/index.php">Admin Portal</a>
         <div class="btn-group">
-          <button type="button" class="btn btn-primary dropdown-toggle d-inline-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">Customer</button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="user/index.php">Login</a></li>
-            <li><a class="dropdown-item" href="user/register.php">Register</a></li>
+          <button type="button" class="btn btn-primary dropdown-toggle d-inline-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">Customer Portal</button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="user/index.php">Sign In</a></li>
+            <li><a class="dropdown-item" href="user/register.php">Sign Up</a></li>
           </ul>
         </div>
       </div>

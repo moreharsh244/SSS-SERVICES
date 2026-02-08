@@ -5,70 +5,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Register</title>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <script src="../js/bootstrap.min.js"></script>
+        <style>
+            body{ background: linear-gradient(180deg,#f4f7fb,#ffffff); }
+            .auth-wrapper{ min-height:80vh; display:flex; align-items:center; justify-content:center; }
+            .auth-card{ max-width:520px; width:100%; border-radius:10px; overflow:hidden; box-shadow:0 8px 20px rgba(12,32,63,0.06); }
+            .brand{ font-weight:800; color:#0d6efd; text-decoration:none; }
+            .form-control{ border-radius:6px; }
+            .form-control-sm{ padding:0.4rem 0.75rem; font-size:0.9rem; }
+            .btn-primary, .btn-success{ border-radius:6px; padding:0.45rem 0.75rem; }
+            .auth-card .p-4{ padding:1rem !important; }
+            .mb-3{ margin-bottom:0.5rem !important; }
+            .small.text-muted{ font-size:0.85rem; }
+        </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h3>User Registration</h3>
-                    </div>
-                                    <div class="card-body shadow-lg">
-                                        <form action="register.php" method="POST" id="regForm" class="needs-validation" novalidate>
-                                            <div class="mb-3">
-                                                <label for="name" class="form-label">Full Name</label>
-                                                <input type="text" class="form-control" id="name" name="name" required placeholder="John Doe">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="contact" class="form-label">Contact Number</label>
-                                                <input type="text" class="form-control" id="contact" name="contact" required placeholder="+91 9876543210">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="email" class="form-label">Email address</label>
-                                                <input type="email" class="form-control" id="email" name="email" required placeholder="you@example.com">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="address" class="form-label">Address</label>
-                                                <textarea class="form-control" id="address" name="address" placeholder="Street, House no..."></textarea>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="city" class="form-label">City</label>
-                                                    <input type="text" class="form-control" id="city" name="city" placeholder="City">
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="state" class="form-label">State</label>
-                                                    <input type="text" class="form-control" id="state" name="state" placeholder="State">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="pincode" class="form-label">Pincode</label>
-                                                <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Postal code">
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="password" class="form-label">Password</label>
-                                                    <input type="password" class="form-control" id="password" name="password" required>
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="password2" class="form-label">Confirm Password</label>
-                                                    <input type="password" class="form-control" id="password2" name="password2" required>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="d-grid">
-                                                <button type="submit" name="register" class="btn btn-success">Create Account</button>
-                                            </div>
-                                        </form>
-                                    </div>
+        <div class="auth-wrapper">
+            <div class="auth-card bg-white">
+                <div class="p-3 text-center border-bottom">
+                    <a class="brand h3" href="../index.php">Shree Swami Samarth</a>
+                    <div class="small text-muted">Create your account</div>
+                </div>
+                <div class="p-3">
+                    <form action="register.php" method="POST" id="regForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="name" class="form-label h6 fw-semibold">Full Name</label>
+                            <input type="text" class="form-control form-control-sm" id="name" name="name" required placeholder="name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact" class="form-label">Contact</label>
+                            <input type="text" class="form-control form-control-sm" id="contact" name="contact" required placeholder="+91 9876543210">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control form-control-sm" id="email" name="email" required placeholder="you@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control form-control-sm" id="address" name="address" required placeholder="Street, House no..." rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-2">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control form-control-sm" id="city" name="city" required placeholder="City">
+                            </div>
+                            <div class="col-6 mb-2">
+                                <label for="state" class="form-label">State</label>
+                                <input type="text" class="form-control form-control-sm" id="state" name="state" required placeholder="State">
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label for="pincode" class="form-label">Pincode</label>
+                            <input type="text" class="form-control form-control-sm" id="pincode" name="pincode" required placeholder="Postal code">
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-2">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control form-control-sm" id="password" name="password" required>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <label for="password2" class="form-label">Confirm</label>
+                                <input type="password" class="form-control form-control-sm" id="password2" name="password2" required>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" name="register" class="btn btn-primary btn-sm">Create Account</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
     
 </body>
 </html>
@@ -86,6 +94,26 @@ if(isset($_POST['register'])){
 
     if($password !== $password2){
         echo "<script>alert('Passwords do not match'); window.history.back();</script>"; exit;
+    }
+
+    // server-side required fields validation
+    $required = [
+        'Full name' => $name,
+        'Contact' => $contact,
+        'Email' => $email,
+        'Address' => $address,
+        'City' => $city,
+        'State' => $state,
+        'Pincode' => $pincode,
+        'Password' => $password,
+    ];
+    foreach($required as $label => $val){
+        if(strlen(trim($val)) === 0){
+            echo "<script>alert('Please fill the required field: $label'); window.history.back();</script>"; exit;
+        }
+    }
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        echo "<script>alert('Please enter a valid email address'); window.history.back();</script>"; exit;
     }
 
     include('../admin/conn.php');

@@ -10,6 +10,14 @@ session_start();
     <title>Admin Login</title>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <script src="../js/bootstrap.min.js"></script>
+        <style>
+            body{ background: linear-gradient(180deg,#f4f7fb,#ffffff); }
+            .auth-wrapper{ min-height:80vh; display:flex; align-items:center; justify-content:center; }
+            .auth-card{ max-width:520px; width:100%; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(12,32,63,0.08); }
+            .brand{ font-weight:800; color:#0d6efd; text-decoration:none; }
+            .form-control{ border-radius:8px; }
+            .btn-primary{ border-radius:8px; }
+        </style>
 </head>
 <body>
     <?php
@@ -56,44 +64,45 @@ session_start();
 
 
     ?>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-sm-6">
-            <div class="alert alert-primary mt-5 shadow text-center" role="alert">
-                Admin Login
-            </div>
-        <form action="login.php" method="post" class="mt-2 shadow-lg p-4 needs-validation" novalidate>
-            <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Username</label>
-                <input type="text" class="form-control" name="username" required>
-                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-            </div>
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input type="password" class="form-control" name="password" required>
-            </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                <label class="form-check-label" for="exampleCheck1">Check me out</label>
+<div class="auth-wrapper">
+    <div class="auth-card bg-white">
+        <div class="p-4 text-center border-bottom">
+            <a class="brand h3" href="../admin/index.php">Admin Panel</a>
+            <div class="small text-muted">Sign in to manage the store</div>
+        </div>
+        <div class="p-4">
+            <form action="login.php" method="post" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" name="username" id="username" required>
                 </div>
-                <button type="submit" name="submit" class="btn btn-primary">Submit</button>
-                                </form>
-                                <script>
-                                (function(){
-                                    'use strict'
-                                    var forms = document.querySelectorAll('.needs-validation')
-                                    Array.prototype.slice.call(forms).forEach(function (form) {
-                                        form.addEventListener('submit', function (event) {
-                                            if (!form.checkValidity()) {
-                                                event.preventDefault()
-                                                event.stopPropagation()
-                                            }
-                                            form.classList.add('was-validated')
-                                        }, false)
-                                    })
-                                })()
-                                </script>
-            </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" name="password" id="password" required>
+                </div>
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberAdmin">
+                        <label class="form-check-label ms-2" for="rememberAdmin">Remember me</label>
+                    </div>
+                    <a href="#" class="small">Need help?</a>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" name="submit" class="btn btn-primary">Sign In</button>
+                </div>
+            </form>
+            <script>
+                (function(){
+                    'use strict'
+                    var forms = document.querySelectorAll('.needs-validation')
+                    Array.prototype.slice.call(forms).forEach(function (form) {
+                        form.addEventListener('submit', function (event) {
+                            if (!form.checkValidity()) { event.preventDefault(); event.stopPropagation(); }
+                            form.classList.add('was-validated')
+                        }, false)
+                    })
+                })()
+            </script>
         </div>
     </div>
 </div>
