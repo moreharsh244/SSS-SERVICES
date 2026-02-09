@@ -54,8 +54,10 @@ session_start();
                 @mysqli_query($con, "UPDATE user_login SET password='".mysqli_real_escape_string($con,$newhash)."' WHERE username='$username'");
             }
             if($ok){
+                session_regenerate_id(true);
                 $_SESSION['is_login'] = true;
                 $_SESSION['username'] = $username;
+                $_SESSION['role'] = 'admin';
                 // redirect to admin index which shows all products (product cards)
                 header('Location: products_card.php'); exit;
             }

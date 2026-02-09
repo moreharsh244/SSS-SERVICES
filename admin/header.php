@@ -6,6 +6,10 @@ if (!isset($_SESSION['is_login'])) {
   header('location:login.php');
   exit;
 }
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+  header('location:login.php');
+  exit;
+}
 // (notifications removed) keep header simple
 ?>
 <!DOCTYPE html>
@@ -71,6 +75,7 @@ if (!isset($_SESSION['is_login'])) {
         <a class="nav-link" href="orders_list.php"><i class="bi bi-bag-check me-2"></i>Orders</a>
         <a class="nav-link" href="service_requests.php"><i class="bi bi-tools me-2"></i>Support Requests</a>
         <a class="nav-link" href="builds.php"><i class="bi bi-hammer me-2"></i>Build Requests</a>
+        <a class="nav-link" href="delivery_agents.php"><i class="bi bi-truck me-2"></i>Delivery Agents</a>
 
       </nav>
     </div>

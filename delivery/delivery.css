@@ -1,0 +1,100 @@
+:root{
+  --delivery-bg: radial-gradient(circle at 10% 10%, #fff1f1 0%, #f9fbff 45%, #ffffff 100%);
+  --delivery-accent: #dc3545;
+  --delivery-accent-2: #ff6b6b;
+  --delivery-ink: #1f2937;
+  --delivery-muted: #6b7280;
+  --delivery-card: #ffffff;
+  --delivery-shadow: 0 16px 40px rgba(20, 24, 40, 0.10);
+}
+
+body.delivery-body{
+  background: var(--delivery-bg);
+  color: var(--delivery-ink);
+}
+
+.delivery-hero{
+  background: linear-gradient(135deg, #ffeded 0%, #ffffff 60%);
+  border: 1px solid #f1dada;
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: var(--delivery-shadow);
+}
+
+.delivery-hero h2{
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.delivery-card{
+  background: var(--delivery-card);
+  border: 1px solid #f0f0f4;
+  border-radius: 14px;
+  box-shadow: var(--delivery-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.delivery-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 18px 46px rgba(20, 24, 40, 0.14);
+}
+
+.stat-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: #fff5f5;
+  border: 1px solid #ffd6d6;
+  color: #b4232a;
+  font-weight: 600;
+}
+
+.table-delivery thead th{
+  background: #fff7f7;
+  border-bottom: 2px solid #f3caca;
+}
+
+.delivery-badge{
+  font-size: 0.78rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.badge-pending{ background: #fff1d6; color: #7a4b00; }
+.badge-shipped{ background: #e0f2fe; color: #075985; }
+.badge-delivered{ background: #dcfce7; color: #166534; }
+.badge-cancelled{ background: #fee2e2; color: #991b1b; }
+
+.form-select, .form-control{
+  border-radius: 10px;
+}
+
+.btn-delivery{
+  background: var(--delivery-accent);
+  border-color: var(--delivery-accent);
+}
+
+.btn-delivery:hover{
+  background: #b02a37;
+  border-color: #b02a37;
+}
+
+.delivery-panel{
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #f0f0f4;
+  padding: 18px;
+  box-shadow: var(--delivery-shadow);
+}
+
+.fade-in{
+  animation: fadeInUp 0.35s ease both;
+}
+
+@keyframes fadeInUp{
+  from{ opacity: 0; transform: translateY(6px); }
+  to{ opacity: 1; transform: translateY(0); }
+}

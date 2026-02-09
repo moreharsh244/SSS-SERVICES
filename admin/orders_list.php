@@ -1,6 +1,8 @@
 <?php
 include('header.php');
 include('conn.php');
+include('../delivery/helpers.php');
+ensure_delivery_tables($con);
 
 $view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
 
@@ -14,9 +16,26 @@ $create = "CREATE TABLE IF NOT EXISTS `purchase` (
     `prod_id` INT DEFAULT NULL,
     `status` VARCHAR(50) DEFAULT 'pending',
     `delivery_status` VARCHAR(50) DEFAULT 'pending',
+    `assigned_agent` VARCHAR(100) DEFAULT NULL,
     `pdate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 mysqli_query($con, $create);
+
+// ensure assigned_agent column exists
+$col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase' AND COLUMN_NAME='assigned_agent'";
+$col_res = mysqli_query($con, $col_check);
+if(!$col_res || mysqli_num_rows($col_res)===0){
+  @mysqli_query($con, "ALTER TABLE purchase ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL");
+}
+
+// active delivery agents list
+$agents = [];
+$ares = mysqli_query($con, "SELECT username FROM del_login WHERE is_active=1 ORDER BY username");
+if($ares){
+  while($ar = mysqli_fetch_assoc($ares)){
+    $agents[] = $ar['username'];
+  }
+}
 
 // Default: show active orders. If ?view=history, show archived (delivered) orders from purchase_history.
 $res = false;
@@ -74,6 +93,7 @@ if($view === 'history'){
             <?php if($view !== 'history'): ?>
               <th>Status</th>
               <th>Delivery</th>
+              <th>Agent</th>
             <?php else: ?>
               <th>Delivery</th>
             <?php endif; ?>
@@ -132,6 +152,7 @@ if($view === 'history'){
       $total = number_format((float)$r['pprice'] * $qty,2);
       $status = htmlspecialchars($r['status'] ?? 'pending');
       $dstatus = htmlspecialchars($r['delivery_status'] ?? 'pending');
+      $agent = htmlspecialchars($r['assigned_agent'] ?? '');
 
       // map status to bootstrap badge classes
       $badge_map = [
@@ -155,6 +176,20 @@ if($view === 'history'){
       echo "<td>₹{$total}</td>";
       echo "<td><span class='badge {$status_cls}'>{$status_label}</span></td>";
       echo "<td><span class='badge {$dstatus_cls}'>{$dstatus_label}</span></td>";
+      echo "<td>";
+      echo "<form action='assign_delivery.php' method='post' class='d-flex gap-2 align-items-center'>";
+      echo "<input type='hidden' name='order_id' value='{$id}'>";
+      echo "<select name='assigned_agent' class='form-select form-select-sm'>";
+      echo "<option value=''>Unassigned</option>";
+      foreach($agents as $ag){
+        $ag_esc = htmlspecialchars($ag);
+        $sel = ($ag === ($r['assigned_agent'] ?? '')) ? 'selected' : '';
+        echo "<option value='{$ag_esc}' {$sel}>{$ag_esc}</option>";
+      }
+      echo "</select>";
+      echo "<button class='btn btn-sm btn-outline-primary' type='submit'>Assign</button>";
+      echo "</form>";
+      echo "</td>";
       echo "<td>{$date}</td>";
       // nicer actions: view button + compact select + update button
       echo "<td class='text-center'>";
@@ -176,7 +211,7 @@ if($view === 'history'){
       $i++;
     }
   } else {
-    echo "<tr><td colspan='9' class='text-center small-muted py-4'>No orders found</td></tr>";
+    echo "<tr><td colspan='10' class='text-center small-muted py-4'>No orders found</td></tr>";
   }
 }
 ?>

@@ -70,6 +70,7 @@ if(isset($_POST['register'])){
     if($result){
         $_SESSION['is_login'] = true;
         $_SESSION['username'] = $username;
+        $_SESSION['role'] = 'admin';
         header('location:index.php'); exit;
     } else {
         echo "<script>alert('Registration Failed');</script>";

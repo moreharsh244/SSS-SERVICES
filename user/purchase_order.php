@@ -16,9 +16,17 @@
         `prod_id` INT DEFAULT NULL,
         `status` VARCHAR(50) DEFAULT 'pending',
         `delivery_status` VARCHAR(50) DEFAULT 'pending',
+        `assigned_agent` VARCHAR(100) DEFAULT NULL,
         `pdate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
     mysqli_query($con, $create);
+
+    // ensure assigned_agent column exists
+    $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase' AND COLUMN_NAME='assigned_agent'";
+    $col_res = mysqli_query($con, $col_check);
+    if(!$col_res || mysqli_num_rows($col_res)===0){
+        @mysqli_query($con, "ALTER TABLE purchase ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL");
+    }
 
     $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`status`) VALUES ('$pname','$username','$pprice','$qty','$pid','pending')";
     if(mysqli_query($con,$sql)){
