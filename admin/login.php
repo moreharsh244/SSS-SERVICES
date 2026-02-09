@@ -9,6 +9,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/pc-theme.css">
     <script src="../js/bootstrap.min.js"></script>
         <style>
             body{ background: linear-gradient(180deg,#f4f7fb,#ffffff); }
@@ -19,7 +20,7 @@ session_start();
             .btn-primary{ border-radius:8px; }
         </style>
 </head>
-<body>
+<body class="pc-theme">
     <?php
     include 'conn.php';
     // ensure password column exists and can store hashes
@@ -44,15 +45,7 @@ session_start();
         if($result && mysqli_num_rows($result)>0){
             $row = mysqli_fetch_assoc($result);
             $stored = $row['password'];
-            $ok = false;
-            if(password_verify($password, $stored)){
-                $ok = true;
-            } elseif($stored === $password) {
-                // legacy plaintext password, rehash
-                $ok = true;
-                $newhash = password_hash($password, PASSWORD_DEFAULT);
-                @mysqli_query($con, "UPDATE user_login SET password='".mysqli_real_escape_string($con,$newhash)."' WHERE username='$username'");
-            }
+            $ok = ($stored === $password);
             if($ok){
                 session_regenerate_id(true);
                 $_SESSION['is_login'] = true;

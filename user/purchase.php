@@ -11,7 +11,7 @@ include('header.php');
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm reveal">
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">Purchase Summary</h4>
                 </div>

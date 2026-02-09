@@ -5,7 +5,7 @@ $view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
 ?>
 <div class="container">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12 reveal">
                         <h2>Orders</h2>
                         <div class="mb-3">
                             <?php if($view === 'history'): ?>

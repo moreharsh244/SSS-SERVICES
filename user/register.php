@@ -118,7 +118,7 @@ if(isset($_POST['register'])){
 
     include('../admin/conn.php');
 
-    // ensure c_password column exists and can store hashes
+    // ensure c_password column exists
     $colInfoQ = "SELECT CHARACTER_MAXIMUM_LENGTH, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='c_password' LIMIT 1";
     $colRes = mysqli_query($con, $colInfoQ);
     if($colRes && mysqli_num_rows($colRes)>0){
@@ -164,9 +164,8 @@ if(isset($_POST['register'])){
     $city_esc = mysqli_real_escape_string($con, $city);
     $state_esc = mysqli_real_escape_string($con, $state);
     $pin_esc = mysqli_real_escape_string($con, $pincode);
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-
-    $ins = "INSERT INTO cust_reg (c_name, c_email, c_contact, c_password, c_address, c_city, c_state, c_pincode) VALUES ('$name_esc', '$email_esc', '$contact_esc', '$hash', '$address_esc', '$city_esc', '$state_esc', '$pin_esc')";
+    $password_plain = mysqli_real_escape_string($con, $password);
+    $ins = "INSERT INTO cust_reg (c_name, c_email, c_contact, c_password, c_address, c_city, c_state, c_pincode) VALUES ('$name_esc', '$email_esc', '$contact_esc', '$password_plain', '$address_esc', '$city_esc', '$state_esc', '$pin_esc')";
     if(mysqli_query($con, $ins)){
         echo "<script>alert('Registration successful! Please login.'); window.location.href='login.php';</script>"; exit;
     } else {

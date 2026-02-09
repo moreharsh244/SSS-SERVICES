@@ -21,7 +21,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     $pqty = (int)$row['pqty'];
     $pimg = htmlspecialchars($row['pimg']);
 
-    echo '<div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">';
+    echo '<div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4 reveal">';
     echo '  <div class="card h-100 shadow-sm product-card">';
     echo '    <img src="../productimg/'. $pimg .'" data-full="../productimg/'. $pimg .'" class="card-img-top img-preview" alt="'. $pname .'" style="height:180px;object-fit:cover;">';
     echo '    <div class="card-body d-flex flex-column">';

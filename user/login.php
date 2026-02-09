@@ -8,6 +8,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Login</title>
      <link rel="stylesheet" href="../css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/pc-theme.css">
     <script src="../js/bootstrap.min.js"></script>
         <style>
             body{ background: linear-gradient(180deg,#f4f7fb,#ffffff); }
@@ -18,7 +19,7 @@ session_start();
             .btn-primary{ border-radius:8px; }
         </style>
 </head>
-<body>
+<body class="pc-theme">
     <?php
     include '../admin/conn.php';
     if(!isset($con) || !$con){
@@ -81,15 +82,7 @@ session_start();
 
                 if(!empty($stored)){
                     $stored = trim($stored);
-                    $ok = false;
-                    if(password_verify($password, $stored)){
-                        $ok = true;
-                    } elseif($stored === $password) {
-                        // legacy plaintext password, rehash and update
-                        $ok = true;
-                        $newhash = password_hash($password, PASSWORD_DEFAULT);
-                        mysqli_query($con, "UPDATE cust_reg SET c_password='".mysqli_real_escape_string($con,$newhash)."' WHERE c_email='".mysqli_real_escape_string($con,$username)."'");
-                    }
+                    $ok = ($stored === $password);
 
                     if($ok){
                         $_SESSION['is_login'] = true;

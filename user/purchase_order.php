@@ -39,9 +39,9 @@
             if(!$colR || mysqli_num_rows($colR)===0){ @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN loyalty_points INT DEFAULT 0"); }
             mysqli_query($con, "UPDATE cust_reg SET loyalty_points = COALESCE(loyalty_points,0) + $points WHERE c_email='".mysqli_real_escape_string($con,$username)."' LIMIT 1");
         }
-        echo '<script>alert("Purchase Successful");window.location.href="view_products.php";</script>'; 
+        echo '<script>window.location.href="view_products.php?toast='.rawurlencode('Purchase successful').'";</script>';
     }else{
-        echo '<script>alert("Purchase Failed: '.mysqli_error($con).'");window.location.href="view_products.php";</script>'; 
+        echo '<script>window.location.href="view_products.php?toast='.rawurlencode('Purchase failed').'";</script>';
     }
         
 ?>

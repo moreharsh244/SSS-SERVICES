@@ -1,0 +1,141 @@
+:root{
+  --brand-ink: #121826;
+  --brand-muted: #5f6b7a;
+  --brand-accent: #f97316;
+  --brand-accent-2: #fbbf24;
+  --brand-surface: #f6f4f0;
+  --brand-card: #ffffff;
+  --brand-border: #e5e7eb;
+  --brand-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  --brand-radius: 16px;
+}
+
+body{
+  font-family: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--brand-ink);
+  background: radial-gradient(circle at 12% 12%, #fff7ed 0%, transparent 50%),
+    radial-gradient(circle at 88% 4%, #e0f2fe 0%, transparent 60%),
+    linear-gradient(180deg, #fdfbf7 0%, #f3f4f6 100%);
+}
+
+h1, h2, h3, h4, h5, h6{
+  font-family: "Fraunces", "Sora", serif;
+  letter-spacing: 0.2px;
+}
+
+a{ color: inherit; }
+
+.navbar{
+  backdrop-filter: blur(10px);
+}
+
+.navbar-brand{
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.card,
+.admin-card,
+.delivery-card{
+  background: var(--brand-card);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--brand-radius);
+  box-shadow: var(--brand-shadow);
+}
+
+.btn-primary,
+.btn-success,
+.btn-delivery{
+  border: none;
+  background: linear-gradient(120deg, var(--brand-accent), var(--brand-accent-2));
+  color: #1f2937;
+  font-weight: 600;
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.2);
+}
+
+.btn-outline-primary{
+  border-radius: 999px;
+}
+
+.table thead th{
+  background: #f8fafc;
+}
+
+.form-control:focus,
+.form-select:focus{
+  border-color: #f97316;
+  box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.15);
+}
+
+.badge{
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.reveal{
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.reveal.is-visible{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-container{
+  z-index: 6000;
+}
+
+.toast{
+  border-radius: 14px;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+}
+
+.filter-chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.filter-chip .btn-close{
+  font-size: 0.6rem;
+}
+
+.cart-badge{
+  background: #f97316;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  position: absolute;
+  top: -6px;
+  right: -6px;
+}
+
+.offcanvas-cart .cart-item{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.offcanvas-cart img{
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.offcanvas-cart .cart-total{
+  font-weight: 700;
+  font-size: 1.05rem;
+}

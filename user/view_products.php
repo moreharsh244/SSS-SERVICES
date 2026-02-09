@@ -46,6 +46,21 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
             </div>
         </div>
 
+                <?php if($q || $company || $sort): ?>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <?php if($q): ?>
+                            <span class="filter-chip">Search: <?php echo htmlspecialchars($q); ?></span>
+                        <?php endif; ?>
+                        <?php if($company): ?>
+                            <span class="filter-chip">Brand: <?php echo htmlspecialchars($company); ?></span>
+                        <?php endif; ?>
+                        <?php if($sort): ?>
+                            <span class="filter-chip">Sort: <?php echo htmlspecialchars(str_replace('_',' ', $sort)); ?></span>
+                        <?php endif; ?>
+                        <a class="btn btn-sm btn-outline-secondary" href="view_products.php">Clear all</a>
+                    </div>
+                <?php endif; ?>
+
     <div class="row g-3">
         <?php
         $where = [];
@@ -60,7 +75,7 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
         while($row = mysqli_fetch_assoc($result)){
             $qty = (int)$row['pqty'];
         ?>
-        <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="col-sm-6 col-md-4 col-lg-3 reveal">
             <div class="card h-100 shadow-sm product-card">
                 <img src="../productimg/<?php echo $row['pimg']; ?>" data-full="../productimg/<?php echo $row['pimg']; ?>" class="card-img-top img-preview" alt="<?php echo htmlspecialchars($row['pname']); ?>" style="height:180px;object-fit:cover;">
                 <div class="card-body d-flex flex-column">
@@ -68,7 +83,7 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
                     <p class="text-muted small mb-1"><?php echo htmlspecialchars($row['pcompany']); ?></p>
                     <div class="mb-2 fw-bold">₹ <?php echo number_format($row['pprice'],2); ?></div>
                     <div class="mt-auto">
-                        <form action="purchase.php" method="post" class="d-flex gap-2 align-items-center">
+                        <form action="purchase.php" method="post" class="d-flex gap-2 align-items-center" data-cart-form data-cart-name="<?php echo htmlspecialchars($row['pname']); ?>" data-cart-price="<?php echo $row['pprice']; ?>" data-cart-img="../productimg/<?php echo $row['pimg']; ?>">
                             <input type="number" name="qty" class="form-control form-control-sm" value="1" min="1" max="<?php echo $qty; ?>" style="width:80px;">
                             <input type="hidden" name="pid" value="<?php echo $row['pid']; ?>">
                             <input type="hidden" name="pname" value="<?php echo htmlspecialchars($row['pname']); ?>">

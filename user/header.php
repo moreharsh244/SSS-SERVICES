@@ -59,22 +59,26 @@ if(!empty($_SESSION['user_id'])){
   <link rel="stylesheet" href="../css/bootstrap.min.css">
   <script src="../js/bootstrap.bundle.min.js"></script>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/pc-theme.css">
   <link rel="stylesheet" href="user.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ensure navbar and dropdowns render above other page components */
     .navbar { position: relative; z-index: 4000; }
     .navbar .dropdown-menu { z-index: 4001; }
   </style>
 </head>
-<body class="user-area">
+<body class="user-area pc-theme">
 <!-- Primary navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="view_products.php" style="font-size: 30px;">Shree Swami Samarth</a>
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="view_products.php" style="font-size: 30px;">
+      <img src="../img/logo-mark.svg" alt="Shree Swami Samarth" style="height:36px;width:36px;margin-right:10px;">
+      <span>Shree Swami Samarth</span>
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -89,6 +93,12 @@ if(!empty($_SESSION['user_id'])){
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
         <li class="nav-item me-2">
           <a class="btn btn-sm btn-outline-secondary" href="myorder.php">Orders</a>
+        </li>
+        <li class="nav-item me-2 position-relative">
+          <button class="btn btn-sm btn-outline-primary position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer" aria-controls="cartDrawer">
+            <i class="bi bi-bag"></i> Cart
+            <span id="cartBadge" class="cart-badge" style="display:none;">0</span>
+          </button>
         </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -106,6 +116,23 @@ if(!empty($_SESSION['user_id'])){
     </div>
   </div>
 </nav>
+
+<div class="offcanvas offcanvas-end offcanvas-cart" tabindex="-1" id="cartDrawer" aria-labelledby="cartDrawerLabel">
+  <div class="offcanvas-header">
+    <h5 id="cartDrawerLabel">Quick Cart</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div id="cartItems"></div>
+    <div class="mt-3 d-flex justify-content-between align-items-center">
+      <span class="cart-total">Total</span>
+      <span id="cartTotal" class="cart-total">₹0.00</span>
+    </div>
+    <div class="mt-3">
+      <a class="btn btn-primary w-100" href="myorder.php">View Orders</a>
+    </div>
+  </div>
+</div>
 
 <!-- Page layout -->
 <!-- Page layout -->

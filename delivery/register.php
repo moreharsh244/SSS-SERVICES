@@ -31,11 +31,11 @@ if(isset($_POST['register'])){
         if($check && mysqli_num_rows($check)>0){
             $errors[] = 'Username already exists.';
         } else {
-            $hash = password_hash($password, PASSWORD_DEFAULT);
             $fn = mysqli_real_escape_string($con, $full_name);
             $em = mysqli_real_escape_string($con, $email);
             $ph = mysqli_real_escape_string($con, $phone);
-            $ins = "INSERT INTO del_login (username,password,full_name,email,phone,role) VALUES ('$u_esc','".mysqli_real_escape_string($con,$hash)."','$fn','$em','$ph','delivery')";
+            $pass_plain = mysqli_real_escape_string($con, $password);
+            $ins = "INSERT INTO del_login (username,password,full_name,email,phone,role) VALUES ('$u_esc','$pass_plain','$fn','$em','$ph','delivery')";
             if(mysqli_query($con, $ins)){
                 log_delivery_action($con, $username, 'register', 'Delivery agent registered');
                 $success = 'Registration successful. Please sign in.';

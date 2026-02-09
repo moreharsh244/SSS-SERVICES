@@ -18,7 +18,7 @@ include('header.php');
         if($statRes && mysqli_num_rows($statRes)>0){ $stats = mysqli_fetch_assoc($statRes); }
         ?>
 
-        <div class="delivery-hero mb-4 fade-in">
+        <div class="delivery-hero mb-4 fade-in reveal">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
                     <h2 class="mb-1">Delivery Dashboard</h2>
@@ -33,26 +33,26 @@ include('header.php');
 
         <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="delivery-card p-3 fade-in">
+                <div class="delivery-card p-3 fade-in reveal">
                     <div class="small text-muted">Pending</div>
                     <div class="h3 mb-0"><?php echo (int)($stats['pending'] ?? 0); ?></div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="delivery-card p-3 fade-in">
+                <div class="delivery-card p-3 fade-in reveal">
                     <div class="small text-muted">Shipped</div>
                     <div class="h3 mb-0"><?php echo (int)($stats['shipped'] ?? 0); ?></div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="delivery-card p-3 fade-in">
+                <div class="delivery-card p-3 fade-in reveal">
                     <div class="small text-muted">Delivered</div>
                     <div class="h3 mb-0"><?php echo (int)($stats['delivered'] ?? 0); ?></div>
                 </div>
             </div>
         </div>
 
-        <div class="delivery-panel">
+        <div class="delivery-panel reveal">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0">Active Deliveries</h5>
                 <span class="text-muted small">Only orders assigned to you</span>

@@ -5,7 +5,7 @@ include('header.php');
 <div class="container py-4">
   <div class="row justify-content-center">
     <div class="col-md-10">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm reveal">
         <div class="card-body">
           <h4 class="mb-3">Service Requests</h4>
           <?php if(isset($_GET['ok']) && $_GET['ok']==1): ?>

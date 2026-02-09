@@ -64,8 +64,8 @@ if(isset($_POST['register'])){
     if($check && mysqli_num_rows($check)>0){
         echo "<script>alert('Username already exists');</script>"; exit;
     }
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-    $ins = "INSERT INTO user_login (username, password) VALUES ('$u_esc', '".mysqli_real_escape_string($con,$hash)."')";
+    $pass_plain = mysqli_real_escape_string($con, $password);
+    $ins = "INSERT INTO user_login (username, password) VALUES ('$u_esc', '$pass_plain')";
     $result = mysqli_query($con, $ins);
     if($result){
         $_SESSION['is_login'] = true;

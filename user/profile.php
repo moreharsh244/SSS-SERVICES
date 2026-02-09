@@ -54,8 +54,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
     $parts[] = "c_state='".mysqli_real_escape_string($con,$state)."'";
     $parts[] = "c_pincode='".mysqli_real_escape_string($con,$pincode)."'";
     if(strlen($password) > 0){
-      $hash = password_hash($password, PASSWORD_DEFAULT);
-      $parts[] = "c_password='".mysqli_real_escape_string($con,$hash)."'";
+      $parts[] = "c_password='".mysqli_real_escape_string($con,$password)."'";
     }
     // record profile update time
     $parts[] = "updated_at=NOW()";

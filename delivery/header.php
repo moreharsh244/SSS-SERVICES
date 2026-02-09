@@ -19,24 +19,28 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <script src="../js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/pc-theme.css">
     <link rel="stylesheet" href="../user/user.css">
     <link rel="stylesheet" href="../admin/admin.css">
     <link rel="stylesheet" href="delivery.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
           /* ensure navbar and dropdowns render above other page components */
           .navbar { position: relative; z-index: 4000; }
           .navbar .dropdown-menu { z-index: 4001; }
         </style>
 </head>  
-<body class="delivery-body user-area">
+<body class="delivery-body user-area pc-theme">
     <!-- navbar start -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="index.php" style="font-size: 30px;">SSS SERVICES</a>
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="index.php" style="font-size: 30px;">
+      <img src="../img/logo-mark.svg" alt="Shree Swami Samarth" style="height:36px;width:36px;margin-right:10px;">
+      <span>Shree Swami Samarth</span>
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>

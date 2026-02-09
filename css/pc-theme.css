@@ -1,0 +1,135 @@
+:root{
+  --pc-bg: radial-gradient(circle at 12% 8%, #fff7ed 0%, #f8fafc 45%, #f3f4f6 100%);
+  --pc-ink: #111827;
+  --pc-muted: #6b7280;
+  --pc-accent: #f97316;
+  --pc-accent-2: #fbbf24;
+  --pc-card: #ffffff;
+  --pc-border: #e5e7eb;
+  --pc-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+body.pc-theme{
+  background: var(--pc-bg);
+  color: var(--pc-ink);
+}
+
+.navbar{
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15,23,42,0.06);
+}
+
+.navbar .navbar-brand{
+  color: var(--pc-ink);
+  letter-spacing: 0.2px;
+}
+
+.navbar .nav-link{
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover{
+  color: var(--pc-accent);
+}
+
+.nav-pills .nav-link{
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-weight: 600;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .nav-link:hover{
+  background: rgba(249, 115, 22, 0.12);
+  color: var(--pc-accent);
+}
+
+.card,
+.admin-card,
+.delivery-card{
+  background: var(--pc-card);
+  border: 1px solid var(--pc-border);
+  border-radius: 14px;
+  box-shadow: var(--pc-shadow);
+}
+
+.table thead th{
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+  color: #1f2937;
+}
+
+.table tbody tr{
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.table-hover tbody tr:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(15,23,42,0.08);
+}
+
+.form-control,
+.form-select{
+  border-radius: 10px;
+  border-color: #e2e8f0;
+}
+
+.btn-primary,
+.btn-delivery{
+  background: linear-gradient(120deg, #f97316, #fbbf24);
+  border: none;
+  color: #1f2937;
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.2);
+}
+
+.btn-primary:hover,
+.btn-delivery:hover{
+  background: linear-gradient(120deg, #ea580c, #f59e0b);
+}
+
+.btn-outline-secondary{
+  border-radius: 8px;
+}
+
+.hero,
+.delivery-hero{
+  background: linear-gradient(120deg, rgba(249, 115, 22, 0.12), rgba(251, 191, 36, 0.06));
+  border: 1px solid rgba(249, 115, 22, 0.16);
+  border-radius: 16px;
+}
+
+.product-card{
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,0.06);
+  overflow: hidden;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.product-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(15,23,42,0.12);
+}
+
+.badge{
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.delivery-panel{
+  background: var(--pc-card);
+  border-radius: 16px;
+  border: 1px solid var(--pc-border);
+  box-shadow: var(--pc-shadow);
+}
+
+.stat-pill{
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+}
+
+footer{
+  border-top: 1px solid rgba(15,23,42,0.08);
+}

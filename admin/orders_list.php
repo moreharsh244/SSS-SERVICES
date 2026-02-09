@@ -65,7 +65,7 @@ if($view === 'history'){
 ?>
 
 <div class="col-12 col-lg-10 mx-auto">
-  <div class="admin-card">
+  <div class="admin-card reveal">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h4 class="mb-1"><i class="bi bi-bag-check text-primary me-2"></i>Orders</h4>
