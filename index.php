@@ -46,95 +46,129 @@
 
    <!-- ################################################################################################# -->
 
-    <!-- slider start  -->
-<div class="container mt-4 reveal">
-  <div id="carouselExampleCaptions" class="carousel slide shadow-sm rounded" data-bs-ride="carousel">
-  <div class="carousel-indicators">
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
-  </div>
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="img/pc1.jpg" class="d-block w-100 rounded" height="650px">
-        <div class="carousel-caption d-none d-md-block hero-caption">
-          <h5>Devotional Gifts</h5>
-          <p>Hand-picked items for your worship and home puja.</p>
-          <a class="btn btn-primary btn-lg" href="user/index.php">Shop Now</a>
+    <!-- hero start -->
+<section class="hero-splash reveal">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <span class="hero-chip"><i class="bi bi-stars"></i> Devotional gifts made joyful</span>
+        <h1 class="hero-title">Shree Swami Samarth
+          <span class="hero-title-sub">Colorful collections for puja, festivals, and gifting</span>
+        </h1>
+        <p class="hero-copy">Pick from hand-selected essentials, festival kits, and gift-ready bundles delivered with care.</p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+          <a class="btn btn-hero-primary btn-lg" href="user/index.php">Shop Now</a>
+          <a class="btn btn-hero-outline btn-lg" href="view_products.php">See Collection</a>
         </div>
-    </div>
-    <div class="carousel-item">
-      <img src="img/pc2.jpg" class="d-block w-100 rounded" height="650px">
-        <div class="carousel-caption d-none d-md-block hero-caption">
-          <h5>Quality Items</h5>
-          <p>Quality assured products for everyday devotion.</p>
-          <a class="btn btn-outline-light btn-lg" href="view_products.php">Browse</a>
+        <div class="hero-highlights">
+          <div class="highlight-pill">Fast delivery</div>
+          <div class="highlight-pill">Gift-ready packs</div>
+          <div class="highlight-pill">Authentic items</div>
         </div>
-    </div>
-    <div class="carousel-item">
-      <img src="img/pc3.jpg" class="d-block w-100 rounded" height="650px">
-        <div class="carousel-caption d-none d-md-block hero-caption">
-          <h5>Fast Delivery</h5>
-          <p>Reliable shipping across locations.</p>
-          <a class="btn btn-primary btn-lg" href="delivery/index.php">Delivery Info</a>
+      </div>
+      <div class="col-lg-6">
+        <div class="hero-collage">
+          <div class="hero-card">
+            <img src="img/pc1.jpg" alt="Puja essentials" class="img-fluid">
+          </div>
+          <div class="hero-card pop">
+            <img src="img/pc2.jpg" alt="Festival kits" class="img-fluid">
+          </div>
+          <div class="hero-card tall">
+            <img src="img/pc3.jpg" alt="Gift packs" class="img-fluid">
+          </div>
         </div>
+      </div>
     </div>
   </div>
-  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
-  </div>
-</div>
+</section>
+    <!-- hero end -->
 
-    <!-- slider end  -->
-
-    <!-- welcome section -->
-<section class="container my-4 reveal">
-  <div class="p-4 hero rounded shadow-sm text-center">
-    <h2 class="display-6 mb-2">Welcome to Shree Swami Samarth</h2>
-    <p class="lead mb-0">Authentic devotional items selected with care — explore our collection.</p>
+    <!-- info strip -->
+<section class="info-strip reveal">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="info-card">
+          <div class="info-icon"><i class="bi bi-flower3"></i></div>
+          <div>
+            <h5>Curated Puja Items</h5>
+            <p>Authenticity-first products for everyday rituals.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="info-card">
+          <div class="info-icon"><i class="bi bi-gift"></i></div>
+          <div>
+            <h5>Gift-Ready Bundles</h5>
+            <p>Festival and gifting packs styled for joy.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="info-card">
+          <div class="info-icon"><i class="bi bi-truck"></i></div>
+          <div>
+            <h5>Reliable Shipping</h5>
+            <p>Fast delivery with secure packaging.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- feature cards -->
-<section class="container features reveal">
-  <div class="row g-3">
-    <div class="col-md-4">
-      <div class="card feature-card p-3 h-100 reveal">
-        <div class="d-flex align-items-start gap-3">
-          <div class="feature-emoji">🛕</div>
-          <div>
-            <h5 class="mb-1">Curated Puja Items</h5>
-            <p class="mb-0 text-muted">Handpicked for authenticity and quality.</p>
-          </div>
+    <!-- categories -->
+<section class="category-grid reveal">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="section-title mb-0">Popular Categories</h2>
+      <a class="text-decoration-none fw-semibold" href="view_products.php">View all</a>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="category-tile teal">
+          <div class="tile-top">Daily Puja</div>
+          <p>Diya, incense, and essentials.</p>
+          <a href="view_products.php" class="btn btn-light btn-sm">Explore</a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="category-tile coral">
+          <div class="tile-top">Festival Kits</div>
+          <p>Ready-to-use celebration packs.</p>
+          <a href="view_products.php" class="btn btn-light btn-sm">Explore</a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="category-tile amber">
+          <div class="tile-top">Gift Sets</div>
+          <p>Thoughtful presents for loved ones.</p>
+          <a href="view_products.php" class="btn btn-light btn-sm">Explore</a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="category-tile violet">
+          <div class="tile-top">Home Decor</div>
+          <p>Spiritual decor and accents.</p>
+          <a href="view_products.php" class="btn btn-light btn-sm">Explore</a>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card feature-card p-3 h-100 reveal">
-        <div class="d-flex align-items-start gap-3">
-          <div class="feature-emoji">🎁</div>
-          <div>
-            <h5 class="mb-1">Gift Ready</h5>
-            <p class="mb-0 text-muted">Beautifully packaged for gifting and festivals.</p>
-          </div>
-        </div>
+  </div>
+</section>
+
+    <!-- CTA band -->
+<section class="cta-ribbon reveal">
+  <div class="container">
+    <div class="row align-items-center g-3">
+      <div class="col-lg-8">
+        <h3 class="mb-2">Track your orders in seconds</h3>
+        <p class="mb-0">Sign in to the customer portal for updates and history.</p>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card feature-card p-3 h-100 reveal">
-        <div class="d-flex align-items-start gap-3">
-          <div class="feature-emoji">🚚</div>
-          <div>
-            <h5 class="mb-1">Fast Delivery</h5>
-            <p class="mb-0 text-muted">Reliable shipping and secure packaging.</p>
-          </div>
-        </div>
+      <div class="col-lg-4 text-lg-end">
+        <a class="btn btn-dark btn-lg" href="user/index.php">Customer Portal</a>
       </div>
     </div>
   </div>

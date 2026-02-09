@@ -40,6 +40,80 @@ body.user-area{
   aside{ display: none; }
 }
 
+/* Orders page */
+.orders-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.orders-card{
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.orders-card thead th{
+  background: #f8fafc;
+  color: #0f172a;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.orders-card tbody tr{
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.orders-card tbody tr:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.badge-soft{
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.badge-pending{
+  background: rgba(234, 179, 8, 0.18);
+  color: #92400e;
+}
+
+.badge-shipped{
+  background: rgba(59, 130, 246, 0.18);
+  color: #1d4ed8;
+}
+
+.badge-delivered{
+  background: rgba(34, 197, 94, 0.18);
+  color: #15803d;
+}
+
+.badge-cancelled{
+  background: rgba(239, 68, 68, 0.18);
+  color: #b91c1c;
+}
+
+.badge-default{
+  background: rgba(148, 163, 184, 0.2);
+  color: #475569;
+}
+
+@media (max-width: 768px){
+  .orders-header{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 /* User area enhancements */
 .navbar-brand{
   font-family: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
