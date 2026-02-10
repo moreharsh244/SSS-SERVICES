@@ -5,6 +5,8 @@ if($_SERVER['REQUEST_METHOD']!=='POST') exit('Invalid');
 $service_type = mysqli_real_escape_string($con, $_POST['service_type'] ?? 'general');
 $item = mysqli_real_escape_string($con, $_POST['item'] ?? '');
 $details = mysqli_real_escape_string($con, $_POST['details'] ?? '');
+$phone = mysqli_real_escape_string($con, $_POST['phone'] ?? '');
+$contact_time = mysqli_real_escape_string($con, $_POST['contact_time'] ?? '');
 $user = mysqli_real_escape_string($con, $_SESSION['username'] ?? 'guest');
 // ensure service_requests table exists
 $create = "CREATE TABLE IF NOT EXISTS `service_requests` (
@@ -13,11 +15,24 @@ $create = "CREATE TABLE IF NOT EXISTS `service_requests` (
   `item` VARCHAR(255),
   `service_type` VARCHAR(100),
   `details` TEXT,
+  `phone` VARCHAR(50),
+  `contact_time` VARCHAR(100),
   `status` VARCHAR(50) DEFAULT 'pending',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 @mysqli_query($con, $create);
-$ins = "INSERT INTO service_requests (`user`, item, service_type, details) VALUES ('". $user ."', '". $item ."', '". $service_type ."', '". $details ."')";
+// add new columns for existing databases if missing
+$db = '';
+$rdb = @mysqli_query($con, "SELECT DATABASE() AS dbname");
+if($rdb && mysqli_num_rows($rdb)>0){ $db = mysqli_fetch_assoc($rdb)['dbname']; }
+if($db){
+  $db_safe = mysqli_real_escape_string($con, $db);
+  $col_phone = @mysqli_query($con, "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='$db_safe' AND TABLE_NAME='service_requests' AND COLUMN_NAME='phone' LIMIT 1");
+  if(!$col_phone || mysqli_num_rows($col_phone)==0){ @mysqli_query($con, "ALTER TABLE service_requests ADD COLUMN phone VARCHAR(50)"); }
+  $col_time = @mysqli_query($con, "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='$db_safe' AND TABLE_NAME='service_requests' AND COLUMN_NAME='contact_time' LIMIT 1");
+  if(!$col_time || mysqli_num_rows($col_time)==0){ @mysqli_query($con, "ALTER TABLE service_requests ADD COLUMN contact_time VARCHAR(100)"); }
+}
+$ins = "INSERT INTO service_requests (`user`, item, service_type, details, phone, contact_time) VALUES ('". $user ."', '". $item ."', '". $service_type ."', '". $details ."', '". $phone ."', '". $contact_time ."')";
 @mysqli_query($con, $ins);
 header('Location: service.php?ok=1');
 exit;

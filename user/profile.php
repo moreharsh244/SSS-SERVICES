@@ -72,27 +72,43 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
 
 <style>
   /* small, local visual polish for profile page */
-  .profile-card { max-width:900px; margin:18px auto; border-radius:12px; overflow:hidden; }
-  .profile-avatar { width:96px; height:96px; border-radius:14px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-size:34px; color:#0d6efd; }
-  .form-section { background: #fff; padding:24px; }
+  .profile-card { max-width:980px; margin:18px auto; border-radius:16px; overflow:hidden; border:1px solid rgba(15,23,42,0.08); }
+  .profile-side { background: linear-gradient(135deg, rgba(13,110,253,0.12), rgba(13,110,253,0.02)); }
+  .profile-avatar { width:104px; height:104px; border-radius:18px; background:#ffffff; display:flex; align-items:center; justify-content:center; font-size:40px; color:#0d6efd; box-shadow:0 10px 24px rgba(15,23,42,0.08); }
+  .profile-meta { font-size:0.9rem; color:#475569; }
+  .profile-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:#ffffff; border:1px solid rgba(15,23,42,0.08); font-size:0.8rem; }
+  .form-section { background:#fff; padding:26px; }
+  .section-title { font-weight:600; font-size:0.95rem; color:#0f172a; letter-spacing:0.2px; }
+  .form-hint { font-size:0.85rem; color:#64748b; }
 </style>
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-12">
       <div class="card shadow-sm mt-3 profile-card">
         <div class="row g-0">
-          <div class="col-md-4 d-flex align-items-center justify-content-center p-4" style="background:#f8fafc;">
+          <div class="col-md-4 d-flex align-items-center justify-content-center p-4 profile-side">
             <div class="text-center">
               <div class="profile-avatar mb-3"><i class="bi bi-person-circle"></i></div>
-              <h5 class="mb-0">Profile</h5>
-              <div class="text-muted small">Manage your profile details</div>
+              <h5 class="mb-1">Profile</h5>
+              <div class="profile-meta mb-3">Manage your details and keep your info up to date.</div>
+              <div class="d-flex flex-column gap-2 align-items-center">
+                <span class="profile-pill"><i class="bi bi-envelope"></i><?php echo htmlspecialchars($user['c_email'] ?? $email); ?></span>
+                <?php if(!empty($reg_time)): ?>
+                  <span class="profile-pill"><i class="bi bi-calendar-event"></i>Member since <?php echo htmlspecialchars($reg_time); ?></span>
+                <?php endif; ?>
+              </div>
             </div>
           </div>
           <div class="col-md-8 form-section">
             <?php if(!empty($err)){ echo '<div class="alert alert-danger">'.htmlspecialchars($err).'</div>'; } ?>
             <?php if(!empty($prefill_from_get)){ echo '<div class="alert alert-info">We imported address details from registration — please confirm and save.</div>'; } ?>
             <form method="post">
-                <h6 class="mb-3">Edit Profile</h6>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <div>
+                    <div class="section-title">Edit Profile</div>
+                    <div class="form-hint">Only fill in the fields you want to update.</div>
+                  </div>
+                </div>
                 <div class="mb-2">
                   <label class="form-label">Full Name</label>
                   <input name="name" class="form-control" placeholder="Your full name" value="<?php echo htmlspecialchars($user['c_name'] ?? ''); ?>">
@@ -120,10 +136,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                   <input name="pincode" class="form-control" placeholder="Postal / ZIP code" value="<?php echo htmlspecialchars($user['c_pincode'] ?? ''); ?>">
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">New Password (leave blank to keep)</label>
-                  <input type="password" name="password" class="form-control">
+                  <label class="form-label">New Password</label>
+                  <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current password">
                 </div>
-                <div class="d-flex justify-content-end">
+                <div class="d-flex justify-content-end gap-2">
                   <button type="submit" name="update_profile" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>

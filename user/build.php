@@ -81,35 +81,30 @@ $pq = mysqli_query($con, "SELECT pid, pname, pprice, pcat, pimg FROM products");
 if($pq){
     while($r = mysqli_fetch_assoc($pq)) $products[] = $r;
 }
-?><!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Build Your PC</title>
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
-    <link href="user.css" rel="stylesheet">
-    <style>
-        .build-card{border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
-        .item-row:hover{background:#f8f9fa}
-        .price{font-weight:600}
-        .item-thumb{width:56px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px}
-        .items-list .list-group-item{display:flex;align-items:center;gap:12px}
-    </style>
-</head>
-<body>
-<div class="container py-4">
+// Render as partial for AJAX fetch when requested
+$is_partial = isset($_GET['partial']) && $_GET['partial'] === '1';
+if(!$is_partial){
+    if(!defined('page')) define('page','build');
+    include('header.php');
+}
+?>
+<div class="container py-4 build-page">
     <div class="row">
         <div class="col-12 text-center mb-4">
-            <h1 class="h3">Build Your PC</h1>
-            <p class="text-muted">Add parts, see live total, then save your build.</p>
+            <h1 class="h3 mb-2">Build Your PC</h1>
+            <p class="text-muted mb-3">Select parts with confidence. Your total updates instantly.</p>
+            <div class="build-steps">
+                <span class="build-step">1. Choose category</span>
+                <span class="build-step">2. Select product</span>
+                <span class="build-step">3. Add part</span>
+            </div>
         </div>
     </div>
     <div class="row g-4">
         <div class="col-lg-5">
             <div class="card p-3 build-card">
-                <h5 class="mb-3">Add Part</h5>
+                <h5 class="mb-2">Add Part</h5>
+                <p class="text-muted small mb-3">Use the selector to add parts from the store.</p>
                 <form id="addPartForm" onsubmit="return false;">
                     <div class="mb-2">
                         <label class="form-label">Category</label>
@@ -169,12 +164,16 @@ if($pq){
                     </div>
                     <div>
                         <span class="text-muted">Total:</span>
-                        <span id="totalPrice" class="ms-2 h5 mb-0 price">$0.00</span>
+                        <span id="totalPrice" class="ms-2 h5 mb-0 price">₹0.00</span>
                     </div>
+                </div>
+                <div class="px-3 py-2 border-bottom build-requirements">
+                    <div class="text-muted small mb-2">Required components</div>
+                    <div id="requiredList" class="d-flex flex-wrap gap-2"></div>
                 </div>
                 <div class="p-3">
                     <div id="itemsList">
-                        <div class="text-center text-muted py-4">No parts added yet.</div>
+                        <div class="build-empty text-center text-muted py-4">No parts added yet.</div>
                     </div>
                 </div>
                 <div class="p-3 border-top d-flex justify-content-between align-items-center">
@@ -190,8 +189,6 @@ if($pq){
         </div>
     </div>
 </div>
-
-<script src="../js/bootstrap.bundle.min.js"></script>
 <script>
     const items = [];
     const itemsList = document.getElementById('itemsList');
@@ -200,8 +197,9 @@ if($pq){
 
     function renderItems(){
         if(items.length === 0){
-            itemsList.innerHTML = '<div class="text-center text-muted py-4">No parts added yet.</div>';
-            totalPriceEl.textContent = '$0.00';
+            itemsList.innerHTML = '<div class="build-empty text-center text-muted py-4">No parts added yet.</div>';
+            totalPriceEl.textContent = '₹0.00';
+            renderRequiredList();
             return;
         }
         let html = '<div class="list-group">';
@@ -213,7 +211,7 @@ if($pq){
                         <div class="fw-semibold">${escapeHtml(it.category)} — ${escapeHtml(it.name)}</div>
                     </div>
                     <div class="text-end" style="min-width:120px">
-                        <div class="price">$${Number(it.price).toFixed(2)}</div>
+                        <div class="price">₹${Number(it.price).toFixed(2)}</div>
                         <button class="btn btn-sm btn-link text-danger" onclick="removeItem(${idx})">Remove</button>
                     </div>
                 </div>`;
@@ -221,7 +219,20 @@ if($pq){
         html += '</div>';
         itemsList.innerHTML = html;
         const total = items.reduce((s,i)=>s+Number(i.price||0),0);
-        totalPriceEl.textContent = '$' + total.toFixed(2);
+        totalPriceEl.textContent = '₹' + total.toFixed(2);
+        renderRequiredList();
+    }
+
+    function renderRequiredList(){
+        const wrap = document.getElementById('requiredList');
+        if(!wrap) return;
+        const present = {};
+        items.forEach(it=>{ present[(it.category||'').trim()] = true; });
+        wrap.innerHTML = REQUIRED_CATEGORIES.map(cat=>{
+            const ok = !!present[cat];
+            const cls = ok ? 'req-badge ok' : 'req-badge missing';
+            return `<span class="${cls}">${cat}</span>`;
+        }).join('');
     }
 
     function removeItem(i){ items.splice(i,1); renderItems(); }
@@ -319,8 +330,6 @@ if($pq){
 
     renderItems();
 </script>
-</body>
-</html>
 <!-- Image modal for build preview -->
 <div class="modal fade" id="imageModalBuild" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -332,5 +341,4 @@ if($pq){
         </div>
     </div>
 </div>
-<?php
-?>
+<?php if(!$is_partial){ include('footer.php'); } ?>

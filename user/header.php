@@ -162,50 +162,68 @@ if(!empty($_SESSION['user_id'])){
     </div>
   </div>
 </div>
-<script>
-// Intercept Build PC nav link and load build UI under navbar without full redirect
-document.addEventListener('DOMContentLoaded', function(){
-  function loadBuildFragment(){
-    fetch('build.php')
-      .then(r => r.text())
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const frag = doc.querySelector('.container.py-4');
-        const modal = doc.getElementById('imageModalBuild');
+      <script>
+      document.addEventListener('DOMContentLoaded', function(){
         const main = document.querySelector('main.col-12');
-        if(frag && main){
-          main.innerHTML = '';
-          main.appendChild(frag);
+        const buildHref = 'build.php';
+        const buildFetchUrl = 'build.php?partial=1';
+
+        function loadBuildFragment(){
+          fetch(buildFetchUrl)
+            .then(r => r.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, 'text/html');
+              const frag = doc.querySelector('.container.py-4');
+              const modal = doc.getElementById('imageModalBuild');
+              if(frag && main){
+                main.innerHTML = '';
+                main.appendChild(frag);
+              }
+              if(modal){
+                const existing = document.getElementById('imageModalBuild');
+                if(existing) existing.remove();
+                document.body.appendChild(modal);
+              }
+              const scripts = doc.querySelectorAll('script');
+              scripts.forEach(s => {
+                if(!s.src){
+                  try{ eval(s.textContent); }catch(e){ console.error(e); }
+                } else if(!document.querySelector('script[src="'+s.src+'"]')){
+                  const sc = document.createElement('script');
+                  sc.src = s.src;
+                  document.body.appendChild(sc);
+                }
+              });
+            }).catch(console.error);
         }
-        // append modal if present
-        if(modal){
-          // remove existing modal if any
-          const existing = document.getElementById('imageModalBuild');
-          if(existing) existing.remove();
-          document.body.appendChild(modal);
+
+        function pushBuildState(){
+          history.pushState({ page: 'build' }, '', buildHref);
         }
-        // execute inline scripts from fetched page
-        const scripts = doc.querySelectorAll('script');
-        scripts.forEach(s => {
-          if(!s.src){
-            try{ eval(s.textContent); }catch(e){ console.error(e); }
+
+        if(!history.state){
+          history.replaceState({ page: 'page', url: location.href }, '', location.href);
+        }
+
+        document.body.addEventListener('click', function(e){
+          const link = e.target.closest('a[href="build.php"]');
+          if(!link) return;
+          if(link.target && link.target !== '_self') return;
+          e.preventDefault();
+          pushBuildState();
+          loadBuildFragment();
+        });
+
+        window.addEventListener('popstate', function(e){
+          if(e.state && e.state.page === 'build'){
+            loadBuildFragment();
           } else {
-            // ensure external scripts are loaded
-            if(!document.querySelector('script[src="'+s.src+'"]')){
-              const sc = document.createElement('script'); sc.src = s.src; document.body.appendChild(sc);
-            }
+            location.reload();
           }
         });
-      }).catch(console.error);
-  }
-
-  // attach handler to Build PC nav link(s)
-  document.querySelectorAll('a.nav-link[href="build.php"]').forEach(a => {
-    a.addEventListener('click', function(e){ e.preventDefault(); loadBuildFragment(); });
-  });
-});
-</script>
+      });
+      </script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   const input = document.getElementById('site-search-input');
