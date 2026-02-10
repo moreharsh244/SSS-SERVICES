@@ -9,13 +9,30 @@ include('header.php');
         ensure_purchase_table($con);
         $agent = mysqli_real_escape_string($con, $_SESSION['username'] ?? '');
         $statSql = "SELECT COUNT(*) AS total,
-            SUM(CASE WHEN LOWER(IFNULL(delivery_status,'pending'))='pending' THEN 1 ELSE 0 END) AS pending,
-            SUM(CASE WHEN LOWER(IFNULL(delivery_status,''))='shipped' THEN 1 ELSE 0 END) AS shipped,
-            SUM(CASE WHEN LOWER(IFNULL(delivery_status,''))='delivered' THEN 1 ELSE 0 END) AS delivered
+            SUM(CASE WHEN LOWER(IFNULL(delivery_status,'pending')) NOT IN ('delivered','cancelled') THEN 1 ELSE 0 END) AS pending
             FROM purchase WHERE assigned_agent='$agent'";
         $statRes = mysqli_query($con, $statSql);
-        $stats = ['total'=>0,'pending'=>0,'shipped'=>0,'delivered'=>0];
+        $stats = ['total'=>0,'pending'=>0,'delivered'=>0];
         if($statRes && mysqli_num_rows($statRes)>0){ $stats = mysqli_fetch_assoc($statRes); }
+
+        // delivered/cancelled orders are archived in purchase_history
+        $delivered_count = 0;
+        $cancelled_count = 0;
+        $db = '';
+        $rdb = @mysqli_query($con, "SELECT DATABASE() AS dbname");
+        if($rdb && mysqli_num_rows($rdb)>0){ $db = mysqli_fetch_assoc($rdb)['dbname']; }
+        if($db){
+            $tbl = mysqli_real_escape_string($con, 'purchase_history');
+            $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
+            if($qc && mysqli_num_rows($qc)>0){
+                $dc = @mysqli_query($con, "SELECT COUNT(*) AS total FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,''))='delivered'");
+                if($dc && mysqli_num_rows($dc)>0){ $delivered_count = (int)(mysqli_fetch_assoc($dc)['total'] ?? 0); }
+                $cc = @mysqli_query($con, "SELECT COUNT(*) AS total FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,''))='cancelled'");
+                if($cc && mysqli_num_rows($cc)>0){ $cancelled_count = (int)(mysqli_fetch_assoc($cc)['total'] ?? 0); }
+            }
+        }
+        $stats['delivered'] = $delivered_count;
+        $stats['cancelled'] = $cancelled_count;
         ?>
 
         <div class="delivery-hero mb-4 fade-in reveal">
@@ -40,14 +57,14 @@ include('header.php');
             </div>
             <div class="col-md-4">
                 <div class="delivery-card p-3 fade-in reveal">
-                    <div class="small text-muted">Shipped</div>
-                    <div class="h3 mb-0"><?php echo (int)($stats['shipped'] ?? 0); ?></div>
+                    <div class="small text-muted">Delivered</div>
+                    <div class="h3 mb-0"><?php echo (int)($stats['delivered'] ?? 0); ?></div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="delivery-card p-3 fade-in reveal">
-                    <div class="small text-muted">Delivered</div>
-                    <div class="h3 mb-0"><?php echo (int)($stats['delivered'] ?? 0); ?></div>
+                    <div class="small text-muted">Cancelled</div>
+                    <div class="h3 mb-0"><?php echo (int)($stats['cancelled'] ?? 0); ?></div>
                 </div>
             </div>
         </div>
@@ -82,9 +99,6 @@ include('header.php');
                     $total = number_format(((float)($row['pprice'] ?? 0) * $qty), 2);
                     $dstatus = strtolower($row['delivery_status'] ?? 'pending');
                     $badge = 'badge-pending';
-                    if($dstatus === 'shipped'){ $badge = 'badge-shipped'; }
-                    if($dstatus === 'delivered'){ $badge = 'badge-delivered'; }
-                    if($dstatus === 'cancelled'){ $badge = 'badge-cancelled'; }
             ?>
                 <tr>
                     <td><?php echo $id; ?></td>
@@ -92,20 +106,17 @@ include('header.php');
                     <td><?php echo $user; ?></td>
                     <td><?php echo $qty; ?></td>
                     <td>₹<?php echo $total; ?></td>
-                    <td>
+                        <td><span class="badge <?php echo $badge; ?>">Pending</span></td>
+                        <td>
                             <form action="update_status.php" method="post" class="d-flex gap-2 align-items-center">
-                                    <input type="hidden" name="order_id" value="<?php echo $id; ?>">
-                                    <select name="delivery_status" class="form-select form-select-sm">
-                                            <option value="pending" <?php echo $dstatus==='pending'?'selected':''; ?>>Pending</option>
-                                            <option value="shipped" <?php echo $dstatus==='shipped'?'selected':''; ?>>Shipped</option>
-                                            <option value="delivered" <?php echo $dstatus==='delivered'?'selected':''; ?>>Delivered</option>
-                                            <option value="cancelled" <?php echo $dstatus==='cancelled'?'selected':''; ?>>Cancelled</option>
-                                    </select>
-                    </td>
-                    <td>
-                            <button type="submit" class="btn btn-delivery btn-sm">Update</button>
-                    </td>
+                                <input type="hidden" name="order_id" value="<?php echo $id; ?>">
+                                <select name="delivery_status" class="form-select form-select-sm">
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                                <button type="submit" class="btn btn-delivery btn-sm">Update</button>
                             </form>
+                        </td>
                 </tr>
             <?php
                 }
@@ -115,6 +126,61 @@ include('header.php');
             ?>
             </table>
         </div>
+        </div>
+        <div class="delivery-panel reveal mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Cancelled Deliveries</h5>
+                <span class="text-muted small">Orders cancelled by you</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle table-delivery">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Product</th>
+                            <th>User</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    $cancel_res = false;
+                    if($db){
+                        $tbl = mysqli_real_escape_string($con, 'purchase_history');
+                        $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
+                        if($qc && mysqli_num_rows($qc)>0){
+                            $cancel_sql = "SELECT * FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,''))='cancelled' ORDER BY pdate DESC";
+                            $cancel_res = mysqli_query($con, $cancel_sql);
+                        }
+                    }
+                    if($cancel_res && mysqli_num_rows($cancel_res)>0){
+                        while($row = mysqli_fetch_assoc($cancel_res)){
+                            $id = (int)$row['pid'];
+                            $pname = htmlspecialchars($row['pname'] ?? '');
+                            $user = htmlspecialchars($row['user'] ?? '');
+                            $qty = (int)($row['qty'] ?? 0);
+                            $total = number_format(((float)($row['pprice'] ?? 0) * $qty), 2);
+                            $date = $row['pdate'];
+                            echo "<tr>";
+                            echo "<td>{$id}</td>";
+                            echo "<td>{$pname}</td>";
+                            echo "<td>{$user}</td>";
+                            echo "<td>{$qty}</td>";
+                            echo "<td>₹{$total}</td>";
+                            echo "<td><span class='badge badge-cancelled'>Cancelled</span></td>";
+                            echo "<td>{$date}</td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='7' class='text-center'>No cancelled deliveries</td></tr>";
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

@@ -1,6 +1,9 @@
 <?php
 $include_header = false;
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('SSS_ADMIN_SESS');
+    session_start();
+}
 if (!defined('ADMIN_HEADER_INCLUDED')){
     include('header.php');
     define('ADMIN_HEADER_INCLUDED', true);

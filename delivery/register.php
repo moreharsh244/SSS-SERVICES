@@ -1,5 +1,8 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('SSS_DELIVERY_SESS');
+    session_start();
+}
 if(!isset($_SESSION['is_login']) || ($_SESSION['role'] ?? '') !== 'admin'){
     header('location:login.php');
     exit;

@@ -1,5 +1,8 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('SSS_DELIVERY_SESS');
+    session_start();
+}
 if(!isset($_SESSION['is_login'])){
     header('location:login.php');
     exit;
@@ -40,9 +43,16 @@ if($id > 0){
                 `prod_id` INT DEFAULT NULL,
                 `status` VARCHAR(50) DEFAULT 'pending',
                 `delivery_status` VARCHAR(50) DEFAULT NULL,
+                `assigned_agent` VARCHAR(100) DEFAULT NULL,
                 `pdate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
             @mysqli_query($con, $create);
+            // ensure assigned_agent column exists for older history tables
+            $hist_col = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_history' AND COLUMN_NAME='assigned_agent'";
+            $hist_res = mysqli_query($con, $hist_col);
+            if(!$hist_res || mysqli_num_rows($hist_res) === 0){
+                @mysqli_query($con, "ALTER TABLE purchase_history ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL");
+            }
 
             $pname = mysqli_real_escape_string($con, $row['pname']);
             $user = mysqli_real_escape_string($con, $row['user']);
@@ -51,8 +61,9 @@ if($id > 0){
             $prod_id = isset($row['prod_id']) && $row['prod_id'] !== null ? intval($row['prod_id']) : 'NULL';
             $status = mysqli_real_escape_string($con, $row['status'] ?? 'pending');
             $pdate = mysqli_real_escape_string($con, $row['pdate']);
+            $agent_name = mysqli_real_escape_string($con, $row['assigned_agent'] ?? $agent);
 
-            $ins = "INSERT INTO purchase_history (pid,pname,`user`,pprice,qty,prod_id,`status`,delivery_status,pdate) VALUES ($id,'$pname','$user',$pprice,$qty,".($prod_id==='NULL'?'NULL':$prod_id).",'$status','$dstatus','$pdate') ON DUPLICATE KEY UPDATE pname=VALUES(pname), `status`=VALUES(`status`), delivery_status=VALUES(delivery_status)";
+            $ins = "INSERT INTO purchase_history (pid,pname,`user`,pprice,qty,prod_id,`status`,delivery_status,assigned_agent,pdate) VALUES ($id,'$pname','$user',$pprice,$qty,".($prod_id==='NULL'?'NULL':$prod_id).",'$status','$dstatus','$agent_name','$pdate') ON DUPLICATE KEY UPDATE pname=VALUES(pname), `status`=VALUES(`status`), delivery_status=VALUES(delivery_status), assigned_agent=VALUES(assigned_agent)";
             @mysqli_query($con, $ins);
 
             @mysqli_query($con, "DELETE FROM purchase WHERE pid='$id' LIMIT 1");

@@ -1,5 +1,18 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('SSS_DELIVERY_SESS');
+    ini_set('session.gc_maxlifetime', '86400');
+    ini_set('session.cookie_lifetime', '0');
+    ini_set('session.gc_probability', '1');
+    ini_set('session.gc_divisor', '100');
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    session_start();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

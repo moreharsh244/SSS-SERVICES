@@ -1,8 +1,8 @@
 <?php
-session_start();
-?>
-<?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('SSS_ADMIN_SESS');
+    session_start();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

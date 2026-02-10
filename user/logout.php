@@ -1,6 +1,9 @@
 session_destroy();
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+	session_name('SSS_USER_SESS');
+	session_start();
+}
 $email = $_SESSION['username'] ?? null;
 if($email){
 	include '../admin/conn.php';

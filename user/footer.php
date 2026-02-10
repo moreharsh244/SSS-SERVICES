@@ -51,47 +51,6 @@
 			if(msg){ showToast(msg); }
 
 			// quick cart storage
-			function getCart(){
-				try{ return JSON.parse(localStorage.getItem('quick_cart') || '[]'); }catch(e){ return []; }
-			}
-			function setCart(items){ localStorage.setItem('quick_cart', JSON.stringify(items)); }
-			function renderCart(){
-				var items = getCart();
-				var cartItems = document.getElementById('cartItems');
-				var cartTotal = document.getElementById('cartTotal');
-				var cartBadge = document.getElementById('cartBadge');
-				if(!cartItems || !cartTotal || !cartBadge) return;
-				cartItems.innerHTML = '';
-				var total = 0;
-				items.forEach(function(it){
-					total += (it.price * it.qty);
-					var row = document.createElement('div');
-					row.className = 'cart-item';
-					row.innerHTML = '<img src="'+it.img+'" alt="'+it.name+'"><div><div><strong>'+it.name+'</strong></div><div class="small text-muted">Qty '+it.qty+' • ₹'+it.price.toFixed(2)+'</div></div>';
-					cartItems.appendChild(row);
-				});
-				cartTotal.textContent = '₹' + total.toFixed(2);
-				cartBadge.textContent = items.length;
-				cartBadge.style.display = items.length ? 'inline-block' : 'none';
-			}
-
-			renderCart();
-
-			document.body.addEventListener('submit', function(e){
-				var form = e.target.closest('form[data-cart-form]');
-				if(!form) return;
-				var item = {
-					name: form.getAttribute('data-cart-name') || 'Item',
-					price: Number(form.getAttribute('data-cart-price') || '0'),
-					qty: Number(form.querySelector('input[name="qty"]')?.value || '1'),
-					img: form.getAttribute('data-cart-img') || ''
-				};
-				var items = getCart();
-				items.unshift(item);
-				items = items.slice(0, 5);
-				setCart(items);
-				renderCart();
-			});
 		});
 		</script>
 </div>

@@ -1,6 +1,9 @@
 <?php
 include('../admin/conn.php');
-if(session_status()===PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_name('SSS_USER_SESS');
+  session_start();
+}
 if($_SERVER['REQUEST_METHOD']!=='POST') exit('Invalid');
 $service_type = mysqli_real_escape_string($con, $_POST['service_type'] ?? 'general');
 $item = mysqli_real_escape_string($con, $_POST['item'] ?? '');

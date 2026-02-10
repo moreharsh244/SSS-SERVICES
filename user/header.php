@@ -1,5 +1,17 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+  // Keep session alive while browser is open and across refreshes
+  session_name('SSS_USER_SESS');
+  ini_set('session.gc_maxlifetime', '86400');
+  ini_set('session.cookie_lifetime', '0');
+  ini_set('session.gc_probability', '1');
+  ini_set('session.gc_divisor', '100');
+  session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'httponly' => true,
+    'samesite' => 'Lax'
+  ]);
   session_start();
 }
 // Attempt remember-me auto-login if session missing
@@ -94,12 +106,6 @@ if(!empty($_SESSION['user_id'])){
         <li class="nav-item me-2">
           <a class="btn btn-sm btn-outline-secondary" href="myorder.php">Orders</a>
         </li>
-        <li class="nav-item me-2 position-relative">
-          <button class="btn btn-sm btn-outline-primary position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer" aria-controls="cartDrawer">
-            <i class="bi bi-bag"></i> Cart
-            <span id="cartBadge" class="cart-badge" style="display:none;">0</span>
-          </button>
-        </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle me-2"></i>
@@ -117,22 +123,6 @@ if(!empty($_SESSION['user_id'])){
   </div>
 </nav>
 
-<div class="offcanvas offcanvas-end offcanvas-cart" tabindex="-1" id="cartDrawer" aria-labelledby="cartDrawerLabel">
-  <div class="offcanvas-header">
-    <h5 id="cartDrawerLabel">Quick Cart</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    <div id="cartItems"></div>
-    <div class="mt-3 d-flex justify-content-between align-items-center">
-      <span class="cart-total">Total</span>
-      <span id="cartTotal" class="cart-total">₹0.00</span>
-    </div>
-    <div class="mt-3">
-      <a class="btn btn-primary w-100" href="myorder.php">View Orders</a>
-    </div>
-  </div>
-</div>
 
 <!-- Page layout -->
 <!-- Page layout -->

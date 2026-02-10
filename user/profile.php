@@ -1,5 +1,8 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_name('SSS_USER_SESS');
+  session_start();
+}
 if(!isset($_SESSION['is_login'])){ header('location:login.php'); exit; }
 include('../admin/conn.php');
 $email = $_SESSION['username'] ?? '';

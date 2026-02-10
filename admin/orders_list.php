@@ -40,26 +40,51 @@ if($ares){
 // Default: show active orders. If ?view=history, show archived (delivered) orders from purchase_history.
 $res = false;
 $table_missing = false;
-if($view === 'history'){
-  // check for purchase_history table
-  $db = '';
-  $rdb = @mysqli_query($con, "SELECT DATABASE() AS dbname");
-  if($rdb && mysqli_num_rows($rdb)>0){ $db = mysqli_fetch_assoc($rdb)['dbname']; }
-  if($db){
-    $tbl = mysqli_real_escape_string($con, 'purchase_history');
-    $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
-    if($qc && mysqli_num_rows($qc)>0){
-      // show cancelled and delivered orders in history
-      $q = "SELECT h.*, p.pname AS prod_name, p.pimg AS prod_img FROM purchase_history h LEFT JOIN products p ON h.prod_id = p.pid WHERE LOWER(IFNULL(h.delivery_status,'')) IN ('cancelled','delivered') ORDER BY pdate DESC";
-      $res = @mysqli_query($con, $q);
-    } else {
-      $table_missing = true;
-    }
+$db = '';
+$rdb = @mysqli_query($con, "SELECT DATABASE() AS dbname");
+if($rdb && mysqli_num_rows($rdb)>0){ $db = mysqli_fetch_assoc($rdb)['dbname']; }
+
+// counts for quick filters
+$count_all = 0;
+$count_pending = 0;
+$count_assigned = 0;
+$count_history = 0;
+$count_res = @mysqli_query($con, "SELECT COUNT(*) AS total,
+  SUM(CASE WHEN LOWER(IFNULL(delivery_status,'pending'))='pending' THEN 1 ELSE 0 END) AS pending,
+  SUM(CASE WHEN IFNULL(assigned_agent,'') <> '' THEN 1 ELSE 0 END) AS assigned
+  FROM purchase");
+if($count_res && mysqli_num_rows($count_res)>0){
+  $cr = mysqli_fetch_assoc($count_res);
+  $count_all = (int)($cr['total'] ?? 0);
+  $count_pending = (int)($cr['pending'] ?? 0);
+  $count_assigned = (int)($cr['assigned'] ?? 0);
+}
+if($db){
+  $tbl = mysqli_real_escape_string($con, 'purchase_history');
+  $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
+  if($qc && mysqli_num_rows($qc)>0){
+    $hc = @mysqli_query($con, "SELECT COUNT(*) AS total FROM purchase_history WHERE LOWER(IFNULL(delivery_status,'')) IN ('cancelled','delivered')");
+    if($hc && mysqli_num_rows($hc)>0){ $count_history = (int)(mysqli_fetch_assoc($hc)['total'] ?? 0); }
   } else {
     $table_missing = true;
   }
+}
+
+if($view === 'history'){
+  if($table_missing){
+    $res = false;
+  } else {
+    $q = "SELECT h.*, p.pname AS prod_name, p.pimg AS prod_img, c.c_name AS customer_name, c.c_email AS customer_email FROM purchase_history h LEFT JOIN products p ON h.prod_id = p.pid LEFT JOIN cust_reg c ON (h.user = c.c_email OR h.user = c.c_name) WHERE LOWER(IFNULL(h.delivery_status,'')) IN ('cancelled','delivered') ORDER BY pdate DESC";
+    $res = @mysqli_query($con, $q);
+  }
+} elseif($view === 'pending'){
+  $q = "SELECT purchase.*, products.pname AS prod_name, products.pimg AS prod_img, c.c_name AS customer_name, c.c_email AS customer_email FROM purchase LEFT JOIN products ON purchase.prod_id = products.pid LEFT JOIN cust_reg c ON (purchase.user = c.c_email OR purchase.user = c.c_name) WHERE LOWER(IFNULL(purchase.delivery_status,'pending'))='pending' ORDER BY pdate DESC";
+  $res = mysqli_query($con, $q);
+} elseif($view === 'assigned'){
+  $q = "SELECT purchase.*, products.pname AS prod_name, products.pimg AS prod_img, c.c_name AS customer_name, c.c_email AS customer_email FROM purchase LEFT JOIN products ON purchase.prod_id = products.pid LEFT JOIN cust_reg c ON (purchase.user = c.c_email OR purchase.user = c.c_name) WHERE IFNULL(purchase.assigned_agent,'')<>'' AND LOWER(IFNULL(purchase.delivery_status,'pending')) NOT IN ('delivered','cancelled') ORDER BY pdate DESC";
+  $res = mysqli_query($con, $q);
 } else {
-  $q = "SELECT purchase.*, products.pname AS prod_name, products.pimg AS prod_img FROM purchase LEFT JOIN products ON purchase.prod_id = products.pid ORDER BY pdate DESC";
+  $q = "SELECT purchase.*, products.pname AS prod_name, products.pimg AS prod_img, c.c_name AS customer_name, c.c_email AS customer_email FROM purchase LEFT JOIN products ON purchase.prod_id = products.pid LEFT JOIN cust_reg c ON (purchase.user = c.c_email OR purchase.user = c.c_name) ORDER BY pdate DESC";
   $res = mysqli_query($con, $q);
 }
 ?>
@@ -72,12 +97,13 @@ if($view === 'history'){
         <div class="small-muted">Customer purchases and order management</div>
       </div>
       <div>
-        <?php if($view === 'history'): ?>
-          <a href="orders_list.php" class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-bag-check me-1"></i>Orders</a>
-        <?php else: ?>
-          <a href="orders_list.php?view=history" class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-clock-history me-1"></i>History</a>
-        <?php endif; ?>
-        <span class="badge badge-total"><i class="bi bi-list-check me-1"></i> <?php echo ($res && is_object($res)) ? mysqli_num_rows($res) : 0; ?></span>
+        <div class="btn-group me-2" role="group" aria-label="Order filters">
+          <a href="orders_list.php" class="btn btn-sm btn-outline-secondary <?php echo $view==='list'?'active':''; ?>">All <span class="ms-1">(<?php echo $count_all; ?>)</span></a>
+          <a href="orders_list.php?view=pending" class="btn btn-sm btn-outline-secondary <?php echo $view==='pending'?'active':''; ?>">Pending <span class="ms-1">(<?php echo $count_pending; ?>)</span></a>
+          <a href="orders_list.php?view=assigned" class="btn btn-sm btn-outline-secondary <?php echo $view==='assigned'?'active':''; ?>">Assigned <span class="ms-1">(<?php echo $count_assigned; ?>)</span></a>
+          <a href="orders_list.php?view=history" class="btn btn-sm btn-outline-secondary <?php echo $view==='history'?'active':''; ?>">History <span class="ms-1">(<?php echo $count_history; ?>)</span></a>
+        </div>
+        <span class="badge badge-total"><i class="bi bi-list-check me-1"></i> <?php echo ($view==='history') ? $count_history : (($res && is_object($res)) ? mysqli_num_rows($res) : 0); ?></span>
       </div>
     </div>
 
@@ -96,9 +122,9 @@ if($view === 'history'){
               <th>Agent</th>
             <?php else: ?>
               <th>Delivery</th>
+              <th>Agent</th>
             <?php endif; ?>
             <th>Date</th>
-            <th class="text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -111,7 +137,8 @@ if($view === 'history'){
     while($r = mysqli_fetch_assoc($res)){
       $id = (int)$r['pid'];
       $prod = htmlspecialchars($r['prod_name'] ?: $r['pname']);
-      $user = htmlspecialchars($r['user']);
+      $user = htmlspecialchars($r['customer_name'] ?: $r['user']);
+      $agent = htmlspecialchars($r['assigned_agent'] ?? '');
       $qty = (int)$r['qty'];
       $total = number_format((float)$r['pprice'] * $qty,2);
       $dstatus = htmlspecialchars($r['delivery_status'] ?? 'delivered');
@@ -133,8 +160,9 @@ if($view === 'history'){
         $hist_cls = 'bg-secondary';
       }
       echo "<td><span class='badge {$hist_cls}'>".htmlspecialchars(ucfirst($dstatus))."</span></td>";
+      echo "<td>".($agent !== '' ? $agent : "-")."</td>";
       echo "<td>{$date}</td>";
-      echo "<td class='text-center'><a href='view_purchase.php?id={$id}' class='btn btn-sm btn-outline-secondary'>View</a></td>";
+      // no actions in history view
       echo "</tr>";
       $i++;
     }
@@ -147,7 +175,7 @@ if($view === 'history'){
     while($r = mysqli_fetch_assoc($res)){
       $id = (int)$r['pid'];
       $prod = htmlspecialchars($r['prod_name'] ?: $r['pname']);
-      $user = htmlspecialchars($r['user']);
+      $user = htmlspecialchars($r['customer_name'] ?: $r['user']);
       $qty = (int)$r['qty'];
       $total = number_format((float)$r['pprice'] * $qty,2);
       $status = htmlspecialchars($r['status'] ?? 'pending');
@@ -191,27 +219,11 @@ if($view === 'history'){
       echo "</form>";
       echo "</td>";
       echo "<td>{$date}</td>";
-      // nicer actions: view button + compact select + update button
-      echo "<td class='text-center'>";
-      echo "<div class='d-inline-flex align-items-center'>";
-      echo "<a href='view_purchase.php?id={$id}' class='btn btn-sm btn-primary me-2' title='View'><i class='bi bi-eye'></i> View</a>";
-      echo "<form action='update_order.php' method='post' class='d-inline-flex align-items-center'>";
-      echo "<input type='hidden' name='id' value='{$id}'>";
-      echo "<div class='input-group input-group-sm' style='min-width:180px'>";
-      echo "<select name='delivery_status' class='form-select form-select-sm'>";
-      $opts = ['pending','shipped','delivered','cancelled'];
-      foreach($opts as $o){ $sel = ($o===$dstatus)?'selected':''; echo "<option value='{$o}' {$sel}>".ucfirst($o)."</option>"; }
-      echo "</select>";
-      echo "<button class='btn btn-success' type='submit'>Update</button>";
-      echo "</div>"; // input-group
-      echo "</form>";
-      echo "</div>";
-      echo "</td>";
       echo "</tr>";
       $i++;
     }
   } else {
-    echo "<tr><td colspan='10' class='text-center small-muted py-4'>No orders found</td></tr>";
+    echo "<tr><td colspan='9' class='text-center small-muted py-4'>No orders found</td></tr>";
   }
 }
 ?>

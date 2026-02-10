@@ -1,5 +1,6 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('SSS_ADMIN_SESS');
     session_start();
 }
 if (!isset($_SESSION['is_login']) || ($_SESSION['role'] ?? '') !== 'admin') {
@@ -24,6 +25,7 @@ if($order_id > 0){
     $u = "UPDATE purchase SET assigned_agent=".($agent_esc === '' ? "NULL" : "'$agent_esc'")." WHERE pid='$order_id' LIMIT 1";
     mysqli_query($con, $u);
     if($agent_esc !== ''){
+        @mysqli_query($con, "UPDATE purchase SET delivery_status='shipped' WHERE pid='$order_id' LIMIT 1");
         log_delivery_action($con, $agent, 'assign_order', 'Assigned order #'.$order_id.' by admin '.$_SESSION['username']);
     }
 }

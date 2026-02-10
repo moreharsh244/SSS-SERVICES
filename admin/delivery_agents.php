@@ -1,5 +1,6 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('SSS_ADMIN_SESS');
     session_start();
 }
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {

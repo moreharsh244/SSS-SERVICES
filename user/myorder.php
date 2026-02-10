@@ -67,7 +67,9 @@ $view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
                                 }
                                 if($result && mysqli_num_rows($result) > 0){
                                     while($row=mysqli_fetch_assoc($result)){
-                                        $status = strtolower(trim($row['status'] ?? $row['delivery_status'] ?? 'pending'));
+                                        $raw_delivery = trim($row['delivery_status'] ?? '');
+                                        $raw_status = trim($row['status'] ?? '');
+                                        $status = strtolower($raw_delivery !== '' ? $raw_delivery : ($raw_status !== '' ? $raw_status : 'pending'));
                                         $badge_map = [
                                             'pending' => 'badge-soft badge-pending',
                                             'shipped' => 'badge-soft badge-shipped',
@@ -87,10 +89,18 @@ $view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
                                         <td>₹<?php echo number_format((float)$total, 2); ?></td>
                                         <td><span class="<?php echo $badge_class; ?>"><?php echo $status_label; ?></span></td>
                                         <td class="text-end">
-                                            <form action="myorder_details.php" method="post">
-                                                <input type="hidden" name="order_id" value="<?php echo $row['pid']; ?>">
-                                                <button type="submit" class="btn btn-outline-primary btn-sm">View Details</button>
-                                            </form>
+                                            <div class="d-inline-flex gap-2">
+                                                <form action="myorder_details.php" method="post">
+                                                    <input type="hidden" name="order_id" value="<?php echo $row['pid']; ?>">
+                                                    <button type="submit" class="btn btn-outline-primary btn-sm">View Details</button>
+                                                </form>
+                                                <?php if($view !== 'history' && $status === 'pending'): ?>
+                                                    <form action="cancel_order.php" method="post" onsubmit="return confirm('Cancel this order?');">
+                                                        <input type="hidden" name="order_id" value="<?php echo $row['pid']; ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
                                         </td>
                                     </tr>
                             <?php
