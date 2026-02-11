@@ -31,8 +31,8 @@ if($ares){
   }
 }
 ?>
-<div class="col-12 col-lg-10 mx-auto">
-  <div class="admin-card">
+<div class="col-12 mx-auto">
+  <div class="admin-card admin-card-wide">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h4 class="mb-1"><i class="bi bi-tools text-primary me-2"></i>Support Requests</h4>
@@ -43,19 +43,19 @@ if($ares){
         </div>
       </div>
 
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
+    <div>
+      <table class="table table-hover align-middle table-requests">
         <thead class="table-light">
           <tr>
-            <th>#</th>
-            <th>User</th>
-            <th>Item / Title</th>
-            <th>Type</th>
-            <th>Details</th>
-            <th>Status</th>
-            <th>Agent</th>
-            <th>Date</th>
-            <th class="text-center">Actions</th>
+            <th class="col-num">#</th>
+            <th class="col-user">User</th>
+            <th class="col-item">Item / Title</th>
+            <th class="col-type">Type</th>
+            <th class="col-details">Details</th>
+            <th class="col-status">Status</th>
+            <th class="col-agent">Agent</th>
+            <th class="col-date">Date</th>
+            <th class="col-actions text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -76,27 +76,27 @@ if($tbl_missing){
     $user = htmlspecialchars($r['user']);
     $item = htmlspecialchars($r['item']);
     $type = htmlspecialchars($r['service_type']);
-    $details = htmlspecialchars(mb_strimwidth($r['details'],0,120,'...'));
+    $details = htmlspecialchars(mb_strimwidth($r['details'],0,90,'...'));
     $status = strtolower($r['status'] ?? 'pending');
-    $date = $r['created_at'];
+    $date = !empty($r['created_at']) ? date('Y-m-d H:i', strtotime($r['created_at'])) : '';
     $status_cls = $badge_map[$status] ?? 'bg-secondary';
     $assigned_agent = htmlspecialchars($r['assigned_agent'] ?? '');
 
     echo "<tr>";
-    echo "<td>{$i}</td>";
-    echo "<td>{$user}</td>";
-    echo "<td class='fw-semibold'>{$item}</td>";
-    echo "<td>{$type}</td>";
-    echo "<td>{$details}</td>";
-    echo "<td><span class='badge {$status_cls}'>".htmlspecialchars(ucfirst(str_replace('_',' ',$status)))."</span></td>";
-    echo "<td>".($assigned_agent !== '' ? $assigned_agent : "-")."</td>";
-    echo "<td>{$date}</td>";
-    echo "<td class='text-center'>";
-    echo "<div class='d-flex flex-wrap gap-2 justify-content-center'>";
+    echo "<td class='col-num'>{$i}</td>";
+    echo "<td class='col-user'>{$user}</td>";
+    echo "<td class='col-item fw-semibold'>{$item}</td>";
+    echo "<td class='col-type'>{$type}</td>";
+    echo "<td class='col-details'>{$details}</td>";
+    echo "<td class='col-status'><span class='badge {$status_cls}'>".htmlspecialchars(ucfirst(str_replace('_',' ',$status)))."</span></td>";
+    echo "<td class='col-agent'>".($assigned_agent !== '' ? $assigned_agent : "-")."</td>";
+    echo "<td class='col-date'>{$date}</td>";
+    echo "<td class='col-actions text-center'>";
+    echo "<div class='d-flex flex-column gap-2 justify-content-center align-items-center actions-stack'>";
     echo "<a href='view_service.php?id={$id}' class='btn btn-sm btn-primary' title='View'><i class='bi bi-eye'></i> View</a>";
     echo "<form method='post' action='assign_service.php' class='d-inline-flex align-items-center gap-2'>";
     echo "<input type='hidden' name='id' value='{$id}'>";
-    echo "<select name='assigned_agent' class='form-select form-select-sm' style='min-width:160px'>";
+    echo "<select name='assigned_agent' class='form-select form-select-sm'>";
     echo "<option value=''>Unassigned</option>";
     foreach($agents as $ag){
       $ag_esc = htmlspecialchars($ag);
@@ -105,16 +105,6 @@ if($tbl_missing){
     }
     echo "</select>";
     echo "<button class='btn btn-sm btn-outline-primary' type='submit'>Assign</button>";
-    echo "</form>";
-    echo "<form method='post' action='update_service.php' class='d-inline-flex align-items-center'>";
-    echo "<input type='hidden' name='id' value='{$id}'>";
-    echo "<div class='input-group input-group-sm' style='min-width:200px'>";
-    echo "<select name='status' class='form-select form-select-sm'>";
-    $opts = ['pending','in_progress','completed','cancelled'];
-    foreach($opts as $o){ $sel = ($o===$status)?'selected':''; echo "<option value='{$o}' {$sel}>".ucfirst(str_replace('_',' ',$o))."</option>"; }
-    echo "</select>";
-    echo "<button class='btn btn-success' type='submit'>Update</button>";
-    echo "</div>"; // input-group
     echo "</form>";
     echo "</div>";
     echo "</td>";

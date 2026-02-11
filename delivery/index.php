@@ -200,7 +200,6 @@ include('header.php');
                             <th>Details</th>
                             <th>Status</th>
                             <th>Assigned</th>
-                            <th>Note</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -216,7 +215,6 @@ include('header.php');
                             $details = htmlspecialchars(mb_strimwidth($row['details'] ?? '', 0, 90, '...'));
                             $status = strtolower($row['status'] ?? 'pending');
                             $assigned = $row['assigned_agent'] ?? '';
-                            $note = htmlspecialchars($row['agent_note'] ?? '');
 
                             $status_map = [
                                 'pending' => 'badge-pending',
@@ -235,7 +233,6 @@ include('header.php');
                             echo "<td>{$details}</td>";
                             echo "<td><span class='badge {$badge}'>".htmlspecialchars($status_label)."</span></td>";
                             echo "<td>".($assigned !== '' ? htmlspecialchars($assigned) : "-")."</td>";
-                            echo "<td>".($note !== '' ? $note : "-")."</td>";
                             echo "<td>";
                             if($assigned !== '' && $assigned === $agent_raw){
                                 echo "<form action='update_service_request.php' method='post' class='d-flex gap-2 align-items-start flex-wrap'>";
@@ -247,7 +244,6 @@ include('header.php');
                                     echo "<option value='{$o}' {$sel}>".ucfirst(str_replace('_',' ',$o))."</option>";
                                 }
                                 echo "</select>";
-                                echo "<input type='text' name='agent_note' class='form-control form-control-sm' placeholder='Add note' value='{$note}' style='min-width:180px'>";
                                 echo "<button type='submit' class='btn btn-delivery btn-sm'>Update</button>";
                                 echo "</form>";
                             } else {
@@ -257,7 +253,7 @@ include('header.php');
                             echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='9' class='text-center'>No service requests</td></tr>";
+                        echo "<tr><td colspan='8' class='text-center'>No service requests</td></tr>";
                     }
                     ?>
                     </tbody>

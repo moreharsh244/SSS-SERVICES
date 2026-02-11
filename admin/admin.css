@@ -146,3 +146,44 @@ body.admin-body{
 /* Center commonly used form containers with shadow (used across admin pages) */
 .shadow-lg{ max-width:900px; margin-left:auto; margin-right:auto; }
 .admin-card, .card{ max-width:900px; margin-left:auto; margin-right:auto; }
+.admin-card.admin-card-wide{ max-width:1200px; width:100%; }
+
+.table-requests{
+  width:100%;
+  table-layout: auto;
+}
+
+.table-requests th,
+.table-requests td{
+  vertical-align: middle;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.table-requests .col-num{ width:44px; }
+.table-requests .col-user{ width:200px; }
+.table-requests .col-item{ width:120px; }
+.table-requests .col-type{ width:90px; }
+.table-requests .col-details{ width:200px; }
+.table-requests .col-status{ width:90px; }
+.table-requests .col-agent{ width:100px; }
+.table-requests .col-date{ width:130px; }
+.table-requests .col-actions{ width:180px; }
+
+.table-requests thead th{
+  background: linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
+  color: #0f172a;
+}
+
+.table-requests tbody tr{
+  border-bottom: 1px solid #eef2f6;
+}
+
+.table-requests td{
+  font-size: 0.92rem;
+}
+
+.actions-stack .form-select,
+.actions-stack .btn{
+  width: 100%;
+}
