@@ -1,6 +1,9 @@
 <?php
 include('header.php');
 include('conn.php');
+include('../delivery/helpers.php');
+ensure_delivery_tables($con);
+ensure_service_requests_table($con);
 
 // check table exists
 $db = '';
@@ -17,6 +20,15 @@ if($db){
   }
 } else {
   $tbl_missing = true;
+}
+
+// active delivery agents list
+$agents = [];
+$ares = mysqli_query($con, "SELECT username FROM del_login WHERE is_active=1 ORDER BY username");
+if($ares){
+  while($ar = mysqli_fetch_assoc($ares)){
+    $agents[] = $ar['username'];
+  }
 }
 ?>
 <div class="col-12 col-lg-10 mx-auto">
@@ -41,6 +53,7 @@ if($db){
             <th>Type</th>
             <th>Details</th>
             <th>Status</th>
+            <th>Agent</th>
             <th>Date</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -48,7 +61,7 @@ if($db){
         <tbody>
 <?php
 if($tbl_missing){
-  echo "<tr><td colspan='8' class='text-center small-muted py-4'>No service requests found</td></tr>";
+  echo "<tr><td colspan='9' class='text-center small-muted py-4'>No service requests found</td></tr>";
 } elseif($res && mysqli_num_rows($res)>0){
   $i=1;
   // status -> badge class map
@@ -67,6 +80,7 @@ if($tbl_missing){
     $status = strtolower($r['status'] ?? 'pending');
     $date = $r['created_at'];
     $status_cls = $badge_map[$status] ?? 'bg-secondary';
+    $assigned_agent = htmlspecialchars($r['assigned_agent'] ?? '');
 
     echo "<tr>";
     echo "<td>{$i}</td>";
@@ -75,13 +89,26 @@ if($tbl_missing){
     echo "<td>{$type}</td>";
     echo "<td>{$details}</td>";
     echo "<td><span class='badge {$status_cls}'>".htmlspecialchars(ucfirst(str_replace('_',' ',$status)))."</span></td>";
+    echo "<td>".($assigned_agent !== '' ? $assigned_agent : "-")."</td>";
     echo "<td>{$date}</td>";
     echo "<td class='text-center'>";
-    echo "<div class='d-inline-flex align-items-center'>";
-    echo "<a href='view_service.php?id={$id}' class='btn btn-sm btn-primary me-2' title='View'><i class='bi bi-eye'></i> View</a>";
+    echo "<div class='d-flex flex-wrap gap-2 justify-content-center'>";
+    echo "<a href='view_service.php?id={$id}' class='btn btn-sm btn-primary' title='View'><i class='bi bi-eye'></i> View</a>";
+    echo "<form method='post' action='assign_service.php' class='d-inline-flex align-items-center gap-2'>";
+    echo "<input type='hidden' name='id' value='{$id}'>";
+    echo "<select name='assigned_agent' class='form-select form-select-sm' style='min-width:160px'>";
+    echo "<option value=''>Unassigned</option>";
+    foreach($agents as $ag){
+      $ag_esc = htmlspecialchars($ag);
+      $sel = ($ag === ($r['assigned_agent'] ?? '')) ? 'selected' : '';
+      echo "<option value='{$ag_esc}' {$sel}>{$ag_esc}</option>";
+    }
+    echo "</select>";
+    echo "<button class='btn btn-sm btn-outline-primary' type='submit'>Assign</button>";
+    echo "</form>";
     echo "<form method='post' action='update_service.php' class='d-inline-flex align-items-center'>";
     echo "<input type='hidden' name='id' value='{$id}'>";
-    echo "<div class='input-group input-group-sm' style='min-width:180px'>";
+    echo "<div class='input-group input-group-sm' style='min-width:200px'>";
     echo "<select name='status' class='form-select form-select-sm'>";
     $opts = ['pending','in_progress','completed','cancelled'];
     foreach($opts as $o){ $sel = ($o===$status)?'selected':''; echo "<option value='{$o}' {$sel}>".ucfirst(str_replace('_',' ',$o))."</option>"; }
@@ -95,7 +122,7 @@ if($tbl_missing){
     $i++;
   }
 } else {
-  echo "<tr><td colspan='8' class='text-center small-muted py-4'>No service requests found</td></tr>";
+  echo "<tr><td colspan='9' class='text-center small-muted py-4'>No service requests found</td></tr>";
 }
 ?>
         </tbody>

@@ -97,6 +97,39 @@ if (!function_exists('ensure_purchase_table')) {
     }
 }
 
+if (!function_exists('ensure_service_requests_table')) {
+    function ensure_service_requests_table($con){
+        $create = "CREATE TABLE IF NOT EXISTS `service_requests` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `user` VARCHAR(255) NOT NULL,
+            `item` VARCHAR(255),
+            `service_type` VARCHAR(100),
+            `details` TEXT,
+            `status` VARCHAR(50) DEFAULT 'pending',
+            `assigned_agent` VARCHAR(100) DEFAULT NULL,
+            `assigned_at` TIMESTAMP NULL DEFAULT NULL,
+            `agent_note` TEXT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        @mysqli_query($con, $create);
+
+        $cols = [
+            'assigned_agent' => "ALTER TABLE service_requests ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL",
+            'assigned_at' => "ALTER TABLE service_requests ADD COLUMN assigned_at TIMESTAMP NULL DEFAULT NULL",
+            'agent_note' => "ALTER TABLE service_requests ADD COLUMN agent_note TEXT NULL",
+            'updated_at' => "ALTER TABLE service_requests ADD COLUMN updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP"
+        ];
+        foreach($cols as $col => $alter){
+            $cq = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='service_requests' AND COLUMN_NAME='{$col}'";
+            $cr = mysqli_query($con, $cq);
+            if(!$cr || mysqli_num_rows($cr)===0){
+                @mysqli_query($con, $alter);
+            }
+        }
+    }
+}
+
 if (!function_exists('log_delivery_action')) {
     function log_delivery_action($con, $username, $action, $details){
         $u = mysqli_real_escape_string($con, $username ?? '');

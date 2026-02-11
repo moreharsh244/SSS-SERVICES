@@ -7,7 +7,9 @@ include('header.php');
         include '../admin/conn.php';
         include 'helpers.php';
         ensure_purchase_table($con);
-        $agent = mysqli_real_escape_string($con, $_SESSION['username'] ?? '');
+        ensure_service_requests_table($con);
+        $agent_raw = $_SESSION['username'] ?? '';
+        $agent = mysqli_real_escape_string($con, $agent_raw);
         $statSql = "SELECT COUNT(*) AS total,
             SUM(CASE WHEN LOWER(IFNULL(delivery_status,'pending')) NOT IN ('delivered','cancelled') THEN 1 ELSE 0 END) AS pending
             FROM purchase WHERE assigned_agent='$agent'";
@@ -176,6 +178,86 @@ include('header.php');
                         }
                     } else {
                         echo "<tr><td colspan='7' class='text-center'>No cancelled deliveries</td></tr>";
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="delivery-panel reveal mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Service Requests</h5>
+                <span class="text-muted small">All user support requests</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle table-delivery">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>User</th>
+                            <th>Item</th>
+                            <th>Type</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Assigned</th>
+                            <th>Note</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    $req_res = mysqli_query($con, "SELECT * FROM service_requests ORDER BY created_at DESC");
+                    if($req_res && mysqli_num_rows($req_res) > 0){
+                        while($row = mysqli_fetch_assoc($req_res)){
+                            $id = (int)$row['id'];
+                            $user = htmlspecialchars($row['user'] ?? '');
+                            $item = htmlspecialchars($row['item'] ?? '');
+                            $stype = htmlspecialchars($row['service_type'] ?? '');
+                            $details = htmlspecialchars(mb_strimwidth($row['details'] ?? '', 0, 90, '...'));
+                            $status = strtolower($row['status'] ?? 'pending');
+                            $assigned = $row['assigned_agent'] ?? '';
+                            $note = htmlspecialchars($row['agent_note'] ?? '');
+
+                            $status_map = [
+                                'pending' => 'badge-pending',
+                                'in_progress' => 'badge-shipped',
+                                'completed' => 'badge-delivered',
+                                'cancelled' => 'badge-cancelled'
+                            ];
+                            $badge = $status_map[$status] ?? 'badge-pending';
+                            $status_label = ucfirst(str_replace('_',' ', $status));
+
+                            echo "<tr>";
+                            echo "<td>{$id}</td>";
+                            echo "<td>{$user}</td>";
+                            echo "<td>{$item}</td>";
+                            echo "<td>{$stype}</td>";
+                            echo "<td>{$details}</td>";
+                            echo "<td><span class='badge {$badge}'>".htmlspecialchars($status_label)."</span></td>";
+                            echo "<td>".($assigned !== '' ? htmlspecialchars($assigned) : "-")."</td>";
+                            echo "<td>".($note !== '' ? $note : "-")."</td>";
+                            echo "<td>";
+                            if($assigned !== '' && $assigned === $agent_raw){
+                                echo "<form action='update_service_request.php' method='post' class='d-flex gap-2 align-items-start flex-wrap'>";
+                                echo "<input type='hidden' name='id' value='{$id}'>";
+                                echo "<select name='status' class='form-select form-select-sm' style='min-width:140px'>";
+                                $opts = ['pending','in_progress','completed','cancelled'];
+                                foreach($opts as $o){
+                                    $sel = ($o === $status) ? 'selected' : '';
+                                    echo "<option value='{$o}' {$sel}>".ucfirst(str_replace('_',' ',$o))."</option>";
+                                }
+                                echo "</select>";
+                                echo "<input type='text' name='agent_note' class='form-control form-control-sm' placeholder='Add note' value='{$note}' style='min-width:180px'>";
+                                echo "<button type='submit' class='btn btn-delivery btn-sm'>Update</button>";
+                                echo "</form>";
+                            } else {
+                                echo "<span class='text-muted small'>".($assigned === '' ? "Unassigned" : "Assigned to {$assigned}")."</span>";
+                            }
+                            echo "</td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='9' class='text-center'>No service requests</td></tr>";
                     }
                     ?>
                     </tbody>
