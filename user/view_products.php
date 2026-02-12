@@ -8,14 +8,40 @@ include('../admin/conn.php');
 $q = isset($_GET['q']) ? mysqli_real_escape_string($con, $_GET['q']) : '';
 $company = isset($_GET['company']) ? mysqli_real_escape_string($con, $_GET['company']) : '';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : '';
+$category = isset($_GET['category']) ? mysqli_real_escape_string($con, $_GET['category']) : '';
+$from = isset($_GET['from']) ? $_GET['from'] : '';
+
+// Normalize category names for matching (handle both old and new category names)
+$categoryMapping = [
+    'CPU' => 'CPU',
+    'Motherboard' => 'Motherboard',
+    'Graphics Card' => 'GPU',
+    'GPU' => 'GPU',
+    'RAM Memory' => 'RAM',
+    'RAM' => 'RAM',
+    'Storage Drive' => 'Storage',
+    'Storage' => 'Storage',
+    'Power Supply' => 'PSU',
+    'PSU' => 'PSU',
+    'Cabinet' => 'Case',
+    'Case' => 'Case',
+    'CPU Cooler' => 'Cooler',
+    'Cooler' => 'Cooler',
+    'Monitor' => 'Monitor'
+];
+
+$normalizedCategory = isset($categoryMapping[$category]) ? $categoryMapping[$category] : '';
 
 // build company list for filter
 $companies = [];
 $cres = mysqli_query($con, "SELECT DISTINCT pcompany FROM products ORDER BY pcompany ASC");
 while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
 ?>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">All Products</h4>
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 2px solid #f0f0f0;">
+        <h3 class="mb-0" style="color: #333; font-weight: 600;"><?php echo $normalizedCategory ? '🛒 ' . htmlspecialchars($category) . ' Products' : '🛍️ All Products'; ?></h3>
+        <?php if($from === 'build'): ?>
+            <a href="build.php" class="btn btn-outline-secondary btn-sm">↩️ Back to Build</a>
+        <?php endif; ?>
     </div>
 
         <div class="row mb-3">
@@ -46,13 +72,16 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
             </div>
         </div>
 
-                <?php if($q || $company || $sort): ?>
+                <?php if($q || $company || $sort || $normalizedCategory): ?>
                     <div class="d-flex flex-wrap gap-2 mb-3">
                         <?php if($q): ?>
                             <span class="filter-chip">Search: <?php echo htmlspecialchars($q); ?></span>
                         <?php endif; ?>
                         <?php if($company): ?>
                             <span class="filter-chip">Brand: <?php echo htmlspecialchars($company); ?></span>
+                        <?php endif; ?>
+                        <?php if($normalizedCategory): ?>
+                            <span class="filter-chip">Category: <?php echo htmlspecialchars($category); ?></span>
                         <?php endif; ?>
                         <?php if($sort): ?>
                             <span class="filter-chip">Sort: <?php echo htmlspecialchars(str_replace('_',' ', $sort)); ?></span>
@@ -66,6 +95,7 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
         $where = [];
         if($q) $where[] = "(pname LIKE '%$q%' OR pcompany LIKE '%$q%')";
         if($company) $where[] = "pcompany = '$company'";
+        if($normalizedCategory) $where[] = "pcat = '$normalizedCategory'";
         $sql = "SELECT * FROM `products`" . ($where ? " WHERE " . implode(' AND ', $where) : "");
         if($sort === 'price_asc') $sql .= " ORDER BY pprice ASC";
         else if($sort === 'price_desc') $sql .= " ORDER BY pprice DESC";
@@ -76,25 +106,30 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
             $qty = (int)$row['pqty'];
         ?>
         <div class="col-sm-6 col-md-4 col-lg-3 reveal">
-            <div class="card h-100 shadow-sm product-card">
-                <img src="../productimg/<?php echo $row['pimg']; ?>" data-full="../productimg/<?php echo $row['pimg']; ?>" class="card-img-top img-preview" alt="<?php echo htmlspecialchars($row['pname']); ?>" style="height:180px;object-fit:cover;">
-                <div class="card-body d-flex flex-column">
-                    <h6 class="card-title"><?php echo htmlspecialchars($row['pname']); ?></h6>
-                    <p class="text-muted small mb-1"><?php echo htmlspecialchars($row['pcompany']); ?></p>
-                    <div class="mb-2 fw-bold">₹ <?php echo number_format($row['pprice'],2); ?></div>
+            <div class="card h-100 shadow-sm product-card" style="border: 1px solid #eee; border-radius: 10px; transition: all 0.3s;">
+                <img src="../productimg/<?php echo $row['pimg']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['pname']); ?>" style="height:200px;object-fit:cover;border-radius: 10px 10px 0 0;">
+                <div class="card-body d-flex flex-column" style="padding: 16px;">
+                    <h6 class="card-title" style="color: #333; font-weight: 600; margin-bottom: 6px;"><?php echo htmlspecialchars($row['pname']); ?></h6>
+                    <p class="text-muted small mb-2" style="color: #666;"><?php echo htmlspecialchars($row['pcompany']); ?></p>
+                    <div class="mb-3 fw-bold" style="color: #27ae60; font-size: 18px;">₹<?php echo number_format($row['pprice'],2); ?></div>
                     <div class="mt-auto">
-                        <form action="purchase.php" method="post" class="d-flex gap-2 align-items-center" data-cart-form data-cart-name="<?php echo htmlspecialchars($row['pname']); ?>" data-cart-price="<?php echo $row['pprice']; ?>" data-cart-img="../productimg/<?php echo $row['pimg']; ?>">
-                            <input type="number" name="qty" class="form-control form-control-sm" value="1" min="1" max="<?php echo $qty; ?>" style="width:80px;">
-                            <input type="hidden" name="pid" value="<?php echo $row['pid']; ?>">
-                            <input type="hidden" name="pname" value="<?php echo htmlspecialchars($row['pname']); ?>">
-                            <input type="hidden" name="pprice" value="<?php echo $row['pprice']; ?>">
-                            <?php if($qty>0){ ?>
-                                <button class="btn btn-primary btn-sm" type="submit">Buy</button>
-                            <?php } else { ?>
-                                <button class="btn btn-secondary btn-sm" disabled>Out of stock</button>
-                            <?php } ?>
-                            
-                        </form>
+                        <?php if($from === 'build'): ?>
+                            <button class="btn btn-primary btn-sm w-100" onclick="addToBuild('<?php echo $row['pid']; ?>', '<?php echo htmlspecialchars(addslashes($row['pname'])); ?>', '<?php echo $row['pprice']; ?>', '<?php echo htmlspecialchars($normalizedCategory); ?>', '../productimg/<?php echo $row['pimg']; ?>')">
+                                ✓ Add to Build
+                            </button>
+                        <?php else: ?>
+                            <form action="purchase.php" method="post" class="d-flex gap-2 align-items-center" data-cart-form data-cart-name="<?php echo htmlspecialchars($row['pname']); ?>" data-cart-price="<?php echo $row['pprice']; ?>" data-cart-img="../productimg/<?php echo $row['pimg']; ?>">
+                                <input type="number" name="qty" class="form-control form-control-sm" value="1" min="1" max="<?php echo $qty; ?>" style="width:80px;">
+                                <input type="hidden" name="pid" value="<?php echo $row['pid']; ?>">
+                                <input type="hidden" name="pname" value="<?php echo htmlspecialchars($row['pname']); ?>">
+                                <input type="hidden" name="pprice" value="<?php echo $row['pprice']; ?>">
+                                <?php if($qty>0){ ?>
+                                    <button class="btn btn-primary btn-sm" type="submit">Buy</button>
+                                <?php } else { ?>
+                                    <button class="btn btn-secondary btn-sm" disabled>Out of stock</button>
+                                <?php } ?>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -102,5 +137,26 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
         <?php } ?>
     </div>
 </div>
+
+<!-- Image Preview Modal for Products -->
+
+<script>
+    function addToBuild(pid, name, price, category, imgLink){
+        // Store product data in session storage
+        const productData = {
+            pid: pid,
+            name: name,
+            price: price,
+            category: category,
+            img: imgLink
+        };
+        
+        // Save to sessionStorage
+        sessionStorage.setItem('buildProduct_' + pid, JSON.stringify(productData));
+        
+        // Go back to build page
+        window.location.href = 'build.php?product=' + pid;
+    }
+</script>
 
 <?php include('footer.php'); ?>

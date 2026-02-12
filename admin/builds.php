@@ -193,7 +193,7 @@ if($view === 'history'){
       echo "<td>\${$total}</td>";
       echo "<td>{$created}</td>";
       echo "<td class='text-center'>";
-      echo "<a class='btn btn-sm btn-outline-primary me-2' href='view_build.php?id={$id}'>View</a>";
+      echo "<a class='btn btn-sm btn-outline-primary' href='view_build.php?id={$id}'>View</a>";
       if($status === 'pending'){
         echo "<form action='builds.php' method='post' class='d-inline-block'>";
         echo "<input type='hidden' name='id' value='{$id}'>";

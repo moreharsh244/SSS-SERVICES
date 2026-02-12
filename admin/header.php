@@ -43,6 +43,19 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
       /* ensure navbar and dropdowns render above other page components */
       .navbar { position: relative; z-index: 4000; }
       .navbar .dropdown-menu { z-index: 4001; }
+      
+      /* Hide modal backdrop shadow/overlay */
+      .modal-backdrop {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        background-color: transparent !important;
+      }
+      .modal-backdrop.show {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+      }
     </style>
 </head>
 <body class="admin-body pc-theme">
@@ -100,11 +113,16 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     <main class="col-12">
   <!-- Image preview modal -->
   <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content bg-transparent border-0 shadow-none">
-        <div class="modal-body text-center p-0">
-          <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
-          <img id="modalImage" src="" alt="Preview" class="img-modal-img rounded">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 90% !important; max-height: 95vh !important;">
+      <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 25px 80px rgba(0,0,0,0.3); overflow: hidden; background: white; max-height: 95vh;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 22px 25px; align-items: center; justify-content: space-between;">
+          <h5 class="modal-title fw-bold" style="color: white; font-size: 20px; letter-spacing: 0.5px; margin: 0;">Product Image Preview</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="filter: brightness(1.3);"></button>
+        </div>
+        <div class="modal-body text-center p-0" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); min-height: 600px; display: flex; align-items: center; justify-content: center; overflow-y: auto; max-height: 80vh;">
+          <div style="padding: 30px; width: 100%; display: flex; align-items: center; justify-content: center;">
+            <img id="modalImage" src="" alt="Preview" class="img-fluid" style="max-height: 700px; max-width: 100%; width: auto; height: auto; object-fit: contain; box-shadow: 0 15px 40px rgba(0,0,0,0.12); border-radius: 15px; transition: all 0.3s ease;">
+          </div>
         </div>
       </div>
     </div>

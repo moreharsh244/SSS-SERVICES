@@ -95,97 +95,57 @@ if(!$is_partial){
     <div class="row">
         <div class="col-12 text-center mb-4">
             <h1 class="h3 mb-2">Build Your PC</h1>
-            <p class="text-muted mb-3">Select parts with confidence. Your total updates instantly.</p>
-            <div class="build-steps">
-                <span class="build-step">1. Choose category</span>
-                <span class="build-step">2. Select product</span>
-                <span class="build-step">3. Add part</span>
-            </div>
         </div>
     </div>
-    <div class="row g-4">
-        <div class="col-lg-5">
-            <div class="card p-3 build-card">
-                <h5 class="mb-2">Add Part</h5>
-                <p class="text-muted small mb-3">Use the selector to add parts from the store.</p>
-                <form id="addPartForm" onsubmit="return false;">
-                    <div class="mb-2">
-                        <label class="form-label">Category</label>
-                        <select id="partCategory" class="form-select">
-                            <option>CPU</option>
-                            <option>Motherboard</option>
-                            <option>GPU</option>
-                            <option>RAM</option>
-                            <option>Storage</option>
-                            <option>PSU</option>
-                            <option>Case</option>
-                            <option>Cooler</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">Product</label>
-                        <div class="d-flex gap-2 align-items-start">
-                            <select id="partProduct" class="form-select">
-                                <option value="">Select a product from store</option>
-                                <?php foreach($products as $p){
-                                    $pn = htmlspecialchars($p['pname'], ENT_QUOTES);
-                                    $pp = number_format((float)$p['pprice'], 2, '.', '');
-                                    $pc = htmlspecialchars($p['pcat'] ?? '', ENT_QUOTES);
-                                    $pid = (int)$p['pid'];
-                                    $pimg = htmlspecialchars($p['pimg'] ?? '');
-                                    $dataimg = $pimg ? '../productimg/'.rawurlencode($pimg) : '';
-                                    echo "<option value=\"$pid\" data-price=\"$pp\" data-category=\"$pc\" data-img=\"$dataimg\">$pn</option>\n";
-                                } ?>
-                            </select>
-                            <div style="width:120px;flex:0 0 120px">
-                                <img id="prodPreview" src="../img/pc1.jpg" alt="Preview" class="img-fluid rounded" style="height:90px;object-fit:cover;width:120px;display:block;" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-2 row">
-                        <div class="col-6">
-                            <label class="form-label">Price</label>
-                            <input id="partPrice" class="form-control" type="number" step="0.01" placeholder="0.00" readonly />
-                        </div>
-                    </div>
-                    <div class="d-grid">
-                        <button id="addBtn" class="btn btn-primary">Add Part</button>
-                    </div>
-                </form>
-            </div>
-            <div class="mt-3 text-muted small">
-                Tip: Add each component, then click "Save Build" on the right.
-            </div>
-        </div>
-        <div class="col-lg-7">
-            <div class="card p-0 build-card">
-                <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+
+    <!-- Category Selection Grid -->
+    <div class="row mb-4">
+        <div class="col-lg-10 offset-lg-1">
+            <div class="card p-0 build-card" style="box-shadow: 0 6px 20px rgba(0,0,0,0.12); border-radius: 12px; border: 1px solid rgba(0,0,0,0.08);">
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <div>
-                        <h5 class="mb-0">Current Build</h5>
-                        <small class="text-muted">Preview of selected parts</small>
+                        <h5 class="mb-0">Your PC Build</h5>
+                        <small style="color: rgba(255,255,255,0.9);">Customize your perfect configuration</small>
                     </div>
                     <div>
-                        <span class="text-muted">Total:</span>
-                        <span id="totalPrice" class="ms-2 h5 mb-0 price">₹0.00</span>
+                        <span style="color: rgba(255,255,255,0.9);">Total Price:</span>
+                        <span id="totalPrice" class="ms-2 h5 mb-0 price" style="color: #fff;">₹0.00</span>
                     </div>
                 </div>
-                <div class="px-3 py-2 border-bottom build-requirements">
-                    <div class="text-muted small mb-2">Required components</div>
+                <div class="p-4 border-bottom">
+                    <div class="text-muted mb-3 fw-semibold" style="font-size: 16px;">🛒 Select Components</div>
+                    <div class="d-flex flex-column gap-2">
+                        <?php
+                        $categories = ['CPU', 'Motherboard', 'Graphics Card', 'RAM Memory', 'Storage Drive', 'Power Supply', 'Cabinet', 'CPU Cooler', 'Monitor'];
+                        $icons = ['🖥️', '🔌', '📊', '💾', '💽', '⚡', '🎁', '❄️', '🖲️'];  
+                        foreach($categories as $idx => $cat):
+                            $icon = $icons[$idx] ?? '➕';
+                        ?>
+                            <button class="btn btn-sm btn-outline-primary category-btn text-start d-flex align-items-center" 
+                                    onclick="goToProductView('<?php echo htmlspecialchars($cat); ?>')"
+                                    style="padding: 12px 14px; transition: all 0.3s; border-radius: 6px; font-weight: 500;">
+                                <span class="me-2" style="font-size: 18px;"><?php echo $icon; ?></span>
+                                <span><?php echo htmlspecialchars($cat); ?></span>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <div class="px-4 py-3 border-bottom build-requirements">
+                    <div class="text-muted small mb-2 fw-semibold">✓ Required Components</div>
                     <div id="requiredList" class="d-flex flex-wrap gap-2"></div>
                 </div>
-                <div class="p-3">
-                    <div id="itemsList">
-                        <div class="build-empty text-center text-muted py-4">No parts added yet.</div>
+                <div class="p-4" style="min-height: 250px;">
+                    <div id="itemsList" class="build-items-container">
+                        <div class="build-empty text-center text-muted py-5" style="color: #999; font-size: 16px;">📭 No components selected yet</div>
                     </div>
                 </div>
-                <div class="p-3 border-top d-flex justify-content-between align-items-center">
+                <div class="p-4 border-top d-flex justify-content-between align-items-center" style="background-color: #f8f9fa;">
                     <div class="w-50">
-                        <input id="buildName" name="build_name" class="form-control" placeholder="My Gaming Build" />
+                        <input id="buildName" name="build_name" class="form-control" placeholder="e.g., Gaming PC Pro" style="border-radius: 6px;" />
                     </div>
                     <form id="saveForm" method="post" class="d-flex ms-3 w-50 justify-content-end">
                         <input type="hidden" id="itemsJson" name="items_json" />
-                        <button id="saveBtn" class="btn btn-success">Save Build</button>
+                        <button id="saveBtn" class="btn btn-success" style="border-radius: 6px; font-weight: 600; padding: 8px 24px;">💾 Save Configuration</button>
                     </form>
                 </div>
             </div>
@@ -196,7 +156,85 @@ if(!$is_partial){
     const items = [];
     const itemsList = document.getElementById('itemsList');
     const totalPriceEl = document.getElementById('totalPrice');
-    const REQUIRED_CATEGORIES = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
+    const REQUIRED_CATEGORIES = ['CPU','Motherboard','Graphics Card','RAM Memory','Storage Drive','Power Supply','Cabinet','CPU Cooler'];
+    
+    // All products data
+    const productsData = <?php echo json_encode($products); ?>;
+
+    // Redirect to view products page with category filter
+    function goToProductView(category){
+        window.location.href = 'view_products.php?category=' + encodeURIComponent(category) + '&from=build';
+    }
+
+    // Open product selector modal for category
+    function openComponentSelector(category){
+        const filteredProducts = productsData.filter(p => p.pcat === category);
+        
+        let html;
+        if(filteredProducts.length === 0){
+            html = `<div class="row g-3">
+                        <div class="col-12">
+                            <div class="alert alert-info d-flex align-items-center justify-content-center" style="min-height: 300px; border: 2px dashed #0d6efd; border-radius: 8px;">
+                                <div class="text-center">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">📦</div>
+                                    <h5 style="color: #0d6efd; margin-bottom: 10px;">No Products Available</h5>
+                                    <p class="text-muted mb-0">There are currently no <strong>${htmlspecialchars(category)}</strong> products in stock.</p>
+                                    <p class="text-muted small mt-2">Please check back later or select another category.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+        } else {
+            html = '<div class="row g-3">';
+            filteredProducts.forEach(p => {
+                const imgLink = p.pimg ? '../productimg/' + encodeURIComponent(p.pimg) : '../img/pc1.jpg';
+                const price = Number(p.pprice).toFixed(2);
+                const name = htmlspecialchars(p.pname);
+                const pid = p.pid;
+                
+                html += `<div class="col-md-6 col-lg-4">
+                    <div class="card product-card cursor-pointer" onclick="selectProduct('${pid}', '${htmlspecialchars(name)}', '${price}', '${category}', '${htmlspecialchars(imgLink)}')" style="cursor:pointer;transition:all 0.3s;">
+                        <img src="${htmlspecialchars(imgLink)}" class="card-img-top" alt="${name}" style="height:200px;object-fit:cover;">
+                        <div class="card-body">
+                            <h6 class="card-title">${name}</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">₹${price}</span>
+                                <small class="text-muted">${category}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+        }
+            });
+            html += '</div>';
+        }
+        
+        // Show modal
+        const modalBody = document.getElementById('productSelectorBody');
+        const modalTitle = document.getElementById('productSelectorTitle');
+        modalBody.innerHTML = html;
+        modalTitle.textContent = 'Select ' + category;
+        const modal = new bootstrap.Modal(document.getElementById('productSelectorModal'));
+        modal.show();
+    }
+
+    // Select a product from modal
+    function selectProduct(pid, name, price, category, imgLink){
+        items.push({
+            category: category,
+            name: name,
+            pid: pid,
+            price: parseFloat(price),
+            img: imgLink
+        });
+        renderItems();
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('productSelectorModal'));
+        if(modal) modal.hide();
+    }
 
     function renderItems(){
         if(items.length === 0){
@@ -207,15 +245,17 @@ if(!$is_partial){
         }
         let html = '<div class="list-group">';
             items.forEach((it, idx)=>{
-                const imgHtml = it.img ? `<img src="${escapeHtml(it.img)}" class="item-thumb" onclick="showImage('${escapeHtml(it.img)}')" style="cursor:pointer">` : '';
-                html += `<div class="list-group-item items-list">
-                    ${imgHtml}
-                    <div style="flex:1">
-                        <div class="fw-semibold">${escapeHtml(it.category)} — ${escapeHtml(it.name)}</div>
-                    </div>
-                    <div class="text-end" style="min-width:120px">
-                        <div class="price">₹${Number(it.price).toFixed(2)}</div>
-                        <button class="btn btn-sm btn-link text-danger" onclick="removeItem(${idx})">Remove</button>
+                const imgHtml = it.img ? `<img src="${escapeHtml(it.img)}" class="item-thumb" onclick="showImage('${escapeHtml(it.img)}')" style="cursor:pointer;width:70px;height:70px;object-fit:cover;border-radius:6px;">` : '';
+                html += `<div class="list-group-item items-list" style="border-left: 4px solid #0d6efd; padding: 12px;">
+                    <div class="d-flex align-items-center gap-3">
+                        ${imgHtml}
+                        <div style="flex:1">
+                            <div class="fw-semibold" style="color: #2c3e50;">${escapeHtml(it.category)} — ${escapeHtml(it.name)}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="price fw-semibold" style="color: #27ae60; font-size: 16px;">₹${Number(it.price).toFixed(2)}</div>
+                            <button class="btn btn-sm btn-outline-danger mt-1" onclick="removeItem(${idx})" style="font-size: 12px;">✕ Remove</button>
+                        </div>
                     </div>
                 </div>`;
             });
@@ -230,87 +270,61 @@ if(!$is_partial){
         const wrap = document.getElementById('requiredList');
         if(!wrap) return;
         const present = {};
+        const categoryIcons = {'CPU':'🖥️', 'Motherboard':'🔌', 'Graphics Card':'📊', 'RAM Memory':'💾', 'Storage Drive':'💽', 'Power Supply':'⚡', 'Cabinet':'🎁', 'CPU Cooler':'❄️'};
         items.forEach(it=>{ present[(it.category||'').trim()] = true; });
         wrap.innerHTML = REQUIRED_CATEGORIES.map(cat=>{
             const ok = !!present[cat];
-            const cls = ok ? 'req-badge ok' : 'req-badge missing';
-            return `<span class="${cls}">${cat}</span>`;
+            const icon = categoryIcons[cat] || '➕';
+            const cls = ok ? 'badge bg-success' : 'badge bg-light text-dark border border-secondary';
+            return `<span class="${cls}" style="padding: 6px 12px; font-size: 12px; font-weight: 500;">${icon} ${cat}</span>`;
         }).join('');
     }
 
     function removeItem(i){ items.splice(i,1); renderItems(); }
 
-    const prodSelect = document.getElementById('partProduct');
-    const priceInput = document.getElementById('partPrice');
-    const catSelect = document.getElementById('partCategory');
-
-    // cache original product options so we can filter client-side
-    const originalProdOptions = Array.from(prodSelect.options).map(o => o.cloneNode(true));
-
-    function filterProductsByCategory(cat){
-        // rebuild options keeping placeholder
-        prodSelect.innerHTML = '';
-        const placeholder = document.createElement('option');
-        placeholder.value = '';
-        placeholder.text = 'Select a product from store';
-        prodSelect.appendChild(placeholder);
-        originalProdOptions.forEach(o=>{
-            const ocat = o.dataset ? (o.dataset.category || '') : '';
-            if(!cat || cat === '' || cat === 'All' || ocat === cat){
-                prodSelect.appendChild(o.cloneNode(true));
+    // Check if coming from view_products with a product to add
+    window.addEventListener('load', function(){
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('product');
+        if(productId){
+            const productData = sessionStorage.getItem('buildProduct_' + productId);
+            if(productData){
+                try {
+                    const product = JSON.parse(productData);
+                    items.push({
+                        category: product.category,
+                        name: product.name,
+                        pid: product.pid,
+                        price: parseFloat(product.price),
+                        img: product.img
+                    });
+                    renderItems();
+                    sessionStorage.removeItem('buildProduct_' + productId);
+                    // Scroll to items list
+                    document.getElementById('itemsList').scrollIntoView({ behavior: 'smooth' });
+                } catch(e){
+                    console.error('Error parsing product data:', e);
+                }
             }
-        });
-        prodSelect.value = '';
-        priceInput.value = '';
-    }
-
-    // when category changes, filter product list
-    catSelect.addEventListener('change', ()=>{ filterProductsByCategory(catSelect.value); });
-
-    // initialize product list to current category
-    filterProductsByCategory(catSelect.value);
-
-    // when product selection changes, fill price and category (if available)
-    prodSelect.addEventListener('change', ()=>{
-        const opt = prodSelect.options[prodSelect.selectedIndex];
-        if(!opt || !opt.value){ priceInput.value = ''; return; }
-        priceInput.value = opt.dataset.price || '';
-        const pcat = opt.dataset.category || '';
-        if(pcat) document.getElementById('partCategory').value = pcat;
-        // update preview image
-        const img = opt.dataset.img || '';
-        const preview = document.getElementById('prodPreview');
-        if(preview){ preview.src = img || '../img/pc1.jpg'; }
-    });
-
-    document.getElementById('addBtn').addEventListener('click', ()=>{
-        const sel = prodSelect;
-        const opt = sel.options[sel.selectedIndex];
-        if(!opt || !opt.value){ alert('Please select a product from the store'); return; }
-        const pid = opt.value;
-        const name = opt.text;
-        const price = parseFloat(opt.dataset.price) || 0;
-        const cat = opt.dataset.category || document.getElementById('partCategory').value.trim();
-        const img = opt.dataset.img || '';
-        items.push({category:cat,name:name,pid:pid,price:price,img:img});
-        // reset selection
-        sel.value = '';
-        priceInput.value = '';
-        renderItems();
+        }
     });
 
     function showImage(src){
-        if(!src) return;
-        // open in modal if available, otherwise open in new tab
+        if(!src || src.trim() === '') {
+            alert('No image available');
+            return;
+        }
         const modalImg = document.getElementById('modalImageBuild');
-        if(modalImg){ modalImg.src = src; var m = new bootstrap.Modal(document.getElementById('imageModalBuild')); m.show(); return; }
-        window.open(src,'_blank');
+        if(modalImg){
+            modalImg.src = src;
+            const modal = new bootstrap.Modal(document.getElementById('imageModalBuild'));
+            modal.show();
+        }
     }
 
     document.getElementById('saveBtn').addEventListener('click',(e)=>{
         e.preventDefault();
         if(items.length===0){ alert('Add at least one part'); return; }
-        // check required categories are present
         const present = {};
         items.forEach(it=>{ present[(it.category||'').trim()] = true; });
         const missing = REQUIRED_CATEGORIES.filter(c => !present[c]);
@@ -320,10 +334,8 @@ if(!$is_partial){
         }
         const buildName = document.getElementById('buildName').value.trim() || 'My Build';
         const payload = { items: {} , total: items.reduce((s,i)=>s+Number(i.price||0),0)};
-        // Convert items array into simple category-keyed object for server compatibility
         items.forEach((it,idx)=>{ payload.items[it.category + '_' + idx] = { pid: it.pid||0, price: Number(it.price||0), name: it.name }; });
         document.getElementById('itemsJson').value = JSON.stringify(payload);
-        // create a temporary form to include build_name and items_json
         const form = document.getElementById('saveForm');
         const bn = document.createElement('input'); bn.type='hidden'; bn.name='build_name'; bn.value=buildName; form.appendChild(bn);
         form.submit();
@@ -333,13 +345,31 @@ if(!$is_partial){
 
     renderItems();
 </script>
+<!-- Product Selector Modal -->
+<div class="modal fade" id="productSelectorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0; padding: 20px;">
+                <h5 class="modal-title" id="productSelectorTitle">Select Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div id="productSelectorBody"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Image modal for build preview -->
 <div class="modal fade" id="imageModalBuild" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-body text-center p-0">
-                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
-                <img id="modalImageBuild" src="" alt="Preview" class="img-fluid rounded">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <div class="modal-header border-0" style="background-color: #f8f9fa; padding: 16px 20px;">
+                <h5 class="modal-title">Component Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4" style="background-color: #ffffff;">
+                <img id="modalImageBuild" src="" alt="Preview" class="img-fluid rounded" style="max-height: 600px; object-fit: contain; display: block; margin: 0 auto;">
             </div>
         </div>
     </div>

@@ -26,7 +26,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     echo '<div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-4 reveal">';
     echo '  <div class="card h-100 shadow-sm product-card">';
-    echo '    <img src="../productimg/'. $pimg .'" data-full="../productimg/'. $pimg .'" class="card-img-top img-preview" alt="'. $pname .'" style="height:180px;object-fit:cover;">';
+    echo '    <img src="../productimg/'. $pimg .'" alt="'. $pname .'" style="height:180px;object-fit:cover;">';
     echo '    <div class="card-body d-flex flex-column">';
     echo '      <h6 class="card-title">'. $pname .'</h6>';
     echo '      <p class="text-muted small mb-1">'. $pcompany .'</p>';
@@ -50,3 +50,5 @@ if ($included_header) {
     include('footer.php');
 }
 ?>
+
+

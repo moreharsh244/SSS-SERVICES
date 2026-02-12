@@ -25,7 +25,7 @@ include('header.php');
                 <th>Company</th>
                 <th>Price</th>
                 <th>Qty</th>
-                <th>Amount</th>
+                <th>Category</th>
                 <th>Image</th>
                 <th>Description</th>
                 <th>Update</th>
@@ -46,17 +46,18 @@ include('header.php');
                     echo "<td>".  $i++ ." </td>";
                     echo "<td>".$row['pname']."</td>";
                     echo "<td>".$row['pcompany']."</td>";
-                    echo "<td>".$row['pprice']."</td>";
+                    echo "<td>₹".$row['pprice']."</td>";
                     echo "<td>".$row['pqty']."</td>";
-                    echo "<td>".$row["pimg"]."</td>";
-                    echo "<td>".$row['pamount']."</td>";
-                    echo "<td>".$row['pdisc']."</td>";
+                    echo "<td>".htmlspecialchars($row['pcat'])."</td>";
+                    $imgsrc = '../productimg/'.rawurlencode($row['pimg']);
+                    echo "<td><img src='".$imgsrc."' style='width:70px;height:50px;object-fit:cover;border-radius:4px;' alt='".htmlspecialchars($row['pname'])."'/></td>";
+                    echo "<td>".htmlspecialchars(substr($row['pdisc'], 0, 50))."...</td>";
                     ?>
                     <td>
-                    <form action="update.php" method="post">
+                    <form action="update_product.php" method="post">
                         
                             <input type="hidden" name="uid" value="<?php echo $row['pid'];?>">
-                            <input type="submit" value="Update" class="btn btn-warning">
+                            <input type="submit" value="Update" class="btn btn-warning btn-sm">
                         
                     </form>
                     
@@ -64,14 +65,14 @@ include('header.php');
                     <td>
                         <form action="delete.php" method="post">
                             <input type="hidden" name="did" value="<?php echo $row['pid'];?>">
-                            <input type="submit" value="Delete" class="btn btn-danger">
+                            <input type="submit" value="Delete" class="btn btn-danger btn-sm">
                         </form>
                     </td>
                     <?php
                     echo "</tr>";
                 }
             }else{
-                echo "<tr><td colspan='9' class='text-center'>No Products Found</td></tr>";
+                echo "<tr><td colspan='10' class='text-center'>No Products Found</td></tr>";
             }
             ?>
         </tbody>
