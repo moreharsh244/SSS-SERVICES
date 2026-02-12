@@ -62,7 +62,7 @@ $view = isset($_GET['view']) ? trim($_GET['view']) : 'list';
                                     if(!$show_res){ $result = false; }
                                     else { $result = mysqli_query($con,$sql); }
                                 } else {
-                                    $sql="SELECT * FROM `purchase` WHERE `user` IN ({$userList}) ORDER BY pdate DESC";
+                                    $sql="SELECT * FROM `purchase` WHERE `user` IN ({$userList}) AND LOWER(IFNULL(delivery_status,'')) NOT IN ('cancelled','delivered') AND LOWER(IFNULL(status,'')) NOT IN ('cancelled','delivered') ORDER BY pdate DESC";
                                     $result=mysqli_query($con,$sql);
                                 }
                                 if($result && mysqli_num_rows($result) > 0){

@@ -53,12 +53,56 @@ include('header.php');
                                 </div>
                             </div>
                         </div>
+                        <hr class="my-4">
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="pay_online" value="online" checked>
+                                    <label class="form-check-label" for="pay_online">Online Payment</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="pay_cod" value="cod">
+                                    <label class="form-check-label" for="pay_cod">Cash on Delivery</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="online_payment_fields" class="p-3 bg-light rounded">
+                            <div class="mb-3">
+                                <label class="form-label">Payment Reference (UPI/Txn ID)</label>
+                                <input type="text" name="payment_ref" class="form-control" placeholder="Enter payment reference">
+                                <div class="form-text">Provide a reference so we can verify the payment.</div>
+                            </div>
+                        </div>
                         <button type="submit" class="btn btn-success mt-4 btn-lg w-100">Confirm Purchase</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        (function(){
+            var online = document.getElementById('pay_online');
+            var cod = document.getElementById('pay_cod');
+            var fields = document.getElementById('online_payment_fields');
+            var refInput = fields.querySelector('input[name="payment_ref"]');
+
+            function toggleFields(){
+                if(online.checked){
+                    fields.style.display = 'block';
+                    refInput.required = true;
+                }else{
+                    fields.style.display = 'none';
+                    refInput.required = false;
+                    refInput.value = '';
+                }
+            }
+
+            online.addEventListener('change', toggleFields);
+            cod.addEventListener('change', toggleFields);
+            toggleFields();
+        })();
+    </script>
 <?php   
 
 include('footer.php');

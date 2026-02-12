@@ -5,6 +5,9 @@
     $pprice = floatval($_POST['pprice'] ?? 0);
     $qty = intval($_POST['qty'] ?? 1);
     $username = mysqli_real_escape_string($con, $_POST['username'] ?? ($_SESSION['username'] ?? ''));
+    $payment_method = mysqli_real_escape_string($con, $_POST['payment_method'] ?? 'cod');
+    $payment_ref = mysqli_real_escape_string($con, trim($_POST['payment_ref'] ?? ''));
+    $payment_status = ($payment_method === 'online') ? 'paid' : 'pending';
 
     // ensure purchase table exists
     $create = "CREATE TABLE IF NOT EXISTS `purchase` (
@@ -14,6 +17,9 @@
         `pprice` DECIMAL(10,2) NOT NULL,
         `qty` INT NOT NULL DEFAULT 1,
         `prod_id` INT DEFAULT NULL,
+        `payment_method` VARCHAR(20) DEFAULT 'cod',
+        `payment_ref` VARCHAR(100) DEFAULT NULL,
+        `payment_status` VARCHAR(20) DEFAULT 'pending',
         `status` VARCHAR(50) DEFAULT 'pending',
         `delivery_status` VARCHAR(50) DEFAULT 'pending',
         `assigned_agent` VARCHAR(100) DEFAULT NULL,
@@ -21,14 +27,22 @@
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
     mysqli_query($con, $create);
 
-    // ensure assigned_agent column exists
-    $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase' AND COLUMN_NAME='assigned_agent'";
-    $col_res = mysqli_query($con, $col_check);
-    if(!$col_res || mysqli_num_rows($col_res)===0){
-        @mysqli_query($con, "ALTER TABLE purchase ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL");
+    // ensure new columns exist
+    $columns_to_add = [
+        'payment_method' => "ALTER TABLE purchase ADD COLUMN payment_method VARCHAR(20) DEFAULT 'cod'",
+        'payment_ref' => "ALTER TABLE purchase ADD COLUMN payment_ref VARCHAR(100) DEFAULT NULL",
+        'payment_status' => "ALTER TABLE purchase ADD COLUMN payment_status VARCHAR(20) DEFAULT 'pending'",
+        'assigned_agent' => "ALTER TABLE purchase ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL"
+    ];
+    foreach($columns_to_add as $col => $ddl){
+        $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase' AND COLUMN_NAME='$col'";
+        $col_res = mysqli_query($con, $col_check);
+        if(!$col_res || mysqli_num_rows($col_res)===0){
+            @mysqli_query($con, $ddl);
+        }
     }
 
-    $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`status`) VALUES ('$pname','$username','$pprice','$qty','$pid','pending')";
+    $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`payment_method`,`payment_ref`,`payment_status`,`status`) VALUES ('$pname','$username','$pprice','$qty','$pid','$payment_method','$payment_ref','$payment_status','pending')";
     if(mysqli_query($con,$sql)){
         // award loyalty points: 1 point per 10 currency units
         $points = floor(($pprice * $qty) / 10);

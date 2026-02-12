@@ -6,6 +6,15 @@ include('header.php');
     <div class="alert alert-success text-center" role="alert">  
         <h5>View Products</h5>
     </div> 
+    <?php if(isset($_GET['error'])){ ?>
+        <div class="alert alert-danger text-center" role="alert">
+            <?php echo htmlspecialchars($_GET['error']); ?>
+        </div>
+    <?php }elseif(isset($_GET['success'])){ ?>
+        <div class="alert alert-success text-center" role="alert">
+            <?php echo htmlspecialchars($_GET['success']); ?>
+        </div>
+    <?php } ?>
     <!-- header end  -->
     <div class="table-responsive">
     <table class="table table-bordered table-striped table-hover">

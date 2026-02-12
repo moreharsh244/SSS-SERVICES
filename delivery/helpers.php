@@ -130,6 +130,74 @@ if (!function_exists('ensure_service_requests_table')) {
     }
 }
 
+if (!function_exists('ensure_service_requests_history_table')) {
+    function ensure_service_requests_history_table($con){
+        $create = "CREATE TABLE IF NOT EXISTS `service_requests_history` (
+            `id` INT PRIMARY KEY,
+            `user` VARCHAR(255) NOT NULL,
+            `item` VARCHAR(255),
+            `service_type` VARCHAR(100),
+            `details` TEXT,
+            `phone` VARCHAR(50),
+            `contact_time` VARCHAR(100),
+            `status` VARCHAR(50) DEFAULT 'cancelled',
+            `assigned_agent` VARCHAR(100) DEFAULT NULL,
+            `assigned_at` TIMESTAMP NULL DEFAULT NULL,
+            `agent_note` TEXT NULL,
+            `created_at` TIMESTAMP NULL DEFAULT NULL,
+            `updated_at` TIMESTAMP NULL DEFAULT NULL,
+            `archived_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        @mysqli_query($con, $create);
+
+        $cols = [
+            'phone' => "ALTER TABLE service_requests_history ADD COLUMN phone VARCHAR(50)",
+            'contact_time' => "ALTER TABLE service_requests_history ADD COLUMN contact_time VARCHAR(100)",
+            'assigned_agent' => "ALTER TABLE service_requests_history ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL",
+            'assigned_at' => "ALTER TABLE service_requests_history ADD COLUMN assigned_at TIMESTAMP NULL DEFAULT NULL",
+            'agent_note' => "ALTER TABLE service_requests_history ADD COLUMN agent_note TEXT NULL",
+            'created_at' => "ALTER TABLE service_requests_history ADD COLUMN created_at TIMESTAMP NULL DEFAULT NULL",
+            'updated_at' => "ALTER TABLE service_requests_history ADD COLUMN updated_at TIMESTAMP NULL DEFAULT NULL",
+            'archived_at' => "ALTER TABLE service_requests_history ADD COLUMN archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+        ];
+        foreach($cols as $col => $alter){
+            $cq = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='service_requests_history' AND COLUMN_NAME='{$col}'";
+            $cr = mysqli_query($con, $cq);
+            if(!$cr || mysqli_num_rows($cr)===0){
+                @mysqli_query($con, $alter);
+            }
+        }
+    }
+}
+
+if (!function_exists('ensure_builds_history_table')) {
+    function ensure_builds_history_table($con){
+        $create = "CREATE TABLE IF NOT EXISTS `builds_history` (
+            `id` INT PRIMARY KEY,
+            `user_id` INT,
+            `user_name` VARCHAR(255),
+            `name` VARCHAR(255) NOT NULL,
+            `description` TEXT,
+            `total` DECIMAL(10,2),
+            `status` VARCHAR(32),
+            `created_at` TIMESTAMP NULL DEFAULT NULL,
+            `completed_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        @mysqli_query($con, $create);
+        
+        $cols = [
+            'completed_at' => "ALTER TABLE builds_history ADD COLUMN completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+        ];
+        foreach($cols as $col => $alter){
+            $cq = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='builds_history' AND COLUMN_NAME='{$col}'";
+            $cr = mysqli_query($con, $cq);
+            if(!$cr || mysqli_num_rows($cr)===0){
+                @mysqli_query($con, $alter);
+            }
+        }
+    }
+}
+
 if (!function_exists('log_delivery_action')) {
     function log_delivery_action($con, $username, $action, $details){
         $u = mysqli_real_escape_string($con, $username ?? '');
