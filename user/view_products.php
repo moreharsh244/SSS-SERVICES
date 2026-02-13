@@ -173,7 +173,7 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
 
     function showProductImage(src){
         if(!src || src.trim() === ''){
-            alert('No image available');
+            alert('Image not available for this product.');
             return;
         }
         const img = document.getElementById('productImagePreview');

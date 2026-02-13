@@ -13,7 +13,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $items_json = $_POST['items_json'] ?? '';
     $data = json_decode($items_json, true);
     if(!$data || !isset($data['items'])){
-        echo '<script>alert("Invalid build data");window.history.back();</script>';
+        echo '<script>alert("Unable to process build data. Please try again.");window.history.back();</script>';
         exit;
     }
     // enforce mandatory component categories server-side
@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     }
     $missing = array_values(array_diff($required_components, array_keys($present)));
     if(!empty($missing)){
-        $msg = 'Please add the following components to your build: ' . implode(', ', $missing);
+        $msg = 'Please add the following required components to your build: ' . implode(', ', $missing);
         echo '<script>alert("'.htmlspecialchars($msg, ENT_QUOTES).'");window.history.back();</script>';
         exit;
     }
@@ -70,10 +70,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $ins2 = "INSERT INTO build_items (build_id, product_id, category, price) VALUES ('$build_id', '$pid', '$cat_esc', '$price')";
             mysqli_query($con, $ins2);
         }
-        echo '<script>alert("Build saved successfully");window.location.href="cart.php";</script>';
+        echo '<script>alert("Your build has been saved successfully!");window.location.href="cart.php";</script>';
         exit;
     } else {
-        echo '<script>alert("Failed to save build: '.mysqli_error($con).'");window.history.back();</script>';
+        echo '<script>alert("Unable to save build. Please try again.");window.history.back();</script>';
         exit;
     }
 }
@@ -107,7 +107,7 @@ if(!$is_partial){
                 <div class="p-3 border-bottom d-flex justify-content-between align-items-center build-header">
                     <div>
                         <h5 class="mb-0">Your PC Build</h5>
-                        <small>Customize your perfect configuration</small>
+                        <small>Create your perfect custom configuration</small>
                     </div>
                     <div>
                         <span style="color: #ffffff; font-weight: 500;">Total Price:</span>
@@ -115,7 +115,7 @@ if(!$is_partial){
                     </div>
                 </div>
                 <div class="p-4 border-bottom">
-                    <div class="text-muted mb-3 fw-semibold" style="font-size: 16px;">🛒 Select Components</div>
+                    <div class="text-muted mb-3 fw-semibold" style="font-size: 16px;">🛒 Choose Your Components</div>
                     <div class="category-grid">
                         <?php
                         $categories = ['CPU', 'Motherboard', 'Graphics Card', 'RAM Memory', 'Storage Drive', 'Power Supply', 'Cabinet', 'CPU Cooler', 'Monitor'];
@@ -307,7 +307,7 @@ if(!$is_partial){
 
     function showImage(src){
         if(!src || src.trim() === '') {
-            alert('No image available');
+            alert('Image not available for this component.');
             return;
         }
         const modalImg = document.getElementById('modalImageBuild');
@@ -320,12 +320,12 @@ if(!$is_partial){
 
     document.getElementById('saveBtn').addEventListener('click',(e)=>{
         e.preventDefault();
-        if(items.length===0){ alert('Add at least one part'); return; }
+        if(items.length===0){ alert('Please add at least one component to your build.'); return; }
         const present = {};
         items.forEach(it=>{ present[(it.category||'').trim()] = true; });
         const missing = REQUIRED_CATEGORIES.filter(c => !present[c]);
         if(missing.length>0){
-            alert('Please add the following components to your build before saving: ' + missing.join(', '));
+            alert('Please add the following required components before saving: ' + missing.join(', '));
             return;
         }
         const buildName = document.getElementById('buildName').value.trim() || 'My Build';

@@ -16,7 +16,7 @@ include('header.php');
           </div>
 
           <?php if(isset($_GET['ok']) && $_GET['ok']==1): ?>
-            <div class="alert alert-success">Support request submitted successfully.</div>
+            <div class="alert alert-success">Your service request has been submitted successfully. Our team will contact you soon.</div>
           <?php endif; ?>
 
           <div class="accordion service-accordion" id="serviceAccordion">

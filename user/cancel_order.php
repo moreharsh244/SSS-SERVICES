@@ -20,7 +20,7 @@ if(isset($_POST['request_id'])){
 
     $request_id = intval($_POST['request_id'] ?? 0);
     if($request_id <= 0){
-        header('Location: myorder.php?view=service&toast=' . rawurlencode('Invalid request.'));
+        header('Location: myorder.php?toast=' . rawurlencode('Unable to process request. Invalid request ID.'));
         exit;
     }
 
@@ -34,7 +34,7 @@ if(isset($_POST['request_id'])){
     $sql = "SELECT * FROM service_requests WHERE id='$request_id' AND user IN ({$userList}) AND LOWER(IFNULL(status,'pending'))='pending' AND (assigned_agent IS NULL OR assigned_agent='') LIMIT 1";
     $res = mysqli_query($con, $sql);
     if(!$res || mysqli_num_rows($res) === 0){
-        header('Location: myorder.php?view=service&toast=' . rawurlencode('Request cannot be cancelled.'));
+        header('Location: myorder.php?toast=' . rawurlencode('This service request cannot be cancelled at this time.'));
         exit;
     }
 
@@ -64,13 +64,13 @@ if(isset($_POST['request_id'])){
 
     @mysqli_query($con, "DELETE FROM service_requests WHERE id='$request_id' LIMIT 1");
 
-    header('Location: myorder.php?view=service&toast=' . rawurlencode('Service request cancelled.'));
+    header('Location: myorder.php?toast=' . rawurlencode('Service request has been cancelled successfully.'));
     exit;
 }
 
 $order_id = intval($_POST['order_id'] ?? 0);
 if($order_id <= 0){
-    header('Location: myorder.php?toast=' . rawurlencode('Invalid order.'));
+    header('Location: myorder.php?toast=' . rawurlencode('Unable to process cancellation. Invalid order ID.'));
     exit;
 }
 
@@ -85,7 +85,7 @@ $userList = "'".implode("','", array_map(function($v){ return mysqli_real_escape
 $sql = "SELECT * FROM purchase WHERE pid='$order_id' AND user IN ({$userList}) AND LOWER(IFNULL(delivery_status,'pending'))='pending' LIMIT 1";
 $res = mysqli_query($con, $sql);
 if(!$res || mysqli_num_rows($res) === 0){
-    header('Location: myorder.php?toast=' . rawurlencode('Order cannot be cancelled.'));
+    header('Location: myorder.php?toast=' . rawurlencode('This order cannot be cancelled at this time.'));
     exit;
 }
 $row = mysqli_fetch_assoc($res);
@@ -127,6 +127,6 @@ $ins = "INSERT INTO purchase_history (pid,pname,`user`,pprice,qty,prod_id,`statu
 
 @mysqli_query($con, "DELETE FROM purchase WHERE pid='$order_id' LIMIT 1");
 
-header('Location: myorder.php?view=history&toast=' . rawurlencode('Order cancelled.'));
+header('Location: myorder.php?toast=' . rawurlencode('Order has been cancelled successfully.'));
 exit;
 ?>

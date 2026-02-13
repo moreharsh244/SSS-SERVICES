@@ -11,13 +11,13 @@ $is_service = ($view === 'service');
             <div class="orders-header">
                 <div>
                     <h2 class="mb-1">Your Orders</h2>
-                    <p class="text-muted mb-0">Track purchases, delivery status, and history.</p>
+                    <p class="text-muted mb-0">Track your purchases, delivery status, and order history.</p>
                 </div>
                 <div class="d-flex gap-2">
                     <a class="btn btn-sm btn-outline-secondary <?php echo (!$is_history && !$is_service) ? 'active' : ''; ?>" href="myorder.php">Active Orders</a>
                     <a class="btn btn-sm btn-outline-secondary <?php echo $is_history ? 'active' : ''; ?>" href="myorder.php?view=history">Order History</a>
                     <a class="btn btn-sm btn-outline-secondary <?php echo $is_service ? 'active' : ''; ?>" href="myorder.php?view=service">Service Requests</a>
-                    <a class="btn btn-sm btn-primary" href="view_products.php">Shop More</a>
+                    <a class="btn btn-sm btn-primary" href="view_products.php">Continue Shopping</a>
                 </div>
             </div>
 
@@ -72,7 +72,7 @@ $is_service = ($view === 'service');
                                                 $response = ($response !== '' ? $response . ' - ' : '') . htmlspecialchars(mb_strimwidth($agent_note, 0, 80, '...'));
                                             }
                                             if($response === ''){
-                                                $response = 'Awaiting response';
+                                                $response = 'Pending Review';
                                             }
                                             $can_cancel = ($status === 'pending' && $assigned_agent === '');
                                 ?>
@@ -87,7 +87,7 @@ $is_service = ($view === 'service');
                                             <td><?php echo !empty($row['created_at']) ? date('Y-m-d', strtotime($row['created_at'])) : ''; ?></td>
                                             <td class="text-end">
                                                 <?php if($can_cancel): ?>
-                                                    <form action="cancel_order.php" method="post" onsubmit="return confirm('Cancel this service request?');" class="d-inline">
+                                                    <form action="cancel_order.php" method="post" onsubmit="return confirm('Are you sure you want to cancel this service request?');" class="d-inline">
                                                         <input type="hidden" name="request_id" value="<?php echo (int)$row['id']; ?>">
                                                         <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
                                                     </form>
@@ -99,7 +99,7 @@ $is_service = ($view === 'service');
                                 <?php
                                         }
                                     } else {
-                                        echo "<tr><td colspan='6' class='text-center small-muted py-4'>No service requests found</td></tr>";
+                                        echo "<tr><td colspan='6' class='text-center small-muted py-4'>No service requests available.</td></tr>";
                                     }
                                 ?>
                             </tbody>
@@ -177,7 +177,7 @@ $is_service = ($view === 'service');
                                                         <button type="submit" class="btn btn-outline-primary btn-sm">View Details</button>
                                                     </form>
                                                     <?php if($view !== 'history' && $status === 'pending'): ?>
-                                                        <form action="cancel_order.php" method="post" onsubmit="return confirm('Cancel this order?');">
+                                                        <form action="cancel_order.php" method="post" onsubmit="return confirm('Are you sure you want to cancel this order?');">
                                                             <input type="hidden" name="order_id" value="<?php echo $row['pid']; ?>">
                                                             <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
                                                         </form>
@@ -188,7 +188,7 @@ $is_service = ($view === 'service');
                                 <?php
                                         }
                                     } else {
-                                        echo "<tr><td colspan='6' class='text-center small-muted py-4'>No orders found</td></tr>";
+                                        echo "<tr><td colspan='6' class='text-center small-muted py-4'>No orders available.</td></tr>";
                                     }
                                 ?>
                             </tbody>

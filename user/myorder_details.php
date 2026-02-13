@@ -67,7 +67,7 @@ echo '<h5>Total Amount: '.$total.'</h5>';
 $delivery_state = strtolower(trim($row['delivery_status'] ?? ''));
 $can_cancel = !$is_history && $delivery_state === 'pending';
 if($can_cancel){
-	echo '<form action="cancel_order.php" method="post" class="mt-3" onsubmit="return confirm(\'Cancel this order?\');">';
+	echo '<form action="cancel_order.php" method="post" class="mt-3" onsubmit="return confirm(\'Are you sure you want to cancel this order?\');">';
 	echo '<input type="hidden" name="order_id" value="'.intval($order_id).'">';
 	echo '<button type="submit" class="btn btn-outline-danger btn-sm">Cancel Order</button>';
 	echo '</form>';

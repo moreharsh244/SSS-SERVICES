@@ -74,7 +74,12 @@ include('header.php');
         <div class="delivery-panel reveal">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0">Active Deliveries</h5>
-                <span class="text-muted small">Only orders assigned to you</span>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="text-muted small">Only orders assigned to you</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleHistory()">
+                        <i class="bi bi-clock-history"></i> View History
+                    </button>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered align-middle table-delivery">
@@ -129,10 +134,16 @@ include('header.php');
             </table>
         </div>
         </div>
-        <div class="delivery-panel reveal mt-4">
+
+        <div class="delivery-panel reveal mt-4" id="historyPanel" style="display: none;">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Cancelled Deliveries</h5>
-                <span class="text-muted small">Orders cancelled by you</span>
+                <h5 class="mb-0">Delivery History</h5>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="text-muted small">All completed orders (delivered & cancelled)</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleHistory()">
+                        <i class="bi bi-x-lg"></i> Close
+                    </button>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered align-middle table-delivery">
@@ -149,41 +160,47 @@ include('header.php');
                     </thead>
                     <tbody>
                     <?php
-                    $cancel_res = false;
+                    $history_res = false;
                     if($db){
                         $tbl = mysqli_real_escape_string($con, 'purchase_history');
                         $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
                         if($qc && mysqli_num_rows($qc)>0){
-                            $cancel_sql = "SELECT * FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,''))='cancelled' ORDER BY pdate DESC";
-                            $cancel_res = mysqli_query($con, $cancel_sql);
+                            $history_sql = "SELECT * FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,'')) IN ('delivered','cancelled') ORDER BY pdate DESC";
+                            $history_res = mysqli_query($con, $history_sql);
                         }
                     }
-                    if($cancel_res && mysqli_num_rows($cancel_res)>0){
-                        while($row = mysqli_fetch_assoc($cancel_res)){
+                    if($history_res && mysqli_num_rows($history_res)>0){
+                        while($row = mysqli_fetch_assoc($history_res)){
                             $id = (int)$row['pid'];
                             $pname = htmlspecialchars($row['pname'] ?? '');
                             $user = htmlspecialchars($row['user'] ?? '');
                             $qty = (int)($row['qty'] ?? 0);
                             $total = number_format(((float)($row['pprice'] ?? 0) * $qty), 2);
+                            $dstatus = strtolower($row['delivery_status'] ?? '');
                             $date = $row['pdate'];
+                            
+                            $badge = ($dstatus === 'delivered') ? 'badge-delivered' : 'badge-cancelled';
+                            $status_label = ucfirst($dstatus);
+                            
                             echo "<tr>";
                             echo "<td>{$id}</td>";
                             echo "<td>{$pname}</td>";
                             echo "<td>{$user}</td>";
                             echo "<td>{$qty}</td>";
                             echo "<td>₹{$total}</td>";
-                            echo "<td><span class='badge badge-cancelled'>Cancelled</span></td>";
+                            echo "<td><span class='badge {$badge}'>{$status_label}</span></td>";
                             echo "<td>{$date}</td>";
                             echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='7' class='text-center'>No cancelled deliveries</td></tr>";
+                        echo "<tr><td colspan='7' class='text-center'>No delivery history</td></tr>";
                     }
                     ?>
                     </tbody>
                 </table>
             </div>
         </div>
+
         <div class="delivery-panel reveal mt-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0">Service Requests</h5>
@@ -262,6 +279,24 @@ include('header.php');
         </div>
     </div>
 </div>
+
+<script>
+function toggleHistory() {
+    const historyPanel = document.getElementById('historyPanel');
+    if (historyPanel.style.display === 'none') {
+        historyPanel.style.display = 'block';
+        // Smooth scroll to history panel
+        setTimeout(() => {
+            historyPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    } else {
+        historyPanel.style.display = 'none';
+        // Scroll back to active deliveries
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+</script>
+
 <?php
 include('footer.php');  
 ?>

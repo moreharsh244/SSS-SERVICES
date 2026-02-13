@@ -36,7 +36,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <?php
     include '../admin/conn.php';
     if(!isset($con) || !$con){
-        echo "<script>alert('Database connection failed. Please contact admin.');</script>";
+        echo "<script>alert('Unable to connect to database. Please contact support.');</script>";
     }
 
     // Ensure password column can store full hashes (bcrypt ~60 chars)
@@ -67,7 +67,7 @@ if (session_status() === PHP_SESSION_NONE) {
         $password = $_POST['password'] ?? '';
 
         if($username === '' || $password === ''){
-            echo "<script>alert('Please enter email and password');</script>";
+            echo "<script>alert('Please enter your email and password.');</script>";
         } else {
             // Select only needed columns that exist in our schema
             $stmt = mysqli_prepare($con, "SELECT c_password, c_name, cid FROM cust_reg WHERE c_email = ? LIMIT 1");
@@ -121,17 +121,17 @@ if (session_status() === PHP_SESSION_NONE) {
                             $safeRet = rawurldecode($return_url);
                         }
                         $dest = $safeRet ? htmlspecialchars($safeRet, ENT_QUOTES) : 'profile.php';
-                        echo "<script>alert('Login successful!'); window.location.href='".$dest."';</script>"; exit;
+                        echo "<script>alert('Login successful! Welcome back.'); window.location.href='".$dest."';</script>"; exit;
                     } else {
-                        echo "<script>alert('Incorrect password');</script>";
+                        echo "<script>alert('Incorrect password. Please try again.');</script>";
                     }
                 } else {
-                    echo "<script>alert('No account found with that email');</script>";
+                    echo "<script>alert('No account found with this email address.');</script>";
                 }
 
                 mysqli_stmt_close($stmt);
             } else {
-                echo "<script>alert('Database query failed: ".mysqli_error($con)."');</script>";
+                echo "<script>alert('An error occurred. Please try again later.');</script>";
             }
         }
     }

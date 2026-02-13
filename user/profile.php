@@ -83,7 +83,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
     $parts[] = "updated_at=NOW()";
     $upd = "UPDATE cust_reg SET " . implode(', ', $parts) . " WHERE c_email='".mysqli_real_escape_string($con,$email)."' LIMIT 1";
     if(mysqli_query($con, $upd)){
-      echo "<script>alert('Profile updated successfully'); window.location='profile.php';</script>";
+      echo "<script>alert('Your profile has been updated successfully.'); window.location='profile.php';</script>";
       exit;
     } else {
       $err = mysqli_error($con);
@@ -300,7 +300,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
     <?php endif; ?>
     
     <?php if($prefill_from_get): ?>
-       <div class="alert alert-info shadow-sm border-0 rounded-3 mb-4"><i class="bi bi-info-circle me-2"></i> Data imported from registration. Please review and save.</div>
+       <div class="alert alert-info shadow-sm border-0 rounded-3 mb-4"><i class="bi bi-info-circle me-2"></i> Profile data imported from registration. Please review and update as needed.</div>
     <?php endif; ?>
 
     <form method="post" enctype="multipart/form-data">

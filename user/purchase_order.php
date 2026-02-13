@@ -42,7 +42,16 @@
         }
     }
 
-    $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`payment_method`,`payment_ref`,`payment_status`,`status`) VALUES ('$pname','$username','$pprice','$qty','$pid','$payment_method','$payment_ref','$payment_status','pending')";
+    // Verify product exists if pid is provided
+    $prod_id_value = 'NULL';
+    if($pid > 0){
+        $verify = mysqli_query($con, "SELECT pid FROM products WHERE pid = $pid LIMIT 1");
+        if($verify && mysqli_num_rows($verify) > 0){
+            $prod_id_value = $pid;
+        }
+    }
+
+    $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`payment_method`,`payment_ref`,`payment_status`,`status`) VALUES ('$pname','$username','$pprice','$qty',$prod_id_value,'$payment_method','$payment_ref','$payment_status','pending')";
     if(mysqli_query($con,$sql)){
         // award loyalty points: 1 point per 10 currency units
         $points = floor(($pprice * $qty) / 10);
@@ -55,7 +64,7 @@
         }
         echo '<script>window.location.href="view_products.php?toast='.rawurlencode('Purchase successful').'";</script>';
     }else{
-        echo '<script>window.location.href="view_products.php?toast='.rawurlencode('Purchase failed').'";</script>';
+        echo '<script>window.location.href="view_products.php?toast='.rawurlencode('Purchase transaction failed. Please try again.').'.";</script>';
     }
         
 ?>
