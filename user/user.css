@@ -193,6 +193,26 @@ body.user-area{
   justify-content:center;
   gap:.5rem;
   flex-wrap:wrap;
+
+/* Compact layout tweaks for user pages */
+body.user-area .container{
+  max-width: 1200px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+body.user-area .container-fluid{
+  padding-left: 12px;
+  padding-right: 12px;
+}
+body.user-area main{
+  padding-top: 0.5rem;
+}
+body.user-area .mt-3{ margin-top: 0.75rem !important; }
+body.user-area .mt-4{ margin-top: 1rem !important; }
+body.user-area .mb-4{ margin-bottom: 1rem !important; }
+body.user-area .py-4{ padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
+body.user-area .pb-3{ padding-bottom: 0.75rem !important; }
+body.user-area .pt-4{ padding-top: 1.25rem !important; }
 }
 .build-page .build-step{
   background:#ffffff;

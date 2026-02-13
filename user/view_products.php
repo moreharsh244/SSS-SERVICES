@@ -30,7 +30,7 @@ $categoryMapping = [
     'Monitor' => 'Monitor'
 ];
 
-$normalizedCategory = isset($categoryMapping[$category]) ? $categoryMapping[$category] : '';
+$normalizedCategory = isset($categoryMapping[$category]) ? $categoryMapping[$category] : $category;
 
 // build company list for filter
 $companies = [];

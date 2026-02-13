@@ -91,79 +91,47 @@ if(!$is_partial){
     include('header.php');
 }
 ?>
-<style>
-    .build-page .build-card{
-        border-radius: 16px;
-        border: 1px solid rgba(15, 23, 42, 0.08);
-        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    }
-    .build-page .build-header{
-        background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #9333ea 100%);
-    }
-    .build-page .category-btn{
-        padding: 8px 10px;
-        font-size: 0.85rem;
-        border-radius: 8px;
-    }
-    .build-page .build-title{
-        letter-spacing: 0.3px;
-    }
-    .build-page .build-footer{
-        background: #f8fafc;
-    }
-    .build-page .save-btn{
-        padding: 6px 16px;
-        font-size: 0.9rem;
-        border-radius: 8px;
-    }
-    .build-page .price{
-        font-weight: 700;
-    }
-</style>
 <div class="container py-4 build-page">
     <div class="row">
         <div class="col-12 text-center mb-4">
-                        <h1 class="h3 mb-2 build-title">Build Your PC</h1>
+            <h1 class="h3 mb-2 build-title">Build Your PC</h1>
+            <div class="build-subtitle">Choose components, see the price live, and save when you are ready.</div>
         </div>
     </div>
 
     <!-- Category Selection Grid -->
     <div class="row mb-4">
-        <div class="col-lg-10 offset-lg-1">
+        <div class="col-12">
+            <div class="build-shell mx-auto">
             <div class="card p-0 build-card">
-                <div class="p-3 border-bottom d-flex justify-content-between align-items-center build-header" style="color: white;">
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center build-header">
                     <div>
                         <h5 class="mb-0">Your PC Build</h5>
-                        <small style="color: rgba(255,255,255,0.9);">Customize your perfect configuration</small>
+                        <small>Customize your perfect configuration</small>
                     </div>
                     <div>
-                        <span style="color: rgba(255,255,255,0.9);">Total Price:</span>
-                        <span id="totalPrice" class="ms-2 h5 mb-0 price" style="color: #fff;">₹0.00</span>
+                        <span style="color: #ffffff; font-weight: 500;">Total Price:</span>
+                        <span id="totalPrice" class="ms-2 h5 mb-0 price" style="color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.15);">₹0.00</span>
                     </div>
                 </div>
                 <div class="p-4 border-bottom">
                     <div class="text-muted mb-3 fw-semibold" style="font-size: 16px;">🛒 Select Components</div>
-                    <div class="d-flex flex-column gap-2">
+                    <div class="category-grid">
                         <?php
                         $categories = ['CPU', 'Motherboard', 'Graphics Card', 'RAM Memory', 'Storage Drive', 'Power Supply', 'Cabinet', 'CPU Cooler', 'Monitor'];
                         $icons = ['🖥️', '🔌', '📊', '💾', '💽', '⚡', '🎁', '❄️', '🖲️'];  
                         foreach($categories as $idx => $cat):
                             $icon = $icons[$idx] ?? '➕';
                         ?>
-                                <button class="btn btn-sm btn-outline-primary category-btn text-start d-flex align-items-center"
-                                    onclick="goToProductView('<?php echo htmlspecialchars($cat); ?>')"
-                                    style="transition: all 0.25s; font-weight: 600;">
-                                <span class="me-2" style="font-size: 18px;"><?php echo $icon; ?></span>
-                                <span><?php echo htmlspecialchars($cat); ?></span>
+                                <button class="btn btn-sm btn-outline-primary category-btn"
+                                    onclick="goToProductView('<?php echo htmlspecialchars($cat); ?>')">
+                                <span style="font-size: 18px;"><?php echo $icon; ?></span>
+                                <span style="margin-left: 8px;"><?php echo htmlspecialchars($cat); ?></span>
                             </button>
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <div class="px-4 py-3 border-bottom build-requirements">
-                    <div class="text-muted small mb-2 fw-semibold">✓ Required Components</div>
-                    <div id="requiredList" class="d-flex flex-wrap gap-2"></div>
-                </div>
+                
                 <div class="p-4" style="min-height: 250px;">
                     <div id="itemsList" class="build-items-container">
                         <div class="build-empty text-center text-muted py-5" style="color: #999; font-size: 16px;">📭 No components selected yet</div>
@@ -178,6 +146,7 @@ if(!$is_partial){
                         <button id="saveBtn" class="btn btn-success save-btn">💾 Save Configuration</button>
                     </form>
                 </div>
+            </div>
             </div>
         </div>
     </div>

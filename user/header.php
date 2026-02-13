@@ -69,18 +69,120 @@ if(!empty($_SESSION['user_id'])){
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shree Swami Samarth - Hardware</title>
   <link rel="stylesheet" href="../css/bootstrap.min.css">
-  <script src="../js/bootstrap.bundle.min.js"></script>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/pc-theme.css">
-  <link rel="stylesheet" href="user.css">
+  <link rel="stylesheet" href="user.css?v=<?php echo time(); ?>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../js/bootstrap.bundle.min.js"></script>
   <style>
     /* ensure navbar and dropdowns render above other page components */
     .navbar { position: relative; z-index: 4000; }
     .navbar .dropdown-menu { z-index: 4001; }
+    .user-nav-sticky{
+      position: sticky;
+      top: 72px;
+      z-index: 3000;
+    }
+    
+    /* Build Page - Complete Styling - Load Before Content */
+    .build-page{
+        min-height: calc(100vh - 140px);
+        background: radial-gradient(1200px 600px at 10% 0%, #e0f2fe 0%, rgba(224,242,254,0) 60%),
+                    radial-gradient(1200px 600px at 90% 10%, #ede9fe 0%, rgba(237,233,254,0) 65%),
+                    linear-gradient(180deg, #f8fafc 0%, #ffffff 60%);
+    }
+    .build-page .build-shell{
+        max-width: 1100px;
+    }
+    .build-page .build-card{
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        overflow: hidden;
+    }
+    .build-page .build-header{
+      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 45%, #7c3aed 100%) !important;
+      color: #ffffff !important;
+      position: relative;
+    }
+    .build-page .build-header h5{
+      color: #ffffff !important;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .build-page .build-header small{
+      color: #ffffff !important;
+      opacity: 0.95;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .build-page .build-header::after{
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(360px 120px at 85% 0%, rgba(255,255,255,0.15), transparent 70%);
+        pointer-events: none;
+    }
+    .build-page .category-grid{
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 10px !important;
+      width: 100%;
+    }
+    .build-page .category-btn{
+      width: 100% !important;
+      display: flex !important;
+      align-items: center !important;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      font-weight: 600;
+      text-align: left;
+      transition: all 0.25s;
+    }
+    .build-page .category-btn span:first-child{
+      margin-right: 8px;
+    }
+    .build-page .build-title{
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .build-page .build-subtitle{
+        color: #475569;
+        font-size: 0.95rem;
+    }
+    .build-page .build-footer{
+        background: #f1f5f9;
+    }
+    .build-page .save-btn{
+        padding: 6px 16px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+    .build-page .price{
+        font-weight: 700;
+    }
+    .build-page .items-list{
+        border-radius: 12px;
+        background: #ffffff;
+    }
+    .build-page .build-empty{
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px dashed rgba(148, 163, 184, 0.6);
+    }
+    @media (max-width: 992px){
+      .build-page .category-grid{ 
+        grid-template-columns: 1fr !important; 
+      }
+      .build-page .build-shell{ max-width: 100%; }
+      .build-page .build-footer{ flex-direction: column; align-items: stretch; gap: 12px; }
+      .build-page .build-footer .w-50{ width: 100% !important; }
+      .build-page .build-footer .ms-3{ margin-left: 0 !important; }
+    }
   </style>
 </head>
 <body class="user-area pc-theme">
@@ -127,7 +229,7 @@ if(!empty($_SESSION['user_id'])){
 <!-- Page layout -->
 <!-- Page layout -->
 <div class="container mt-3">
-  <div class="row">
+  <div class="row user-nav-sticky">
     <div class="col-12 d-flex justify-content-center">
       <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2">
         <a class="nav-link" href="view_products.php"><i class="bi bi-card-list me-2"></i>Products</a>
