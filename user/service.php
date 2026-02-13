@@ -138,51 +138,7 @@ include('header.php');
             </div>
           </div>
 
-          <div class="service-faq mt-4">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <h5 class="mb-0">Quick FAQ</h5>
-              <span class="text-muted small">Need more help? Call our support line.</span>
-            </div>
-            <div class="accordion" id="serviceFaq">
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="faqOne">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseOne" aria-expanded="false" aria-controls="faqCollapseOne">
-                    What happens after I submit a request?
-                  </button>
-                </h2>
-                <div id="faqCollapseOne" class="accordion-collapse collapse" aria-labelledby="faqOne" data-bs-parent="#serviceFaq">
-                  <div class="accordion-body">
-                    Our team reviews the details and contacts you to confirm timing and next steps.
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="faqTwo">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseTwo" aria-expanded="false" aria-controls="faqCollapseTwo">
-                    Can I update my request later?
-                  </button>
-                </h2>
-                <div id="faqCollapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#serviceFaq">
-                  <div class="accordion-body">
-                    Yes. Share the updated details when our support team reaches out, or submit a new request.
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="faqThree">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseThree" aria-expanded="false" aria-controls="faqCollapseThree">
-                    How soon can I expect service?
-                  </button>
-                </h2>
-                <div id="faqCollapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#serviceFaq">
-                  <div class="accordion-body">
-                    Most requests are scheduled within 2 to 5 business days, depending on availability.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
+          
         </div>
       </div>
     </div>

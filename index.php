@@ -58,7 +58,7 @@
         <p class="hero-copy">Pick from hand-selected essentials, festival kits, and gift-ready bundles delivered with care.</p>
         <div class="d-flex flex-wrap gap-3 mt-4">
           <a class="btn btn-hero-primary btn-lg" href="user/index.php">Shop Now</a>
-          <a class="btn btn-hero-outline btn-lg" href="view_products.php">See Collection</a>
+          <a class="btn btn-hero-outline btn-lg" href="user/view_products.php">See Collection</a>
         </div>
         <div class="hero-highlights">
           <div class="highlight-pill">Fast delivery</div>
@@ -84,80 +84,7 @@
 </section>
     <!-- hero end -->
 
-    <!-- info strip -->
-<section class="info-strip reveal">
-  <div class="container">
-    <div class="row g-3">
-      <div class="col-md-4">
-        <div class="info-card">
-          <div class="info-icon"><i class="bi bi-flower3"></i></div>
-          <div>
-            <h5>Curated Puja Items</h5>
-            <p>Authenticity-first products for everyday rituals.</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="info-card">
-          <div class="info-icon"><i class="bi bi-gift"></i></div>
-          <div>
-            <h5>Gift-Ready Bundles</h5>
-            <p>Festival and gifting packs styled for joy.</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="info-card">
-          <div class="info-icon"><i class="bi bi-truck"></i></div>
-          <div>
-            <h5>Reliable Shipping</h5>
-            <p>Fast delivery with secure packaging.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-    <!-- categories -->
-<section class="category-grid reveal">
-  <div class="container">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-      <h2 class="section-title mb-0">Popular Categories</h2>
-      <a class="text-decoration-none fw-semibold" href="view_products.php">View all</a>
-    </div>
-    <div class="row g-4">
-      <div class="col-md-6 col-lg-3">
-        <div class="category-tile teal">
-          <div class="tile-top">Daily Puja</div>
-          <p>Diya, incense, and essentials.</p>
-          <a href="view_products.php" class="btn btn-light btn-sm">Explore</a>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-3">
-        <div class="category-tile coral">
-          <div class="tile-top">Festival Kits</div>
-          <p>Ready-to-use celebration packs.</p>
-          <a href="view_products.php" class="btn btn-light btn-sm">Explore</a>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-3">
-        <div class="category-tile amber">
-          <div class="tile-top">Gift Sets</div>
-          <p>Thoughtful presents for loved ones.</p>
-          <a href="view_products.php" class="btn btn-light btn-sm">Explore</a>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-3">
-        <div class="category-tile violet">
-          <div class="tile-top">Home Decor</div>
-          <p>Spiritual decor and accents.</p>
-          <a href="view_products.php" class="btn btn-light btn-sm">Explore</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+  
 
     <!-- CTA band -->
 <section class="cta-ribbon reveal">

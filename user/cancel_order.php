@@ -13,6 +13,61 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST'){
     exit;
 }
 
+if(isset($_POST['request_id'])){
+    include('../delivery/helpers.php');
+    ensure_service_requests_table($con);
+    ensure_service_requests_history_table($con);
+
+    $request_id = intval($_POST['request_id'] ?? 0);
+    if($request_id <= 0){
+        header('Location: myorder.php?view=service&toast=' . rawurlencode('Invalid request.'));
+        exit;
+    }
+
+    $sessionUser = $_SESSION['username'] ?? '';
+    $sessionUserEsc = mysqli_real_escape_string($con, $sessionUser);
+    $sessionUid = $_SESSION['user_id'] ?? null;
+    $possibleUsers = [ $sessionUserEsc ];
+    if(!empty($sessionUid)) $possibleUsers[] = 'user_'.intval($sessionUid);
+    $userList = "'".implode("','", array_map(function($v){ return mysqli_real_escape_string($GLOBALS['con'],$v); }, $possibleUsers))."'";
+
+    $sql = "SELECT * FROM service_requests WHERE id='$request_id' AND user IN ({$userList}) AND LOWER(IFNULL(status,'pending'))='pending' AND (assigned_agent IS NULL OR assigned_agent='') LIMIT 1";
+    $res = mysqli_query($con, $sql);
+    if(!$res || mysqli_num_rows($res) === 0){
+        header('Location: myorder.php?view=service&toast=' . rawurlencode('Request cannot be cancelled.'));
+        exit;
+    }
+
+    $row = mysqli_fetch_assoc($res);
+    $id = intval($row['id']);
+    $user = mysqli_real_escape_string($con, $row['user'] ?? '');
+    $item = mysqli_real_escape_string($con, $row['item'] ?? '');
+    $stype = mysqli_real_escape_string($con, $row['service_type'] ?? '');
+    $details = mysqli_real_escape_string($con, $row['details'] ?? '');
+    $phone = mysqli_real_escape_string($con, $row['phone'] ?? '');
+    $contact_time = mysqli_real_escape_string($con, $row['contact_time'] ?? '');
+    $assigned_agent = mysqli_real_escape_string($con, $row['assigned_agent'] ?? '');
+    $agent_note = mysqli_real_escape_string($con, $row['agent_note'] ?? '');
+    $created_at = mysqli_real_escape_string($con, $row['created_at'] ?? '');
+    $updated_at = mysqli_real_escape_string($con, $row['updated_at'] ?? '');
+
+    $ins = "INSERT INTO service_requests_history (id, `user`, item, service_type, details, phone, contact_time, status, assigned_agent, assigned_at, agent_note, created_at, updated_at)
+            VALUES ($id,'$user','$item','$stype','$details','$phone','$contact_time','cancelled','$assigned_agent',".
+            (!empty($row['assigned_at']) ? "'".mysqli_real_escape_string($con, $row['assigned_at'])."'" : "NULL").
+            ",'$agent_note',".
+            (!empty($created_at) ? "'{$created_at}'" : "NULL").
+            ",".
+            (!empty($updated_at) ? "'{$updated_at}'" : "NULL").
+            ")
+            ON DUPLICATE KEY UPDATE status=VALUES(status), assigned_agent=VALUES(assigned_agent), agent_note=VALUES(agent_note), updated_at=VALUES(updated_at)";
+    @mysqli_query($con, $ins);
+
+    @mysqli_query($con, "DELETE FROM service_requests WHERE id='$request_id' LIMIT 1");
+
+    header('Location: myorder.php?view=service&toast=' . rawurlencode('Service request cancelled.'));
+    exit;
+}
+
 $order_id = intval($_POST['order_id'] ?? 0);
 if($order_id <= 0){
     header('Location: myorder.php?toast=' . rawurlencode('Invalid order.'));

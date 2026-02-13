@@ -91,18 +91,48 @@ if(!$is_partial){
     include('header.php');
 }
 ?>
+<style>
+    .build-page .build-card{
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }
+    .build-page .build-header{
+        background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #9333ea 100%);
+    }
+    .build-page .category-btn{
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+    .build-page .build-title{
+        letter-spacing: 0.3px;
+    }
+    .build-page .build-footer{
+        background: #f8fafc;
+    }
+    .build-page .save-btn{
+        padding: 6px 16px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+    .build-page .price{
+        font-weight: 700;
+    }
+</style>
 <div class="container py-4 build-page">
     <div class="row">
         <div class="col-12 text-center mb-4">
-            <h1 class="h3 mb-2">Build Your PC</h1>
+                        <h1 class="h3 mb-2 build-title">Build Your PC</h1>
         </div>
     </div>
 
     <!-- Category Selection Grid -->
     <div class="row mb-4">
         <div class="col-lg-10 offset-lg-1">
-            <div class="card p-0 build-card" style="box-shadow: 0 6px 20px rgba(0,0,0,0.12); border-radius: 12px; border: 1px solid rgba(0,0,0,0.08);">
-                <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="card p-0 build-card">
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center build-header" style="color: white;">
                     <div>
                         <h5 class="mb-0">Your PC Build</h5>
                         <small style="color: rgba(255,255,255,0.9);">Customize your perfect configuration</small>
@@ -121,9 +151,9 @@ if(!$is_partial){
                         foreach($categories as $idx => $cat):
                             $icon = $icons[$idx] ?? '➕';
                         ?>
-                            <button class="btn btn-sm btn-outline-primary category-btn text-start d-flex align-items-center" 
+                                <button class="btn btn-sm btn-outline-primary category-btn text-start d-flex align-items-center"
                                     onclick="goToProductView('<?php echo htmlspecialchars($cat); ?>')"
-                                    style="padding: 12px 14px; transition: all 0.3s; border-radius: 6px; font-weight: 500;">
+                                    style="transition: all 0.25s; font-weight: 600;">
                                 <span class="me-2" style="font-size: 18px;"><?php echo $icon; ?></span>
                                 <span><?php echo htmlspecialchars($cat); ?></span>
                             </button>
@@ -139,13 +169,13 @@ if(!$is_partial){
                         <div class="build-empty text-center text-muted py-5" style="color: #999; font-size: 16px;">📭 No components selected yet</div>
                     </div>
                 </div>
-                <div class="p-4 border-top d-flex justify-content-between align-items-center" style="background-color: #f8f9fa;">
+                <div class="p-4 border-top d-flex justify-content-between align-items-center build-footer">
                     <div class="w-50">
                         <input id="buildName" name="build_name" class="form-control" placeholder="e.g., Gaming PC Pro" style="border-radius: 6px;" />
                     </div>
                     <form id="saveForm" method="post" class="d-flex ms-3 w-50 justify-content-end">
                         <input type="hidden" id="itemsJson" name="items_json" />
-                        <button id="saveBtn" class="btn btn-success" style="border-radius: 6px; font-weight: 600; padding: 8px 24px;">💾 Save Configuration</button>
+                        <button id="saveBtn" class="btn btn-success save-btn">💾 Save Configuration</button>
                     </form>
                 </div>
             </div>
@@ -178,7 +208,7 @@ if(!$is_partial){
                                 <div class="text-center">
                                     <div style="font-size: 48px; margin-bottom: 15px;">📦</div>
                                     <h5 style="color: #0d6efd; margin-bottom: 10px;">No Products Available</h5>
-                                    <p class="text-muted mb-0">There are currently no <strong>${htmlspecialchars(category)}</strong> products in stock.</p>
+                                    <p class="text-muted mb-0">There are currently no <strong>${escapeHtml(category)}</strong> products in stock.</p>
                                     <p class="text-muted small mt-2">Please check back later or select another category.</p>
                                 </div>
                             </div>
@@ -189,24 +219,21 @@ if(!$is_partial){
             filteredProducts.forEach(p => {
                 const imgLink = p.pimg ? '../productimg/' + encodeURIComponent(p.pimg) : '../img/pc1.jpg';
                 const price = Number(p.pprice).toFixed(2);
-                const name = htmlspecialchars(p.pname);
+                const name = escapeHtml(p.pname);
                 const pid = p.pid;
                 
                 html += `<div class="col-md-6 col-lg-4">
-                    <div class="card product-card cursor-pointer" onclick="selectProduct('${pid}', '${htmlspecialchars(name)}', '${price}', '${category}', '${htmlspecialchars(imgLink)}')" style="cursor:pointer;transition:all 0.3s;">
-                        <img src="${htmlspecialchars(imgLink)}" class="card-img-top" alt="${name}" style="height:200px;object-fit:cover;">
+                    <div class="card product-card cursor-pointer" onclick="selectProduct('${pid}', '${name}', '${price}', '${escapeHtml(category)}', '${escapeHtml(imgLink)}')" style="cursor:pointer;transition:all 0.3s;">
+                        <img src="${escapeHtml(imgLink)}" class="card-img-top" alt="${name}" style="height:200px;object-fit:cover;" onclick="event.stopPropagation();showImage('${escapeHtml(imgLink)}')">
                         <div class="card-body">
                             <h6 class="card-title">${name}</h6>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="badge bg-primary">₹${price}</span>
-                                <small class="text-muted">${category}</small>
+                                <small class="text-muted">${escapeHtml(category)}</small>
                             </div>
                         </div>
                     </div>
                 </div>`;
-            });
-            html += '</div>';
-        }
             });
             html += '</div>';
         }
