@@ -3,6 +3,23 @@ body.admin-body{
   background: #f4f7fb;
   font-family: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
+.admin-body .navbar{
+  position: sticky;
+  top: 0;
+  z-index: 7000;
+  pointer-events: auto;
+}
+.admin-body .navbar *{
+  pointer-events: auto;
+}
+.admin-body .navbar .nav-link,
+.admin-body .navbar .btn{
+  position: relative;
+  z-index: 7001;
+}
+.admin-body .navbar .dropdown-menu{
+  z-index: 7002;
+}
 .admin-container{
   margin-top: 24px;
   max-width: 1100px;
@@ -41,6 +58,15 @@ body.admin-body{
 .navbar-brand{
   font-weight:700;
   letter-spacing:0.4px;
+}
+.navbar .dropdown:hover > .dropdown-menu,
+.navbar .dropdown:focus-within > .dropdown-menu{
+  display: block;
+}
+.admin-subnav{
+  position: sticky;
+  top: 64px;
+  z-index: 2000;
 }
 .admin-card{
   background: #ffffff;

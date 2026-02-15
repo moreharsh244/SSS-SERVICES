@@ -31,6 +31,16 @@ $categoryMapping = [
 ];
 
 $normalizedCategory = isset($categoryMapping[$category]) ? $categoryMapping[$category] : $category;
+$categoryTerms = [];
+if($category !== ''){
+    $categoryTerms[] = $category;
+    if($normalizedCategory !== '' && $normalizedCategory !== $category){
+        $categoryTerms[] = $normalizedCategory;
+    }
+}
+$categoryTermsLower = array_map(function($val){
+    return strtolower($val);
+}, $categoryTerms);
 
 // build company list for filter
 $companies = [];
@@ -50,6 +60,12 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
                     <div class="col-auto">
                         <input type="search" name="q" value="<?php echo htmlspecialchars($q); ?>" class="form-control" placeholder="Search within results">
                     </div>
+                    <?php if($category !== ''): ?>
+                        <input type="hidden" name="category" value="<?php echo htmlspecialchars($category); ?>">
+                    <?php endif; ?>
+                    <?php if($from !== ''): ?>
+                        <input type="hidden" name="from" value="<?php echo htmlspecialchars($from); ?>">
+                    <?php endif; ?>
                     <div class="col-auto">
                         <select name="company" class="form-select">
                             <option value="">All Brands</option>
@@ -86,7 +102,11 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
                         <?php if($sort): ?>
                             <span class="filter-chip">Sort: <?php echo htmlspecialchars(str_replace('_',' ', $sort)); ?></span>
                         <?php endif; ?>
-                        <a class="btn btn-sm btn-outline-secondary" href="view_products.php">Clear all</a>
+                        <?php if($from === 'build'): ?>
+                            <a class="btn btn-sm btn-outline-secondary" href="view_products.php?from=build">Clear all</a>
+                        <?php else: ?>
+                            <a class="btn btn-sm btn-outline-secondary" href="view_products.php">Clear all</a>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
@@ -95,7 +115,12 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
         $where = [];
         if($q) $where[] = "(pname LIKE '%$q%' OR pcompany LIKE '%$q%')";
         if($company) $where[] = "pcompany = '$company'";
-        if($normalizedCategory) $where[] = "pcat = '$normalizedCategory'";
+        if(!empty($categoryTermsLower)){
+            $categoryTermsEsc = array_map(function($val) use ($con){
+                return mysqli_real_escape_string($con, $val);
+            }, $categoryTermsLower);
+            $where[] = "LOWER(pcat) IN ('" . implode("','", $categoryTermsEsc) . "')";
+        }
         $sql = "SELECT * FROM `products`" . ($where ? " WHERE " . implode(' AND ', $where) : "");
         if($sort === 'price_asc') $sql .= " ORDER BY pprice ASC";
         else if($sort === 'price_desc') $sql .= " ORDER BY pprice DESC";
@@ -164,11 +189,14 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
             img: imgLink
         };
         
-        // Save to sessionStorage
-        sessionStorage.setItem('buildProduct_' + pid, JSON.stringify(productData));
+        // Save to sessionStorage queue for multiple selections
+        const queueRaw = sessionStorage.getItem('buildItems');
+        const queue = queueRaw ? JSON.parse(queueRaw) : [];
+        queue.push(productData);
+        sessionStorage.setItem('buildItems', JSON.stringify(queue));
         
         // Go back to build page
-        window.location.href = 'build.php?product=' + pid;
+        window.location.href = 'build.php';
     }
 
     function showProductImage(src){

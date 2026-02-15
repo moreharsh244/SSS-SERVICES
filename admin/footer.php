@@ -58,6 +58,50 @@
 					var m = new bootstrap.Modal(document.getElementById('imageModal'));
 					m.show();
 				});
+
+				// dropdown fallback if Bootstrap JS is not active
+				if(!(window.bootstrap && bootstrap.Dropdown)){
+					var userMenu = document.getElementById('userMenu');
+					if(userMenu){
+						var menu = userMenu.nextElementSibling;
+						userMenu.addEventListener('click', function(e){
+							e.preventDefault();
+							if(!menu) return;
+							menu.classList.toggle('show');
+							userMenu.setAttribute('aria-expanded', menu.classList.contains('show') ? 'true' : 'false');
+						});
+						document.addEventListener('click', function(e){
+							if(!menu || userMenu.contains(e.target) || menu.contains(e.target)) return;
+							menu.classList.remove('show');
+							userMenu.setAttribute('aria-expanded', 'false');
+						});
+					}
+				}
+
+				// ensure dropdown toggles even if auto-init fails
+				var userMenuEl = document.getElementById('userMenu');
+				if(userMenuEl && window.bootstrap && bootstrap.Dropdown){
+					userMenuEl.addEventListener('click', function(e){
+						e.preventDefault();
+						bootstrap.Dropdown.getOrCreateInstance(userMenuEl).toggle();
+					});
+				}
+
+				// navigation fallbacks for header links
+				var viewProducts = document.getElementById('adminViewProducts');
+				if(viewProducts){
+					viewProducts.addEventListener('click', function(e){
+						e.preventDefault();
+						window.location.href = viewProducts.getAttribute('href');
+					});
+				}
+				var logoutLink = document.getElementById('adminLogout');
+				if(logoutLink){
+					logoutLink.addEventListener('click', function(e){
+						e.preventDefault();
+						window.location.href = logoutLink.getAttribute('href');
+					});
+				}
 			});
 		</script>
 </body>

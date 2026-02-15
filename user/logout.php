@@ -1,4 +1,3 @@
-session_destroy();
 <?php
 if (session_status() === PHP_SESSION_NONE) {
 	session_name('SSS_USER_SESS');
@@ -28,6 +27,6 @@ if($email){
 }
 setcookie('remember','', time()-3600, '/', '', false, true);
 session_destroy();
-header('location:login.php');
+header('location:../index.php');
 exit;
 ?>
