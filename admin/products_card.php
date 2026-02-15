@@ -47,10 +47,6 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 echo '</div>'; // row
 echo '</div>'; // container
-// if we included header here, close the row/container with footer
-if ($included_header) {
-    include('footer.php');
-}
 ?>
 
 <!-- Image Preview Modal for Products -->
@@ -82,5 +78,12 @@ if ($included_header) {
         }
     }
 </script>
+
+<?php
+// if we included header here, close the row/container with footer
+if ($included_header) {
+    include('footer.php');
+}
+?>
 
 

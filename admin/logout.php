@@ -5,6 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 unset($_SESSION['role']);
 session_destroy();
-header('location:login.php');
+header('location:../index.php');
 exit;
 ?>

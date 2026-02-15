@@ -123,7 +123,7 @@ if(!$is_partial){
                         foreach($categories as $idx => $cat):
                             $icon = $icons[$idx] ?? '➕';
                         ?>
-                                <button class="btn btn-sm btn-outline-primary category-btn"
+                                <button type="button" class="btn btn-sm btn-outline-primary category-btn"
                                     onclick="goToProductView('<?php echo htmlspecialchars($cat); ?>')">
                                 <span style="font-size: 18px;"><?php echo $icon; ?></span>
                                 <span style="margin-left: 8px;"><?php echo htmlspecialchars($cat); ?></span>
@@ -153,6 +153,7 @@ if(!$is_partial){
 </div>
 <script>
     const items = [];
+    const BUILD_STORAGE_KEY = 'buildItemsCurrent';
     const itemsList = document.getElementById('itemsList');
     const totalPriceEl = document.getElementById('totalPrice');
     const REQUIRED_CATEGORIES = ['CPU','Motherboard','Graphics Card','RAM Memory','Storage Drive','Power Supply','Cabinet','CPU Cooler'];
@@ -225,6 +226,7 @@ if(!$is_partial){
             price: parseFloat(price),
             img: imgLink
         });
+        saveItems();
         renderItems();
         
         // Close modal
@@ -278,8 +280,32 @@ if(!$is_partial){
 
     function removeItem(i){ items.splice(i,1); renderItems(); }
 
+    function saveItems(){
+        sessionStorage.setItem(BUILD_STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function loadItems(){
+        const raw = sessionStorage.getItem(BUILD_STORAGE_KEY);
+        if(!raw) return;
+        try {
+            const stored = JSON.parse(raw) || [];
+            stored.forEach(function(product){
+                items.push({
+                    category: product.category,
+                    name: product.name,
+                    pid: product.pid,
+                    price: parseFloat(product.price),
+                    img: product.img
+                });
+            });
+        } catch(e){
+            console.error('Error parsing stored build items:', e);
+        }
+    }
+
     // Check if coming from view_products with a product to add
     window.addEventListener('load', function(){
+        loadItems();
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('product');
         if(productId){
@@ -294,14 +320,36 @@ if(!$is_partial){
                         price: parseFloat(product.price),
                         img: product.img
                     });
-                    renderItems();
                     sessionStorage.removeItem('buildProduct_' + productId);
-                    // Scroll to items list
-                    document.getElementById('itemsList').scrollIntoView({ behavior: 'smooth' });
                 } catch(e){
                     console.error('Error parsing product data:', e);
                 }
             }
+        }
+
+        const queueRaw = sessionStorage.getItem('buildItems');
+        if(queueRaw){
+            try {
+                const queue = JSON.parse(queueRaw) || [];
+                queue.forEach(function(product){
+                    items.push({
+                        category: product.category,
+                        name: product.name,
+                        pid: product.pid,
+                        price: parseFloat(product.price),
+                        img: product.img
+                    });
+                });
+                sessionStorage.removeItem('buildItems');
+            } catch(e){
+                console.error('Error parsing build items:', e);
+            }
+        }
+
+        if(items.length > 0){
+            saveItems();
+            renderItems();
+            document.getElementById('itemsList').scrollIntoView({ behavior: 'smooth' });
         }
     });
 
@@ -334,6 +382,7 @@ if(!$is_partial){
         document.getElementById('itemsJson').value = JSON.stringify(payload);
         const form = document.getElementById('saveForm');
         const bn = document.createElement('input'); bn.type='hidden'; bn.name='build_name'; bn.value=buildName; form.appendChild(bn);
+        sessionStorage.removeItem(BUILD_STORAGE_KEY);
         form.submit();
     });
 

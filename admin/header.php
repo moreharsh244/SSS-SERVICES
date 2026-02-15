@@ -69,25 +69,20 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-  
-
+    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-        <li class="nav-item me-2">
-          <a class="btn btn-sm btn-outline-secondary" href="view_product.php">View Products</a>
-        </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
             <i class="bi bi-person-circle me-2"></i>
             <?php echo htmlentities($_SESSION['username']); ?>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
             <li><a class="dropdown-item" href="myorder.php">Orders</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
+            <li><a class="dropdown-item text-danger" id="adminLogout" href="logout.php">Logout</a></li>
           </ul>
         </li>
       </ul>
-    
     </div>
   </div>
 </nav>
@@ -97,9 +92,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 <div class="container mt-3">
   <div class="row">
     <div class="col-12 d-flex justify-content-center">
-      <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2">
+      <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2 admin-subnav">
         <a class="nav-link" href="add_product.php"><i class="bi bi-plus-square me-2"></i>Add Product</a>
-        <a class="nav-link" href="view_product.php"><i class="bi bi-card-list me-2"></i>Product List</a>
+        <a class="nav-link" href="view_product.php"><i class="bi bi-eye me-2"></i>View Products</a>
         <a class="nav-link" href="products_card.php"><i class="bi bi-grid-3x3-gap me-2"></i>Product Grid</a>
         <a class="nav-link" href="orders_list.php"><i class="bi bi-bag-check me-2"></i>Orders</a>
         <a class="nav-link" href="service_requests.php"><i class="bi bi-tools me-2"></i>Support Requests</a>
