@@ -50,9 +50,13 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
     <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 2px solid #f0f0f0;">
         <h3 class="mb-0" style="color: #333; font-weight: 600;"><?php echo $normalizedCategory ? '🛒 ' . htmlspecialchars($category) . ' Products' : '🛍️ All Products'; ?></h3>
         <?php if($from === 'build'): ?>
-            <a href="build.php" class="btn btn-outline-secondary btn-sm">↩️ Back to Build</a>
+            <a href="build.php" class="btn btn-outline-secondary btn-sm">↩️ Back to Build <span id="buildCountBadge" class="badge bg-secondary ms-2" style="display:none;"></span></a>
         <?php endif; ?>
     </div>
+
+    <?php if($from === 'build'): ?>
+        <div id="buildAddNotice" class="alert alert-success d-none">Added to build. Keep adding items, then click "Back to Build" when ready.</div>
+    <?php endif; ?>
 
         <div class="row mb-3">
             <div class="col-12">
@@ -186,17 +190,62 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
             name: name,
             price: price,
             category: category,
-            img: imgLink
+            img: imgLink,
+            qty: 1
         };
         
         // Save to sessionStorage queue for multiple selections
-        const queueRaw = sessionStorage.getItem('buildItems');
+        let queueRaw = null;
+        try { queueRaw = localStorage.getItem('buildItems'); } catch(e){}
+        if(!queueRaw){ queueRaw = sessionStorage.getItem('buildItems'); }
         const queue = queueRaw ? JSON.parse(queueRaw) : [];
         queue.push(productData);
-        sessionStorage.setItem('buildItems', JSON.stringify(queue));
+        try { localStorage.setItem('buildItems', JSON.stringify(queue)); }
+        catch(e){ sessionStorage.setItem('buildItems', JSON.stringify(queue)); }
         
-        // Go back to build page
-        window.location.href = 'build.php';
+        showBuildNotice();
+        updateBuildBadge();
+    }
+
+    function showBuildNotice(){
+        const notice = document.getElementById('buildAddNotice');
+        if(!notice) return;
+        notice.classList.remove('d-none');
+        clearTimeout(window._buildNoticeTimer);
+        window._buildNoticeTimer = setTimeout(function(){
+            notice.classList.add('d-none');
+        }, 2000);
+    }
+
+    function getBuildCount(){
+        let count = 0;
+        let currentRaw = null;
+        let queueRaw = null;
+        try { currentRaw = localStorage.getItem('buildItemsCurrent'); } catch(e){}
+        try { queueRaw = localStorage.getItem('buildItems'); } catch(e){}
+        if(!currentRaw){ currentRaw = sessionStorage.getItem('buildItemsCurrent'); }
+        if(!queueRaw){ queueRaw = sessionStorage.getItem('buildItems'); }
+        try {
+            const current = JSON.parse(currentRaw || '[]');
+            current.forEach(function(it){ count += Number(it.qty || 1); });
+        } catch(e){}
+        try {
+            const queue = JSON.parse(queueRaw || '[]');
+            queue.forEach(function(it){ count += Number(it.qty || 1); });
+        } catch(e){}
+        return count;
+    }
+
+    function updateBuildBadge(){
+        const badge = document.getElementById('buildCountBadge');
+        if(!badge) return;
+        const count = getBuildCount();
+        if(count > 0){
+            badge.textContent = String(count);
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 
     function showProductImage(src){
@@ -211,6 +260,8 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
             modal.show();
         }
     }
+
+    window.addEventListener('load', updateBuildBadge);
 </script>
 
 <?php include('footer.php'); ?>

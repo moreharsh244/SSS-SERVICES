@@ -5,418 +5,416 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 if(!isset($_SESSION['is_login'])){ header('location:login.php'); exit; }
 include('../admin/conn.php');
-// user identifier: numeric id when available, otherwise store username/email for admin lookup
+
+// --- PHP Processing Logic (Same as before) ---
 $user_id = $_SESSION['user_id'] ?? $_SESSION['id'] ?? 0;
 $user_name = mysqli_real_escape_string($con, $_SESSION['username'] ?? $_SESSION['email'] ?? '');
+
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $name = mysqli_real_escape_string($con, $_POST['build_name'] ?? 'My Build');
     $items_json = $_POST['items_json'] ?? '';
     $data = json_decode($items_json, true);
+    
     if(!$data || !isset($data['items'])){
-        echo '<script>alert("Unable to process build data. Please try again.");window.history.back();</script>';
+        echo '<script>alert("Unable to process build data.");window.history.back();</script>';
         exit;
     }
-    // enforce mandatory component categories server-side
+
+    // Required components mapping
     $required_components = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
+    $category_map = [
+        'CPU' => 'CPU', 'Motherboard' => 'Motherboard',
+        'Graphics Card' => 'GPU', 'GPU' => 'GPU',
+        'RAM Memory' => 'RAM', 'RAM' => 'RAM',
+        'Storage Drive' => 'Storage', 'Storage' => 'Storage',
+        'Power Supply' => 'PSU', 'PSU' => 'PSU',
+        'Cabinet' => 'Case', 'Case' => 'Case',
+        'CPU Cooler' => 'Cooler', 'Cooler' => 'Cooler'
+    ];
+    
     $present = [];
-    foreach($data['items'] as $k => $v){
-        // client uses keys like "Category_index" so extract category part before underscore
-        $parts = explode('_', $k);
-        $cat = $parts[0] ?? $k;
-        $present[$cat] = true;
+    foreach($data['items'] as $it){
+        $cat_raw = $it['category'] ?? '';
+        $cat_norm = $category_map[$cat_raw] ?? $cat_raw;
+        if($cat_norm !== '') $present[$cat_norm] = true;
     }
+    
     $missing = array_values(array_diff($required_components, array_keys($present)));
     if(!empty($missing)){
-        $msg = 'Please add the following required components to your build: ' . implode(', ', $missing);
-        echo '<script>alert("'.htmlspecialchars($msg, ENT_QUOTES).'");window.history.back();</script>';
+        $msg = 'Required: ' . implode(', ', $missing);
+        echo '<script>alert("'.htmlspecialchars($msg).'");window.history.back();</script>';
         exit;
     }
+
     $total = floatval($data['total'] ?? 0);
-    // create builds table if not exists (defensive)
-        $sqlc = "CREATE TABLE IF NOT EXISTS `builds` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
-            `user_id` INT NOT NULL,
-            `user_name` VARCHAR(255) DEFAULT NULL,
-            `name` VARCHAR(255) NOT NULL,
-            `total` DECIMAL(10,2) NOT NULL DEFAULT 0,
-            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+
+    // Database insertions
+    $sqlc = "CREATE TABLE IF NOT EXISTS `builds` (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` INT NOT NULL, `user_name` VARCHAR(255), `name` VARCHAR(255), `total` DECIMAL(10,2), `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB;";
     mysqli_query($con, $sqlc);
-    $sqlc2 = "CREATE TABLE IF NOT EXISTS `build_items` (
-      `id` INT AUTO_INCREMENT PRIMARY KEY,
-      `build_id` INT NOT NULL,
-      `product_id` INT NOT NULL,
-      `category` VARCHAR(100) NULL,
-      `price` DECIMAL(10,2) NOT NULL,
-      FOREIGN KEY (`build_id`) REFERENCES `builds`(`id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    $sqlc2 = "CREATE TABLE IF NOT EXISTS `build_items` (`id` INT AUTO_INCREMENT PRIMARY KEY, `build_id` INT NOT NULL, `product_id` INT, `category` VARCHAR(100), `product_name` VARCHAR(255), `product_img` VARCHAR(255), `price` DECIMAL(10,2), `qty` INT DEFAULT 1, FOREIGN KEY (`build_id`) REFERENCES `builds`(`id`) ON DELETE CASCADE) ENGINE=InnoDB;";
     mysqli_query($con, $sqlc2);
 
-        // ensure builds table has user_name column (in case table was created earlier)
-        $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'builds' AND COLUMN_NAME = 'user_name'";
-        $col_res = mysqli_query($con, $col_check);
-        if(!$col_res || mysqli_num_rows($col_res) === 0){
-                @mysqli_query($con, "ALTER TABLE builds ADD COLUMN user_name VARCHAR(255) DEFAULT NULL");
-        }
-
-    // insert build
     $ins = "INSERT INTO builds (user_id, user_name, name, total) VALUES ('$user_id', '$user_name', '$name', '$total')";
     if(mysqli_query($con, $ins)){
         $build_id = mysqli_insert_id($con);
-        foreach($data['items'] as $cat => $it){
-            $pid = intval($it['pid']);
-            $price = floatval($it['price']);
-            $cat_esc = mysqli_real_escape_string($con, $cat);
-            $ins2 = "INSERT INTO build_items (build_id, product_id, category, price) VALUES ('$build_id', '$pid', '$cat_esc', '$price')";
-            mysqli_query($con, $ins2);
+        foreach($data['items'] as $it){
+            $pid = intval($it['pid'] ?? 0);
+            $price = floatval($it['price'] ?? 0);
+            $qty = max(1, intval($it['qty'] ?? 1));
+            $cat = mysqli_real_escape_string($con, $it['category'] ?? '');
+            $pname = mysqli_real_escape_string($con, $it['name'] ?? '');
+            $pimg = mysqli_real_escape_string($con, $it['img'] ?? '');
+            mysqli_query($con, "INSERT INTO build_items (build_id, product_id, category, product_name, product_img, price, qty) VALUES ('$build_id', '$pid', '$cat', '$pname', '$pimg', '$price', '$qty')");
         }
-        echo '<script>alert("Your build has been saved successfully!");window.location.href="cart.php";</script>';
-        exit;
-    } else {
-        echo '<script>alert("Unable to save build. Please try again.");window.history.back();</script>';
+        echo '<script>sessionStorage.removeItem("buildItemsCurrent"); alert("Build Saved!"); window.location.href="cart.php";</script>';
         exit;
     }
 }
-// If not POST, show the build UI
-// fetch products for the product selector
+
+// Fetch products for modal
 $products = [];
 $pq = mysqli_query($con, "SELECT pid, pname, pprice, pcat, pimg FROM products");
-if($pq){
-    while($r = mysqli_fetch_assoc($pq)) $products[] = $r;
-}
-// Render as partial for AJAX fetch when requested
-$is_partial = isset($_GET['partial']) && $_GET['partial'] === '1';
-if(!$is_partial){
+if($pq){ while($r = mysqli_fetch_assoc($pq)) $products[] = $r; }
+
+if(!isset($_GET['partial'])){
     if(!defined('page')) define('page','build');
     include('header.php');
 }
 ?>
-<div class="container py-4 build-page">
-    <div class="row">
-        <div class="col-12 text-center mb-4">
-            <h1 class="h3 mb-2 build-title">Build Your PC</h1>
-            <div class="build-subtitle">Choose components, see the price live, and save when you are ready.</div>
+
+<style>
+    .build-page-wrap {
+        min-height: 100vh;
+        background: radial-gradient(1200px 600px at 10% 0%, #eef6ff 0%, #ffffff 45%),
+                    radial-gradient(900px 500px at 90% 10%, #f2f8ff 0%, #ffffff 40%);
+    }
+    .build-container { max-width: 1200px; margin: 0 auto; }
+    .build-hero {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 55%, #0a58ca 100%);
+        color: #ffffff;
+        border-radius: 16px;
+        padding: 20px 24px;
+        box-shadow: 0 12px 30px rgba(13,110,253,0.25);
+    }
+    .slot-card {
+        height: 120px; /* Short fixed height */
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #f8f9fa;
+        color: #6c757d;
+        flex-direction: column;
+        text-align: center;
+    }
+    .slot-card:hover { border-color: #0d6efd; background: #e7f1ff; color: #0d6efd; }
+    .slot-card.filled {
+        border: 1px solid #dee2e6;
+        border-left: 5px solid #0d6efd;
+        background: #fff;
+        padding: 10px;
+        flex-direction: row;
+        justify-content: start;
+        text-align: left;
+    }
+    .slot-icon { font-size: 24px; margin-bottom: 5px; }
+    .slot-label { font-size: 14px; font-weight: 600; }
+    .slot-img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; margin-right: 15px; }
+    .slot-info { flex: 1; overflow: hidden; }
+    .slot-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .slot-price { color: #198754; font-weight: 700; font-size: 14px; }
+    .slot-actions { display: flex; flex-direction: column; gap: 4px; }
+    
+    /* Sticky Footer for Total/Save */
+    .sticky-total-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        padding: 15px 0;
+        z-index: 1000;
+        border-top: 1px solid #dee2e6;
+    }
+    /* Modal Product Grid */
+    .modal-product-card { cursor: pointer; transition: transform 0.2s; border: 1px solid #eee; }
+    .modal-product-card:hover { transform: translateY(-3px); border-color: #0d6efd; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+</style>
+
+<div class="build-page-wrap">
+<div class="container build-container py-4 pb-5 mb-5">
+    <div class="build-hero mb-4 d-flex flex-wrap align-items-center justify-content-between">
+        <div>
+            <h2 class="fw-bold mb-1">PC Builder</h2>
+            <div class="small" style="opacity:0.85;">Pick parts, see the total live, and save the build.</div>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <span class="badge bg-light text-primary px-3 py-2">Smart Build Planner</span>
         </div>
     </div>
 
-    <!-- Category Selection Grid -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="build-shell mx-auto">
-            <div class="card p-0 build-card">
-                <div class="p-3 border-bottom d-flex justify-content-between align-items-center build-header">
-                    <div>
-                        <h5 class="mb-0">Your PC Build</h5>
-                        <small>Create your perfect custom configuration</small>
-                    </div>
-                    <div>
-                        <span style="color: #ffffff; font-weight: 500;">Total Price:</span>
-                        <span id="totalPrice" class="ms-2 h5 mb-0 price" style="color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.15);">₹0.00</span>
-                    </div>
-                </div>
-                <div class="p-4 border-bottom">
-                    <div class="text-muted mb-3 fw-semibold" style="font-size: 16px;">🛒 Choose Your Components</div>
-                    <div class="category-grid">
-                        <?php
-                        $categories = ['CPU', 'Motherboard', 'Graphics Card', 'RAM Memory', 'Storage Drive', 'Power Supply', 'Cabinet', 'CPU Cooler', 'Monitor'];
-                        $icons = ['🖥️', '🔌', '📊', '💾', '💽', '⚡', '🎁', '❄️', '🖲️'];  
-                        foreach($categories as $idx => $cat):
-                            $icon = $icons[$idx] ?? '➕';
-                        ?>
-                                <button type="button" class="btn btn-sm btn-outline-primary category-btn"
-                                    onclick="goToProductView('<?php echo htmlspecialchars($cat); ?>')">
-                                <span style="font-size: 18px;"><?php echo $icon; ?></span>
-                                <span style="margin-left: 8px;"><?php echo htmlspecialchars($cat); ?></span>
-                            </button>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                
-                <div class="p-4" style="min-height: 250px;">
-                    <div id="itemsList" class="build-items-container">
-                        <div class="build-empty text-center text-muted py-5" style="color: #999; font-size: 16px;">📭 No components selected yet</div>
-                    </div>
-                </div>
-                <div class="p-4 border-top d-flex justify-content-between align-items-center build-footer">
-                    <div class="w-50">
-                        <input id="buildName" name="build_name" class="form-control" placeholder="e.g., Gaming PC Pro" style="border-radius: 6px;" />
-                    </div>
-                    <form id="saveForm" method="post" class="d-flex ms-3 w-50 justify-content-end">
-                        <input type="hidden" id="itemsJson" name="items_json" />
-                        <button id="saveBtn" class="btn btn-success save-btn">💾 Save Configuration</button>
-                    </form>
-                </div>
+    <div class="row g-3" id="buildGrid"></div>
+</div>
+
+<div class="sticky-total-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div>
+            <span class="text-muted small d-block">Total Estimate</span>
+            <span class="h3 fw-bold text-primary m-0" id="totalPrice">₹0.00</span>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <input type="text" id="buildName" class="form-control" placeholder="Build Name" style="width: 200px;">
+            <form id="saveForm" method="post" class="m-0">
+                <input type="hidden" id="itemsJson" name="items_json">
+                <button id="saveBtn" class="btn btn-success fw-bold px-4"><i class="fas fa-save me-2"></i>SAVE</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div style="height: 90px;"></div>
+</div>
+
+<div class="modal fade" id="productSelectorModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="productSelectorTitle">Select Component</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+            <div class="modal-body bg-light" style="max-height: 70vh; overflow-y: auto;">
+                <div id="productSelectorBody" class="row g-3"></div>
             </div>
         </div>
     </div>
 </div>
-<script>
-    const items = [];
-    const BUILD_STORAGE_KEY = 'buildItemsCurrent';
-    const itemsList = document.getElementById('itemsList');
-    const totalPriceEl = document.getElementById('totalPrice');
-    const REQUIRED_CATEGORIES = ['CPU','Motherboard','Graphics Card','RAM Memory','Storage Drive','Power Supply','Cabinet','CPU Cooler'];
-    
-    // All products data
-    const productsData = <?php echo json_encode($products); ?>;
 
-    // Redirect to view products page with category filter
-    function goToProductView(category){
-        window.location.href = 'view_products.php?category=' + encodeURIComponent(category) + '&from=build';
+<script>
+    const productsData = <?php echo json_encode($products); ?>;
+    let items = [];
+    const STORAGE_KEY = 'buildItemsCurrent';
+    const QUEUE_KEY = 'buildItems';
+
+    // Categories Layout
+    const SLOTS = [
+        { key: 'CPU', label: 'Processor', icon: '🧠' },
+        { key: 'Motherboard', label: 'Motherboard', icon: '🔌' },
+        { key: 'GPU', label: 'Graphics Card', icon: '🎮' },
+        { key: 'RAM', label: 'RAM Memory', icon: '💾' },
+        { key: 'Storage', label: 'Storage', icon: '💽' },
+        { key: 'PSU', label: 'Power Supply', icon: '⚡' },
+        { key: 'Case', label: 'Cabinet', icon: '📦' },
+        { key: 'Cooler', label: 'Cooler', icon: '❄️' },
+        { key: 'Monitor', label: 'Monitor', icon: '🖥️' }
+    ];
+
+    const CAT_MAP = {
+        'Graphics Card':'GPU', 'RAM Memory':'RAM', 'Storage Drive':'Storage',
+        'Power Supply':'PSU', 'Cabinet':'Case', 'CPU Cooler':'Cooler'
+    };
+
+    function getCanon(c) { return CAT_MAP[c] || c; }
+
+    // --- LOGIC: INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        loadItems();
+        bindModalSelection();
+        // Process items coming from view_products
+        const urlParams = new URLSearchParams(window.location.search);
+        const pid = urlParams.get('product');
+        if(pid) {
+            const pData = sessionStorage.getItem('buildProduct_' + pid);
+            if(pData) {
+                addItem(JSON.parse(pData));
+                sessionStorage.removeItem('buildProduct_' + pid);
+            }
+        }
+
+        let queueRaw = null;
+        try { queueRaw = localStorage.getItem(QUEUE_KEY); } catch(e){}
+        if(!queueRaw){ queueRaw = sessionStorage.getItem(QUEUE_KEY); }
+        if(queueRaw){
+            JSON.parse(queueRaw).forEach(addItem);
+            try { localStorage.removeItem(QUEUE_KEY); } catch(e){}
+            sessionStorage.removeItem(QUEUE_KEY);
+        }
+
+        saveItems();
+        renderGrid();
+    });
+
+    function addItem(p) {
+        const cat = getCanon(p.category);
+        if(['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler','Monitor'].includes(cat)){
+            items = items.filter(i => getCanon(i.category) !== cat);
+        }
+
+        items.push({
+            pid: p.pid,
+            name: p.name,
+            price: parseFloat(p.price),
+            category: p.category,
+            img: p.img,
+            qty: 1
+        });
     }
 
-    // Open product selector modal for category
-    function openComponentSelector(category){
-        const filteredProducts = productsData.filter(p => p.pcat === category);
-        
-        let html;
-        if(filteredProducts.length === 0){
-            html = `<div class="row g-3">
-                        <div class="col-12">
-                            <div class="alert alert-info d-flex align-items-center justify-content-center" style="min-height: 300px; border: 2px dashed #0d6efd; border-radius: 8px;">
-                                <div class="text-center">
-                                    <div style="font-size: 48px; margin-bottom: 15px;">📦</div>
-                                    <h5 style="color: #0d6efd; margin-bottom: 10px;">No Products Available</h5>
-                                    <p class="text-muted mb-0">There are currently no <strong>${escapeHtml(category)}</strong> products in stock.</p>
-                                    <p class="text-muted small mt-2">Please check back later or select another category.</p>
-                                </div>
-                            </div>
+    function renderGrid() {
+        const grid = document.getElementById('buildGrid');
+        grid.innerHTML = '';
+        let total = 0;
+
+        SLOTS.forEach(slot => {
+            // Find item for this slot
+            const item = items.find(i => getCanon(i.category) === slot.key);
+            const col = document.createElement('div');
+            col.className = 'col-6 col-md-4 col-lg-3'; // 4 per row = Compact
+
+            if(item) {
+                total += item.price;
+                col.innerHTML = `
+                    <div class="slot-card filled">
+                        <img src="${escapeHtml(item.img || '../img/pc1.jpg')}" class="slot-img">
+                        <div class="slot-info">
+                            <div class="text-uppercase text-muted" style="font-size:10px;">${slot.label}</div>
+                            <div class="slot-title" title="${item.name}">${item.name}</div>
+                            <div class="slot-price">₹${item.price.toFixed(2)}</div>
+                        </div>
+                        <div class="slot-actions">
+                             <button class="btn btn-sm btn-outline-danger p-0 px-2" onclick="removeItem('${item.pid}', '${item.category}')" title="Remove">&times;</button>
+                             <button class="btn btn-sm btn-outline-primary p-0 px-2" onclick="openSelector('${slot.key}')" title="Change">&#8635;</button>
                         </div>
                     </div>`;
-        } else {
-            html = '<div class="row g-3">';
-            filteredProducts.forEach(p => {
-                const imgLink = p.pimg ? '../productimg/' + encodeURIComponent(p.pimg) : '../img/pc1.jpg';
-                const price = Number(p.pprice).toFixed(2);
-                const name = escapeHtml(p.pname);
-                const pid = p.pid;
-                
-                html += `<div class="col-md-6 col-lg-4">
-                    <div class="card product-card cursor-pointer" onclick="selectProduct('${pid}', '${name}', '${price}', '${escapeHtml(category)}', '${escapeHtml(imgLink)}')" style="cursor:pointer;transition:all 0.3s;">
-                        <img src="${escapeHtml(imgLink)}" class="card-img-top" alt="${name}" style="height:200px;object-fit:cover;" onclick="event.stopPropagation();showImage('${escapeHtml(imgLink)}')">
-                        <div class="card-body">
-                            <h6 class="card-title">${name}</h6>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-primary">₹${price}</span>
-                                <small class="text-muted">${escapeHtml(category)}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            html += '</div>';
-        }
-        
-        // Show modal
-        const modalBody = document.getElementById('productSelectorBody');
-        const modalTitle = document.getElementById('productSelectorTitle');
-        modalBody.innerHTML = html;
-        modalTitle.textContent = 'Select ' + category;
-        const modal = new bootstrap.Modal(document.getElementById('productSelectorModal'));
-        modal.show();
-    }
-
-    // Select a product from modal
-    function selectProduct(pid, name, price, category, imgLink){
-        items.push({
-            category: category,
-            name: name,
-            pid: pid,
-            price: parseFloat(price),
-            img: imgLink
+            } else {
+                col.innerHTML = `
+                    <div class="slot-card" onclick="openSelector('${slot.key}')">
+                        <div class="slot-icon">${slot.icon}</div>
+                        <div class="slot-label">Select ${slot.label}</div>
+                    </div>`;
+            }
+            grid.appendChild(col);
         });
-        saveItems();
-        renderItems();
-        
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('productSelectorModal'));
-        if(modal) modal.hide();
+
+        document.getElementById('totalPrice').innerText = '₹' + total.toFixed(2);
     }
 
-    function renderItems(){
-        if(items.length === 0){
-            itemsList.innerHTML = '<div class="build-empty text-center text-muted py-4">No parts added yet.</div>';
-            totalPriceEl.textContent = '₹0.00';
-            renderRequiredList();
-            return;
-        }
-        let html = '<div class="list-group">';
-            items.forEach((it, idx)=>{
-                const imgHtml = it.img ? `<img src="${escapeHtml(it.img)}" class="item-thumb" onclick="showImage('${escapeHtml(it.img)}')" style="cursor:pointer;width:70px;height:70px;object-fit:cover;border-radius:6px;">` : '';
-                html += `<div class="list-group-item items-list" style="border-left: 4px solid #0d6efd; padding: 12px;">
-                    <div class="d-flex align-items-center gap-3">
-                        ${imgHtml}
-                        <div style="flex:1">
-                            <div class="fw-semibold" style="color: #2c3e50;">${escapeHtml(it.category)} — ${escapeHtml(it.name)}</div>
-                        </div>
-                        <div class="text-end">
-                            <div class="price fw-semibold" style="color: #27ae60; font-size: 16px;">₹${Number(it.price).toFixed(2)}</div>
-                            <button class="btn btn-sm btn-outline-danger mt-1" onclick="removeItem(${idx})" style="font-size: 12px;">✕ Remove</button>
+    function openSelector(key) {
+        // Filter products matching this canonical key
+        const filtered = productsData.filter(p => getCanon(p.pcat) === key);
+        const body = document.getElementById('productSelectorBody');
+        document.getElementById('productSelectorTitle').innerText = 'Select ' + key;
+
+        if(filtered.length === 0) {
+            body.innerHTML = '<div class="col-12 text-center py-5 text-muted">No products found.</div>';
+        } else {
+            body.innerHTML = filtered.map(p => {
+                const img = p.pimg ? `../productimg/${encodeURIComponent(p.pimg)}` : '../img/pc1.jpg';
+                return `
+                <div class="col-6 col-md-4">
+                    <div class="card modal-product-card h-100 product-select"
+                        data-pid="${String(p.pid)}"
+                        data-name="${escapeAttr(p.pname)}"
+                        data-price="${String(p.pprice)}"
+                        data-category="${escapeAttr(p.pcat)}"
+                        data-img="${escapeAttr(img)}">
+                        <img src="${img}" class="card-img-top" style="height:100px; object-fit:contain;">
+                        <div class="card-body p-2 text-center">
+                            <div class="small fw-bold text-truncate">${p.pname}</div>
+                            <div class="text-success fw-bold">₹${parseFloat(p.pprice).toFixed(2)}</div>
                         </div>
                     </div>
                 </div>`;
-            });
-        html += '</div>';
-        itemsList.innerHTML = html;
-        const total = items.reduce((s,i)=>s+Number(i.price||0),0);
-        totalPriceEl.textContent = '₹' + total.toFixed(2);
-        renderRequiredList();
+            }).join('');
+        }
+        new bootstrap.Modal(document.getElementById('productSelectorModal')).show();
     }
 
-    function renderRequiredList(){
-        const wrap = document.getElementById('requiredList');
-        if(!wrap) return;
-        const present = {};
-        const categoryIcons = {'CPU':'🖥️', 'Motherboard':'🔌', 'Graphics Card':'📊', 'RAM Memory':'💾', 'Storage Drive':'💽', 'Power Supply':'⚡', 'Cabinet':'🎁', 'CPU Cooler':'❄️'};
-        items.forEach(it=>{ present[(it.category||'').trim()] = true; });
-        wrap.innerHTML = REQUIRED_CATEGORIES.map(cat=>{
-            const ok = !!present[cat];
-            const icon = categoryIcons[cat] || '➕';
-            const cls = ok ? 'badge bg-success' : 'badge bg-light text-dark border border-secondary';
-            return `<span class="${cls}" style="padding: 6px 12px; font-size: 12px; font-weight: 500;">${icon} ${cat}</span>`;
-        }).join('');
+    function selectProduct(pid, name, price, cat, img) {
+        addItem({pid, name, price, category: cat, img});
+        saveItems();
+        renderGrid();
+        bootstrap.Modal.getInstance(document.getElementById('productSelectorModal')).hide();
     }
 
-    function removeItem(i){ items.splice(i,1); renderItems(); }
-
-    function saveItems(){
-        sessionStorage.setItem(BUILD_STORAGE_KEY, JSON.stringify(items));
+    function bindModalSelection(){
+        const body = document.getElementById('productSelectorBody');
+        if(!body) return;
+        body.addEventListener('click', function(e){
+            const card = e.target.closest('.product-select');
+            if(!card) return;
+            const pid = card.getAttribute('data-pid') || '';
+            const name = card.getAttribute('data-name') || '';
+            const price = card.getAttribute('data-price') || '0';
+            const category = card.getAttribute('data-category') || '';
+            const img = card.getAttribute('data-img') || '';
+            selectProduct(pid, name, price, category, img);
+        });
     }
 
-    function loadItems(){
-        const raw = sessionStorage.getItem(BUILD_STORAGE_KEY);
+    function removeItem(pid, cat) {
+        items = items.filter(i => !(i.pid == pid && i.category == cat));
+        saveItems();
+        renderGrid();
+    }
+
+    function saveItems() {
+        const raw = JSON.stringify(items);
+        try { localStorage.setItem(STORAGE_KEY, raw); } catch(e){}
+        try { sessionStorage.setItem(STORAGE_KEY, raw); } catch(e){}
+    }
+
+    function loadItems() {
+        let raw = null;
+        try { raw = localStorage.getItem(STORAGE_KEY); } catch(e){}
+        if(!raw){ raw = sessionStorage.getItem(STORAGE_KEY); }
         if(!raw) return;
-        try {
-            const stored = JSON.parse(raw) || [];
-            stored.forEach(function(product){
-                items.push({
-                    category: product.category,
-                    name: product.name,
-                    pid: product.pid,
-                    price: parseFloat(product.price),
-                    img: product.img
-                });
-            });
-        } catch(e){
-            console.error('Error parsing stored build items:', e);
-        }
+        try { items = JSON.parse(raw) || []; } catch(e){ items = []; }
     }
 
-    // Check if coming from view_products with a product to add
-    window.addEventListener('load', function(){
-        loadItems();
-        const urlParams = new URLSearchParams(window.location.search);
-        const productId = urlParams.get('product');
-        if(productId){
-            const productData = sessionStorage.getItem('buildProduct_' + productId);
-            if(productData){
-                try {
-                    const product = JSON.parse(productData);
-                    items.push({
-                        category: product.category,
-                        name: product.name,
-                        pid: product.pid,
-                        price: parseFloat(product.price),
-                        img: product.img
-                    });
-                    sessionStorage.removeItem('buildProduct_' + productId);
-                } catch(e){
-                    console.error('Error parsing product data:', e);
-                }
-            }
-        }
-
-        const queueRaw = sessionStorage.getItem('buildItems');
-        if(queueRaw){
-            try {
-                const queue = JSON.parse(queueRaw) || [];
-                queue.forEach(function(product){
-                    items.push({
-                        category: product.category,
-                        name: product.name,
-                        pid: product.pid,
-                        price: parseFloat(product.price),
-                        img: product.img
-                    });
-                });
-                sessionStorage.removeItem('buildItems');
-            } catch(e){
-                console.error('Error parsing build items:', e);
-            }
-        }
-
-        if(items.length > 0){
-            saveItems();
-            renderItems();
-            document.getElementById('itemsList').scrollIntoView({ behavior: 'smooth' });
-        }
-    });
-
-    function showImage(src){
-        if(!src || src.trim() === '') {
-            alert('Image not available for this component.');
-            return;
-        }
-        const modalImg = document.getElementById('modalImageBuild');
-        if(modalImg){
-            modalImg.src = src;
-            const modal = new bootstrap.Modal(document.getElementById('imageModalBuild'));
-            modal.show();
-        }
+    function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    document.getElementById('saveBtn').addEventListener('click',(e)=>{
+    function escapeAttr(text){
+        return String(text || '')
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', (e) => {
         e.preventDefault();
-        if(items.length===0){ alert('Please add at least one component to your build.'); return; }
-        const present = {};
-        items.forEach(it=>{ present[(it.category||'').trim()] = true; });
-        const missing = REQUIRED_CATEGORIES.filter(c => !present[c]);
-        if(missing.length>0){
-            alert('Please add the following required components before saving: ' + missing.join(', '));
+        if(items.length === 0) { alert('Build is empty!'); return; }
+        
+        // Simple Validation
+        const required = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
+        const currentCats = items.map(i => getCanon(i.category));
+        const missing = required.filter(c => !currentCats.includes(c));
+        
+        if(missing.length > 0) {
+            alert('Missing components: ' + missing.join(', '));
             return;
         }
-        const buildName = document.getElementById('buildName').value.trim() || 'My Build';
-        const payload = { items: {} , total: items.reduce((s,i)=>s+Number(i.price||0),0)};
-        items.forEach((it,idx)=>{ payload.items[it.category + '_' + idx] = { pid: it.pid||0, price: Number(it.price||0), name: it.name }; });
+
+        const payload = {
+            items: items,
+            total: items.reduce((s,i) => s + i.price, 0)
+        };
         document.getElementById('itemsJson').value = JSON.stringify(payload);
+        
+        // Append Name
+        const nameVal = document.getElementById('buildName').value || 'My Build';
         const form = document.getElementById('saveForm');
-        const bn = document.createElement('input'); bn.type='hidden'; bn.name='build_name'; bn.value=buildName; form.appendChild(bn);
-        sessionStorage.removeItem(BUILD_STORAGE_KEY);
+        const ni = document.createElement('input'); 
+        ni.type='hidden'; ni.name='build_name'; ni.value=nameVal;
+        form.appendChild(ni);
+        
         form.submit();
     });
-
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-
-    renderItems();
 </script>
-<!-- Product Selector Modal -->
-<div class="modal fade" id="productSelectorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <div class="modal-header border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0; padding: 20px;">
-                <h5 class="modal-title" id="productSelectorTitle">Select Product</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="padding: 20px;">
-                <div id="productSelectorBody"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Image modal for build preview -->
-<div class="modal fade" id="imageModalBuild" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <div class="modal-header border-0" style="background-color: #f8f9fa; padding: 16px 20px;">
-                <h5 class="modal-title">Component Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center p-4" style="background-color: #ffffff;">
-                <img id="modalImageBuild" src="" alt="Preview" class="img-fluid rounded" style="max-height: 600px; object-fit: contain; display: block; margin: 0 auto;">
-            </div>
-        </div>
-    </div>
-</div>
 <?php if(!$is_partial){ include('footer.php'); } ?>
