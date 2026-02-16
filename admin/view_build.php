@@ -30,7 +30,7 @@ $items_r = mysqli_query($con, $items_q);
         <div class="small-muted">By: <?php echo htmlspecialchars($build['user_name'] ?: 'User#'.$build['user_id']); ?> — Created: <?php echo $build['created_at']; ?></div>
       </div>
       <div class="text-end">
-        <div class="h5 mb-0">Total: $<?php echo number_format((float)$build['total'],2); ?></div>
+        <div class="h5 mb-0">Total: ₹<?php echo number_format((float)$build['total'],2); ?></div>
         <a href="builds.php" class="btn btn-sm btn-outline-secondary mt-2">Back to list</a>
       </div>
     </div>
@@ -64,7 +64,7 @@ if($items_r && mysqli_num_rows($items_r)>0){
       $prodHtml = $prod;
     }
     echo "<td>{$prodHtml}</td>\n";
-    echo "<td>\${$price}</td>\n";
+    echo "<td>₹{$price}</td>\n";
     echo "</tr>\n";
     $i++;
   }

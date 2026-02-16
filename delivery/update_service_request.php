@@ -31,7 +31,8 @@ if($id > 0){
     mysqli_query($con, $u);
     log_delivery_action($con, $_SESSION['username'] ?? '', 'service_update', 'Service request #'.$id.' -> '.$status);
 
-    if(strtolower($status) === 'cancelled'){
+    $status_lower = strtolower($status);
+    if($status_lower === 'cancelled' || $status_lower === 'completed'){
         $sr = mysqli_query($con, "SELECT * FROM service_requests WHERE id='$id' AND assigned_agent='$agent' LIMIT 1");
         if($sr && mysqli_num_rows($sr)>0){
             $row = mysqli_fetch_assoc($sr);
@@ -46,8 +47,8 @@ if($id > 0){
             $created_at = mysqli_real_escape_string($con, $row['created_at'] ?? '');
             $updated_at = mysqli_real_escape_string($con, $row['updated_at'] ?? '');
 
-            $ins = "INSERT INTO service_requests_history (id, `user`, item, service_type, details, phone, contact_time, status, assigned_agent, assigned_at, agent_note, created_at, updated_at)
-                    VALUES ($id,'$user','$item','$stype','$details','$phone','$contact_time','cancelled','$assigned_agent',".
+                $ins = "INSERT INTO service_requests_history (id, `user`, item, service_type, details, phone, contact_time, status, assigned_agent, assigned_at, agent_note, created_at, updated_at)
+                    VALUES ($id,'$user','$item','$stype','$details','$phone','$contact_time','$status_lower','$assigned_agent',".
                     (!empty($row['assigned_at']) ? "'".mysqli_real_escape_string($con, $row['assigned_at'])."'" : "NULL").
                     ",'$agent_note',".
                     (!empty($created_at) ? "'{$created_at}'" : "NULL").

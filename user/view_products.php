@@ -27,7 +27,28 @@ $categoryMapping = [
     'Case' => 'Case',
     'CPU Cooler' => 'Cooler',
     'Cooler' => 'Cooler',
-    'Monitor' => 'Monitor'
+    'Monitor' => 'Monitor',
+    'Keyboard' => 'Accessory',
+    'Mouse' => 'Accessory',
+    'Keyboard & Mouse' => 'Accessory',
+    'Keyboard and Mouse' => 'Accessory',
+    'Accessories' => 'Accessory',
+    'Accessory' => 'Accessory',
+    'Headset' => 'Accessory',
+    'Speaker' => 'Accessory',
+    'Speakers' => 'Accessory',
+    'Webcam' => 'Accessory',
+    'Microphone' => 'Accessory',
+    'Peripheral' => 'Accessory',
+    'Peripherals' => 'Accessory'
+];
+
+$accessoryAliases = [
+    'Accessory', 'Accessories', 'Keyboard', 'Mouse', 'Keyboard & Mouse', 'Keyboard and Mouse',
+    'Headset', 'Speaker', 'Speakers', 'Webcam', 'Microphone', 'Peripheral', 'Peripherals'
+];
+$accessoryLikePatterns = [
+    'accessor', 'keyboard', 'mouse', 'headset', 'speaker', 'webcam', 'microphone', 'peripheral'
 ];
 
 $normalizedCategory = isset($categoryMapping[$category]) ? $categoryMapping[$category] : $category;
@@ -36,6 +57,9 @@ if($category !== ''){
     $categoryTerms[] = $category;
     if($normalizedCategory !== '' && $normalizedCategory !== $category){
         $categoryTerms[] = $normalizedCategory;
+    }
+    if($normalizedCategory === 'Accessory'){
+        $categoryTerms = array_merge($categoryTerms, $accessoryAliases);
     }
 }
 $categoryTermsLower = array_map(function($val){
@@ -90,7 +114,16 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
         $categoryTermsEsc = array_map(function($val) use ($con){
             return mysqli_real_escape_string($con, $val);
         }, $categoryTermsLower);
-        $where[] = "LOWER(pcat) IN ('" . implode("','", $categoryTermsEsc) . "')";
+        $catFilter = "LOWER(pcat) IN ('" . implode("','", $categoryTermsEsc) . "')";
+        if($normalizedCategory === 'Accessory'){
+            $likeParts = [];
+            foreach($accessoryLikePatterns as $pat){
+                $likeParts[] = "LOWER(pcat) LIKE '%".mysqli_real_escape_string($con, $pat)."%'";
+            }
+            $catFilter = "(".$catFilter." OR pcat IS NULL OR pcat=''".
+                (!empty($likeParts) ? " OR ".implode(" OR ", $likeParts) : "").")";
+        }
+        $where[] = $catFilter;
     }
     $sql = "SELECT * FROM `products`" . ($where ? " WHERE " . implode(' AND ', $where) : "");
     if($sort === 'price_asc') $sql .= " ORDER BY pcat ASC, pprice ASC";
@@ -100,11 +133,37 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
     $result = mysqli_query($con, $sql);
     $productsByCategory = [];
     while($row = mysqli_fetch_assoc($result)){
-        $cat = !empty($row['pcat']) ? htmlspecialchars($row['pcat']) : 'Uncategorized';
+        $cat_raw = $row['pcat'] ?? '';
+        $cat_norm = $categoryMapping[$cat_raw] ?? $cat_raw;
+        $cat_raw_lower = strtolower($cat_raw);
+        foreach($accessoryLikePatterns as $pat){
+            if($cat_raw_lower !== '' && strpos($cat_raw_lower, $pat) !== false){
+                $cat_norm = 'Accessory';
+                break;
+            }
+        }
+        if($cat_norm === '' || strtolower($cat_norm) === 'uncategorized'){
+            $cat_norm = 'Accessory';
+        }
+        $cat = htmlspecialchars($cat_norm);
         if(!isset($productsByCategory[$cat])){
             $productsByCategory[$cat] = [];
         }
         $productsByCategory[$cat][] = $row;
+    }
+
+    if($sort === ''){
+        foreach($productsByCategory as $k => $items){
+            shuffle($items);
+            $productsByCategory[$k] = $items;
+        }
+        $categoryKeys = array_keys($productsByCategory);
+        shuffle($categoryKeys);
+        $shuffled = [];
+        foreach($categoryKeys as $k){
+            $shuffled[$k] = $productsByCategory[$k];
+        }
+        $productsByCategory = $shuffled;
     }
 
     if(empty($productsByCategory)): ?>

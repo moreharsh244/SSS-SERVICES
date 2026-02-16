@@ -20,7 +20,7 @@ $row = mysqli_fetch_assoc($res);
         <div class="small-muted">By: <?php echo htmlspecialchars($row['user']); ?> — <?php echo $row['pdate']; ?></div>
       </div>
       <div class="text-end">
-        <div class="h5 mb-0">Total: $<?php echo number_format((float)$row['pprice'] * (int)$row['qty'],2); ?></div>
+        <div class="h5 mb-0">Total: ₹<?php echo number_format((float)$row['pprice'] * (int)$row['qty'],2); ?></div>
         <a href="orders_list.php" class="btn btn-sm btn-outline-secondary mt-2">Back to list</a>
       </div>
     </div>
@@ -34,7 +34,7 @@ $row = mysqli_fetch_assoc($res);
           <tr><th>Product</th><td><?php echo htmlspecialchars($row['pname']); ?></td></tr>
           <tr><th>User</th><td><?php echo htmlspecialchars($row['user']); ?></td></tr>
           <tr><th>Quantity</th><td><?php echo (int)$row['qty']; ?></td></tr>
-          <tr><th>Unit Price</th><td>$<?php echo number_format((float)$row['pprice'],2); ?></td></tr>
+          <tr><th>Unit Price</th><td>₹<?php echo number_format((float)$row['pprice'],2); ?></td></tr>
           <tr><th>Status</th><td><?php echo htmlspecialchars($row['status']); ?></td></tr>
           <tr><th>Delivery</th><td><?php echo htmlspecialchars($row['delivery_status']); ?></td></tr>
           <tr><th>Ordered</th><td><?php echo $row['pdate']; ?></td></tr>

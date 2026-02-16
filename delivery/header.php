@@ -71,7 +71,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
         </li>
         
       </ul>
-     
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle me-2"></i>
@@ -85,6 +85,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
             <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
           </ul>
         </li>
+      </ul>
    
     </div>
   </div>

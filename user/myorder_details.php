@@ -55,14 +55,14 @@ echo '<div class="card-body">';
 echo '<p><strong>Purchase Date:</strong> '.$row['pdate'].'</p>';
 echo '<p><strong>Product Name:</strong> '.$row['pname'].'</p>';
 echo '<p><strong>Quantity:</strong> '.$row['qty'].'</p>';   
-echo '<p><strong>Price:</strong> '.$row['pprice'].'</p>';
+echo '<p><strong>Price:</strong> ₹'.number_format((float)$row['pprice'], 2).'</p>';
 echo '<p><strong>Company:</strong> '.$row['pcompany'].'</p>';
 echo '<p><strong>Description:</strong> '.$row['pdes'].'</p>';
 echo '<p><strong>Status:</strong> '.htmlspecialchars($row['status'] ?? '').'</p>';
 echo '<p><strong>Delivery Status:</strong> '.htmlspecialchars($row['delivery_status'] ?? '').'</p>';
- $total=$row['pprice'] * $row['qty'];
+$total=$row['pprice'] * $row['qty'];
 echo '<hr>';
-echo '<h5>Total Amount: '.$total.'</h5>';
+echo '<h5>Total Amount: ₹'.number_format((float)$total, 2).'</h5>';
 // allow cancel only for pending active orders
 $delivery_state = strtolower(trim($row['delivery_status'] ?? ''));
 $can_cancel = !$is_history && $delivery_state === 'pending';
