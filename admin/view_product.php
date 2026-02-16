@@ -54,7 +54,7 @@ include('header.php');
                     echo "<td>".htmlspecialchars(substr($row['pdisc'], 0, 50))."...</td>";
                     ?>
                     <td>
-                    <form action="update_product.php" method="post">
+                    <form action="update.php" method="post">
                         
                             <input type="hidden" name="uid" value="<?php echo $row['pid'];?>">
                             <input type="submit" value="Update" class="btn btn-warning btn-sm">
