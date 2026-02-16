@@ -38,14 +38,14 @@
         <h4 class="mb-3" style="color: #1f2937; font-weight: 600;">Order Confirmed!</h4>
         <p class="mb-4" style="color: #6b7280; font-size: 15px;">Your order has been placed successfully. You'll receive updates on our status page.</p>
         
-        <div class="d-flex gap-2 justify-content-center">
-          <button type="button" class="btn btn-primary px-4" onclick="window.location.href='myorder.php'" style="border-radius: 8px;">
-            View Orders
-          </button>
-          <button type="button" class="btn btn-outline-secondary px-4" onclick="window.location.href='view_products.php'" style="border-radius: 8px;">
-            Continue Shopping
-          </button>
-        </div>
+				<div class="d-flex gap-2 justify-content-center">
+					<a class="btn btn-primary px-4" href="myorder.php" role="button" style="border-radius: 8px;">
+						View Orders
+					</a>
+					<a class="btn btn-outline-secondary px-4" href="view_products.php" role="button" style="border-radius: 8px;">
+						Continue Shopping
+					</a>
+				</div>
       </div>
     </div>
   </div>
@@ -53,7 +53,20 @@
 
 <style>
 .modal-backdrop {
-  opacity: 0 !important;
+	opacity: 0 !important;
+	z-index: 6990;
+	pointer-events: none;
+}
+
+.modal {
+	z-index: 7000;
+}
+
+#successModal,
+#successModal .modal-dialog,
+#successModal .modal-content,
+#successModal .modal-body {
+	pointer-events: auto;
 }
 
 #successModal .modal-content,

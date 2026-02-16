@@ -58,39 +58,7 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
         <div id="buildAddNotice" class="alert alert-success d-none">Added to build. Keep adding items, then click "Back to Build" when ready.</div>
     <?php endif; ?>
 
-        <div class="row mb-3">
-            <div class="col-12">
-                <form class="row g-2 align-items-center" method="get" action="view_products.php">
-                    <div class="col-auto">
-                        <input type="search" name="q" value="<?php echo htmlspecialchars($q); ?>" class="form-control" placeholder="Search within results">
-                    </div>
-                    <?php if($category !== ''): ?>
-                        <input type="hidden" name="category" value="<?php echo htmlspecialchars($category); ?>">
-                    <?php endif; ?>
-                    <?php if($from !== ''): ?>
-                        <input type="hidden" name="from" value="<?php echo htmlspecialchars($from); ?>">
-                    <?php endif; ?>
-                    <div class="col-auto">
-                        <select name="company" class="form-select">
-                            <option value="">All Brands</option>
-                            <?php foreach($companies as $comp){ ?>
-                                <option value="<?php echo htmlspecialchars($comp); ?>" <?php if($company===$comp) echo 'selected'; ?>><?php echo htmlspecialchars($comp); ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <select name="sort" class="form-select">
-                            <option value="">Sort</option>
-                            <option value="price_asc" <?php if($sort==='price_asc') echo 'selected'; ?>>Price: Low to High</option>
-                            <option value="price_desc" <?php if($sort==='price_desc') echo 'selected'; ?>>Price: High to Low</option>
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-outline-primary" type="submit">Apply</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+       
 
                 <?php if($q || $company || $sort || $normalizedCategory): ?>
                     <div class="d-flex flex-wrap gap-2 mb-3">
@@ -114,57 +82,73 @@ while($c = mysqli_fetch_assoc($cres)) $companies[] = $c['pcompany'];
                     </div>
                 <?php endif; ?>
 
-    <div class="row g-3">
-        <?php
-        $where = [];
-        if($q) $where[] = "(pname LIKE '%$q%' OR pcompany LIKE '%$q%')";
-        if($company) $where[] = "pcompany = '$company'";
-        if(!empty($categoryTermsLower)){
-            $categoryTermsEsc = array_map(function($val) use ($con){
-                return mysqli_real_escape_string($con, $val);
-            }, $categoryTermsLower);
-            $where[] = "LOWER(pcat) IN ('" . implode("','", $categoryTermsEsc) . "')";
-        }
-        $sql = "SELECT * FROM `products`" . ($where ? " WHERE " . implode(' AND ', $where) : "");
-        if($sort === 'price_asc') $sql .= " ORDER BY pprice ASC";
-        else if($sort === 'price_desc') $sql .= " ORDER BY pprice DESC";
-        else $sql .= " ORDER BY pid DESC";
+    <?php
+    $where = [];
+    if($q) $where[] = "(pname LIKE '%$q%' OR pcompany LIKE '%$q%')";
+    if($company) $where[] = "pcompany = '$company'";
+    if(!empty($categoryTermsLower)){
+        $categoryTermsEsc = array_map(function($val) use ($con){
+            return mysqli_real_escape_string($con, $val);
+        }, $categoryTermsLower);
+        $where[] = "LOWER(pcat) IN ('" . implode("','", $categoryTermsEsc) . "')";
+    }
+    $sql = "SELECT * FROM `products`" . ($where ? " WHERE " . implode(' AND ', $where) : "");
+    if($sort === 'price_asc') $sql .= " ORDER BY pcat ASC, pprice ASC";
+    else if($sort === 'price_desc') $sql .= " ORDER BY pcat ASC, pprice DESC";
+    else $sql .= " ORDER BY pcat ASC, pid DESC";
 
-        $result = mysqli_query($con, $sql);
-        while($row = mysqli_fetch_assoc($result)){
-            $qty = (int)$row['pqty'];
-        ?>
-        <div class="col-sm-6 col-md-4 col-lg-3 reveal">
-            <div class="card h-100 shadow-sm product-card" style="border: 1px solid #eee; border-radius: 10px; transition: all 0.3s;">
-                <img src="../productimg/<?php echo $row['pimg']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['pname']); ?>" style="height:200px;object-fit:cover;border-radius: 10px 10px 0 0; cursor:pointer;" onclick="showProductImage('../productimg/<?php echo $row['pimg']; ?>')">
-                <div class="card-body d-flex flex-column" style="padding: 16px;">
-                    <h6 class="card-title" style="color: #333; font-weight: 600; margin-bottom: 6px;"><?php echo htmlspecialchars($row['pname']); ?></h6>
-                    <p class="text-muted small mb-2" style="color: #666;"><?php echo htmlspecialchars($row['pcompany']); ?></p>
-                    <div class="mb-3 fw-bold" style="color: #27ae60; font-size: 18px;">₹<?php echo number_format($row['pprice'],2); ?></div>
-                    <div class="mt-auto">
-                        <?php if($from === 'build'): ?>
-                            <button class="btn btn-primary btn-sm w-100" onclick="addToBuild('<?php echo $row['pid']; ?>', '<?php echo htmlspecialchars(addslashes($row['pname'])); ?>', '<?php echo $row['pprice']; ?>', '<?php echo htmlspecialchars($normalizedCategory); ?>', '../productimg/<?php echo $row['pimg']; ?>')">
-                                ✓ Add to Build
-                            </button>
-                        <?php else: ?>
-                            <form action="purchase.php" method="post" class="d-flex gap-2 align-items-center" data-cart-form data-cart-name="<?php echo htmlspecialchars($row['pname']); ?>" data-cart-price="<?php echo $row['pprice']; ?>" data-cart-img="../productimg/<?php echo $row['pimg']; ?>">
-                                <input type="number" name="qty" class="form-control form-control-sm" value="1" min="1" max="<?php echo $qty; ?>" style="width:80px;">
-                                <input type="hidden" name="pid" value="<?php echo $row['pid']; ?>">
-                                <input type="hidden" name="pname" value="<?php echo htmlspecialchars($row['pname']); ?>">
-                                <input type="hidden" name="pprice" value="<?php echo $row['pprice']; ?>">
-                                <?php if($qty>0){ ?>
-                                    <button class="btn btn-primary btn-sm" type="submit">Buy</button>
-                                <?php } else { ?>
-                                    <button class="btn btn-secondary btn-sm" disabled>Out of stock</button>
-                                <?php } ?>
-                            </form>
-                        <?php endif; ?>
+    $result = mysqli_query($con, $sql);
+    $productsByCategory = [];
+    while($row = mysqli_fetch_assoc($result)){
+        $cat = !empty($row['pcat']) ? htmlspecialchars($row['pcat']) : 'Uncategorized';
+        if(!isset($productsByCategory[$cat])){
+            $productsByCategory[$cat] = [];
+        }
+        $productsByCategory[$cat][] = $row;
+    }
+
+    if(empty($productsByCategory)): ?>
+        <div class="alert alert-info text-center">No products found matching your filters.</div>
+    <?php else:
+        foreach($productsByCategory as $category => $products): ?>
+            <h4 class="mt-5 mb-3" style="color: #333; font-weight: 600; border-bottom: 2px solid #0d6efd; padding-bottom: 10px;">📦 <?php echo $category; ?></h4>
+            <div style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 15px; scroll-behavior: smooth;">
+                <?php foreach($products as $row):
+                    $qty = (int)$row['pqty'];
+                ?>
+                <div style="flex: 0 0 calc(25% - 15px); min-width: 280px;">
+                    <div class="card h-100 shadow-sm product-card" style="border: 1px solid #eee; border-radius: 10px; transition: all 0.3s;">
+                        <img src="../productimg/<?php echo $row['pimg']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['pname']); ?>" style="height:200px;object-fit:cover;border-radius: 10px 10px 0 0; cursor:pointer;" onclick="showProductImage('../productimg/<?php echo $row['pimg']; ?>')">
+                        <div class="card-body d-flex flex-column" style="padding: 16px;">
+                            <h6 class="card-title" style="color: #333; font-weight: 600; margin-bottom: 6px;"><?php echo htmlspecialchars($row['pname']); ?></h6>
+                            <p class="text-muted small mb-2" style="color: #666;"><?php echo htmlspecialchars($row['pcompany']); ?></p>
+                            <div class="mb-3 fw-bold" style="color: #27ae60; font-size: 18px;">₹<?php echo number_format($row['pprice'],2); ?></div>
+                            <div class="mt-auto">
+                                <?php if($from === 'build'): ?>
+                                    <button class="btn btn-primary btn-sm w-100" onclick="addToBuild('<?php echo $row['pid']; ?>', '<?php echo htmlspecialchars(addslashes($row['pname'])); ?>', '<?php echo $row['pprice']; ?>', '<?php echo htmlspecialchars($row['pcat']); ?>', '../productimg/<?php echo $row['pimg']; ?>')">
+                                        ✓ Add to Build
+                                    </button>
+                                <?php else: ?>
+                                    <form action="purchase.php" method="post" class="d-flex gap-2 align-items-center" data-cart-form data-cart-name="<?php echo htmlspecialchars($row['pname']); ?>" data-cart-price="<?php echo $row['pprice']; ?>" data-cart-img="../productimg/<?php echo $row['pimg']; ?>">
+                                        <input type="number" name="qty" class="form-control form-control-sm" value="1" min="1" max="<?php echo $qty; ?>" style="width:80px;">
+                                        <input type="hidden" name="pid" value="<?php echo $row['pid']; ?>">
+                                        <input type="hidden" name="pname" value="<?php echo htmlspecialchars($row['pname']); ?>">
+                                        <input type="hidden" name="pprice" value="<?php echo $row['pprice']; ?>">
+                                        <?php if($qty>0){ ?>
+                                            <button class="btn btn-primary btn-sm" type="submit">Buy</button>
+                                        <?php } else { ?>
+                                            <button class="btn btn-secondary btn-sm" disabled>Out of stock</button>
+                                        <?php } ?>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <?php endforeach; ?>
             </div>
-        </div>
-        <?php } ?>
-    </div>
+        <?php endforeach;
+    endif; ?>
 </div>
 
 <!-- Image Preview Modal for Products -->

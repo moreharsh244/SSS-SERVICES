@@ -6,6 +6,8 @@ if (session_status() === PHP_SESSION_NONE) {
 if(!isset($_SESSION['is_login'])){ header('location:login.php'); exit; }
 include('../admin/conn.php');
 
+$is_partial = isset($_GET['partial']);
+
 // --- PHP Processing Logic (Same as before) ---
 $user_id = $_SESSION['user_id'] ?? $_SESSION['id'] ?? 0;
 $user_name = mysqli_real_escape_string($con, $_SESSION['username'] ?? $_SESSION['email'] ?? '');
@@ -76,7 +78,7 @@ $products = [];
 $pq = mysqli_query($con, "SELECT pid, pname, pprice, pcat, pimg FROM products");
 if($pq){ while($r = mysqli_fetch_assoc($pq)) $products[] = $r; }
 
-if(!isset($_GET['partial'])){
+if(!$is_partial){
     if(!defined('page')) define('page','build');
     include('header.php');
 }
@@ -145,6 +147,7 @@ if(!isset($_GET['partial'])){
     .modal-product-card:hover { transform: translateY(-3px); border-color: #0d6efd; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 </style>
 
+<div id="buildPageRoot">
 <div class="build-page-wrap">
 <div class="container build-container py-4 pb-5 mb-5">
     <div class="build-hero mb-4 d-flex flex-wrap align-items-center justify-content-between">
@@ -192,8 +195,11 @@ if(!isset($_GET['partial'])){
     </div>
 </div>
 
+</div>
+
 <script>
-    const productsData = <?php echo json_encode($products); ?>;
+    let productsData = <?php echo json_encode($products, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE); ?>;
+    if(!Array.isArray(productsData)) productsData = [];
     let items = [];
     const STORAGE_KEY = 'buildItemsCurrent';
     const QUEUE_KEY = 'buildItems';
@@ -212,14 +218,67 @@ if(!isset($_GET['partial'])){
     ];
 
     const CAT_MAP = {
-        'Graphics Card':'GPU', 'RAM Memory':'RAM', 'Storage Drive':'Storage',
-        'Power Supply':'PSU', 'Cabinet':'Case', 'CPU Cooler':'Cooler'
+        'graphics card':'GPU',
+        'gpu':'GPU',
+        'ram memory':'RAM',
+        'ram':'RAM',
+        'storage drive':'Storage',
+        'storage':'Storage',
+        'power supply':'PSU',
+        'psu':'PSU',
+        'cabinet':'Case',
+        'case':'Case',
+        'cpu cooler':'Cooler',
+        'cooler':'Cooler',
+        'cpu':'CPU',
+        'processor':'CPU',
+        'intel':'CPU',
+        'amd':'CPU',
+        'monitor':'Monitor'
     };
 
-    function getCanon(c) { return CAT_MAP[c] || c; }
+    function normalizeCat(c) {
+        return String(c || '').trim().toLowerCase();
+    }
+
+    function getCanon(c) {
+        const key = normalizeCat(c);
+        if (CAT_MAP[key]) return CAT_MAP[key];
+
+        if (key.includes('intel') || key.includes('amd') || key.includes('cpu') || key.includes('processor')) return 'CPU';
+        if (key.includes('mother')) return 'Motherboard';
+        if (key.includes('graphic') || key.includes('gpu')) return 'GPU';
+        if (key.includes('ram')) return 'RAM';
+        if (key.includes('storage') || key.includes('ssd') || key.includes('hdd') || key.includes('nvme')) return 'Storage';
+        if (key.includes('power') || key.includes('psu')) return 'PSU';
+        if (key.includes('case') || key.includes('cabinet')) return 'Case';
+        if (key.includes('cooler') || key.includes('fan')) return 'Cooler';
+        if (key.includes('monitor')) return 'Monitor';
+
+        return c;
+    }
+
+    function parsePrice(value) {
+        const cleaned = String(value || '').replace(/[^0-9.]/g, '');
+        const parsed = parseFloat(cleaned);
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    productsData = productsData.map(p => {
+        return {
+            ...p,
+            pprice: parsePrice(p.pprice)
+        };
+    });
 
     // --- LOGIC: INITIALIZATION ---
-    document.addEventListener('DOMContentLoaded', () => {
+    function initBuildPage(){
+        const grid = document.getElementById('buildGrid');
+        if(!grid) return;
+        const modalEl = document.getElementById('productSelectorModal');
+        if(modalEl && modalEl.parentElement !== document.body){
+            document.body.appendChild(modalEl);
+        }
         loadItems();
         bindModalSelection();
         // Process items coming from view_products
@@ -244,7 +303,47 @@ if(!isset($_GET['partial'])){
 
         saveItems();
         renderGrid();
-    });
+
+        const saveBtn = document.getElementById('saveBtn');
+        if(saveBtn && !saveBtn.dataset.bound){
+            saveBtn.dataset.bound = '1';
+            saveBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if(items.length === 0) { alert('Build is empty!'); return; }
+                
+                // Simple Validation
+                const required = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
+                const currentCats = items.map(i => getCanon(i.category));
+                const missing = required.filter(c => !currentCats.includes(c));
+                
+                if(missing.length > 0) {
+                    alert('Missing components: ' + missing.join(', '));
+                    return;
+                }
+
+                const payload = {
+                    items: items,
+                    total: items.reduce((s,i) => s + i.price, 0)
+                };
+                document.getElementById('itemsJson').value = JSON.stringify(payload);
+                
+                // Append Name
+                const nameVal = document.getElementById('buildName').value || 'My Build';
+                const form = document.getElementById('saveForm');
+                const ni = document.createElement('input'); 
+                ni.type='hidden'; ni.name='build_name'; ni.value=nameVal;
+                form.appendChild(ni);
+                
+                form.submit();
+            });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBuildPage);
+    } else {
+        initBuildPage();
+    }
 
     function addItem(p) {
         const cat = getCanon(p.category);
@@ -255,7 +354,7 @@ if(!isset($_GET['partial'])){
         items.push({
             pid: p.pid,
             name: p.name,
-            price: parseFloat(p.price),
+            price: parsePrice(p.price),
             category: p.category,
             img: p.img,
             qty: 1
@@ -312,32 +411,72 @@ if(!isset($_GET['partial'])){
         } else {
             body.innerHTML = filtered.map(p => {
                 const img = p.pimg ? `../productimg/${encodeURIComponent(p.pimg)}` : '../img/pc1.jpg';
+                const priceVal = parsePrice(p.pprice);
                 return `
                 <div class="col-6 col-md-4">
-                    <div class="card modal-product-card h-100 product-select"
+                    <div class="card modal-product-card h-100 product-select" role="button" onclick="selectProductFromCard(this)"
                         data-pid="${String(p.pid)}"
                         data-name="${escapeAttr(p.pname)}"
-                        data-price="${String(p.pprice)}"
+                        data-price="${String(priceVal)}"
                         data-category="${escapeAttr(p.pcat)}"
                         data-img="${escapeAttr(img)}">
                         <img src="${img}" class="card-img-top" style="height:100px; object-fit:contain;">
                         <div class="card-body p-2 text-center">
                             <div class="small fw-bold text-truncate">${p.pname}</div>
-                            <div class="text-success fw-bold">₹${parseFloat(p.pprice).toFixed(2)}</div>
+                            <div class="text-success fw-bold">₹${priceVal.toFixed(2)}</div>
                         </div>
                     </div>
                 </div>`;
             }).join('');
         }
-        new bootstrap.Modal(document.getElementById('productSelectorModal')).show();
+        const modalEl = document.getElementById('productSelectorModal');
+        if(modalEl && modalEl.parentElement !== document.body){
+            document.body.appendChild(modalEl);
+        }
+        new bootstrap.Modal(modalEl).show();
+    }
+
+    function closeProductModal(){
+        const modalEl = document.getElementById('productSelectorModal');
+        if(!modalEl) return;
+        if(window.bootstrap && bootstrap.Modal){
+            const inst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            inst.hide();
+            return;
+        }
+        // Fallback if bootstrap instance is not available
+        modalEl.classList.remove('show');
+        modalEl.style.display = 'none';
+        document.body.classList.remove('modal-open');
+        const backdrop = document.querySelector('.modal-backdrop');
+        if(backdrop) backdrop.remove();
     }
 
     function selectProduct(pid, name, price, cat, img) {
         addItem({pid, name, price, category: cat, img});
         saveItems();
         renderGrid();
-        bootstrap.Modal.getInstance(document.getElementById('productSelectorModal')).hide();
+        closeProductModal();
     }
+
+    function selectProductFromCard(card){
+        if(!card) return;
+        const pid = card.getAttribute('data-pid') || '';
+        const name = card.getAttribute('data-name') || '';
+        const price = card.getAttribute('data-price') || '0';
+        const category = card.getAttribute('data-category') || '';
+        const img = card.getAttribute('data-img') || '';
+        selectProduct(pid, name, price, category, img);
+    }
+
+    document.addEventListener('click', function(e){
+        const card = e.target.closest('.product-select');
+        if(!card) return;
+        e.preventDefault();
+        selectProductFromCard(card);
+    });
+
+    window.selectProductFromCard = selectProductFromCard;
 
     function bindModalSelection(){
         const body = document.getElementById('productSelectorBody');
@@ -387,34 +526,5 @@ if(!isset($_GET['partial'])){
             .replace(/'/g, "&#39;");
     }
 
-    document.getElementById('saveBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        if(items.length === 0) { alert('Build is empty!'); return; }
-        
-        // Simple Validation
-        const required = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
-        const currentCats = items.map(i => getCanon(i.category));
-        const missing = required.filter(c => !currentCats.includes(c));
-        
-        if(missing.length > 0) {
-            alert('Missing components: ' + missing.join(', '));
-            return;
-        }
-
-        const payload = {
-            items: items,
-            total: items.reduce((s,i) => s + i.price, 0)
-        };
-        document.getElementById('itemsJson').value = JSON.stringify(payload);
-        
-        // Append Name
-        const nameVal = document.getElementById('buildName').value || 'My Build';
-        const form = document.getElementById('saveForm');
-        const ni = document.createElement('input'); 
-        ni.type='hidden'; ni.name='build_name'; ni.value=nameVal;
-        form.appendChild(ni);
-        
-        form.submit();
-    });
 </script>
 <?php if(!$is_partial){ include('footer.php'); } ?>

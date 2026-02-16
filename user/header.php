@@ -257,6 +257,7 @@ if(!empty($_SESSION['user_id'])){
       <script>
       document.addEventListener('DOMContentLoaded', function(){
         const main = document.querySelector('main.col-12');
+        const enableBuildSpa = false;
         const buildHref = 'build.php';
         const buildFetchUrl = 'build.php?partial=1';
 
@@ -266,14 +267,14 @@ if(!empty($_SESSION['user_id'])){
             .then(html => {
               const parser = new DOMParser();
               const doc = parser.parseFromString(html, 'text/html');
-              const frag = doc.querySelector('.container.py-4');
-              const modal = doc.getElementById('imageModalBuild');
+              const frag = doc.getElementById('buildPageRoot');
+              const modal = doc.getElementById('productSelectorModal');
               if(frag && main){
                 main.innerHTML = '';
                 main.appendChild(frag);
               }
               if(modal){
-                const existing = document.getElementById('imageModalBuild');
+                const existing = document.getElementById('productSelectorModal');
                 if(existing) existing.remove();
                 document.body.appendChild(modal);
               }
@@ -294,26 +295,28 @@ if(!empty($_SESSION['user_id'])){
           history.pushState({ page: 'build' }, '', buildHref);
         }
 
-        if(!history.state){
-          history.replaceState({ page: 'page', url: location.href }, '', location.href);
-        }
-
-        document.body.addEventListener('click', function(e){
-          const link = e.target.closest('a[href="build.php"]');
-          if(!link) return;
-          if(link.target && link.target !== '_self') return;
-          e.preventDefault();
-          pushBuildState();
-          loadBuildFragment();
-        });
-
-        window.addEventListener('popstate', function(e){
-          if(e.state && e.state.page === 'build'){
-            loadBuildFragment();
-          } else {
-            location.reload();
+        if(enableBuildSpa){
+          if(!history.state){
+            history.replaceState({ page: 'page', url: location.href }, '', location.href);
           }
-        });
+
+          document.body.addEventListener('click', function(e){
+            const link = e.target.closest('a[href="build.php"]');
+            if(!link) return;
+            if(link.target && link.target !== '_self') return;
+            e.preventDefault();
+            pushBuildState();
+            loadBuildFragment();
+          });
+
+          window.addEventListener('popstate', function(e){
+            if(e.state && e.state.page === 'build'){
+              loadBuildFragment();
+            } else {
+              location.reload();
+            }
+          });
+        }
       });
       </script>
 <script>

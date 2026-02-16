@@ -53,9 +53,9 @@
       <div class="col-lg-6">
         <span class="hero-chip"><i class="bi bi-stars"></i> Devotional gifts made joyful</span>
         <h1 class="hero-title">Shree Swami Samarth
-          <span class="hero-title-sub">Colorful collections for puja, festivals, and gifting</span>
+          <span class="hero-title-sub">Where Tools and Service Meet Excellence</span>
         </h1>
-        <p class="hero-copy">Pick from hand-selected essentials, festival kits, and gift-ready bundles delivered with care.</p>
+
         <div class="d-flex flex-wrap gap-3 mt-4">
           <a class="btn btn-hero-primary btn-lg" href="user/index.php">Shop Now</a>
           <a class="btn btn-hero-outline btn-lg" href="user/view_products.php">See Collection</a>

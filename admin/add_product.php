@@ -33,7 +33,7 @@ include('header.php');
                 </div>
                 <div class="mb-2">
                     <label for="product_category" class="form-label">Category</label>
-                    <select class="form-select" name="pcat" required>
+                    <select class="form-select" name="pcat">
                         <option value="">Select category</option>
                         <option value="CPU">CPU</option>
                         <option value="Motherboard">Motherboard</option>
