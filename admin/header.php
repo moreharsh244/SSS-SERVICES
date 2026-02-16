@@ -22,7 +22,18 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
   header('location:login.php');
   exit;
 }
-// (notifications removed) keep header simple
+include_once('conn.php');
+
+$low_stock = [];
+if(isset($con)){
+  $lsq = "SELECT pid, pname, pcompany, pqty FROM products WHERE pqty < 5 ORDER BY pqty ASC, pname ASC";
+  $lsr = mysqli_query($con, $lsq);
+  if($lsr){
+    while($r = mysqli_fetch_assoc($lsr)){
+      $low_stock[] = $r;
+    }
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -59,6 +70,47 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     </style>
 </head>
 <body class="admin-body pc-theme">
+<?php if(!empty($low_stock)){ ?>
+  <div class="modal fade" id="lowStockModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 18px 60px rgba(0,0,0,0.18);">
+        <div class="modal-header" style="background: #fff3cd; border-bottom: 1px solid #ffeeba;">
+          <h5 class="modal-title fw-bold" style="color: #856404;">Low Stock Alert</h5>
+          <a href="view_product.php" class="btn btn-sm btn-outline-warning">View Products</a>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3">The following products have stock below 5. Please restock them.</p>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle mb-0">
+              <thead>
+                <tr>
+                  <th style="width:70px;">ID</th>
+                  <th>Product</th>
+                  <th style="width:160px;">Company</th>
+                  <th style="width:90px;">Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach($low_stock as $ls){ ?>
+                  <tr>
+                    <td><?php echo (int)$ls['pid']; ?></td>
+                    <td><?php echo htmlspecialchars($ls['pname']); ?></td>
+                    <td><?php echo htmlspecialchars($ls['pcompany']); ?></td>
+                    <td><span class="badge bg-warning text-dark"><?php echo (int)$ls['pqty']; ?></span></td>
+                  </tr>
+                <?php } ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Dismiss</button>
+          <a href="view_product.php" class="btn btn-warning">Restock Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+<?php } ?>
 <!-- Primary navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
   <div class="container-fluid">

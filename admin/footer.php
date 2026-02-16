@@ -59,6 +59,13 @@
 					m.show();
 				});
 
+				// low stock alert modal
+				var lowStockModal = document.getElementById('lowStockModal');
+				if(lowStockModal && window.bootstrap && bootstrap.Modal){
+					var ls = new bootstrap.Modal(lowStockModal);
+					ls.show();
+				}
+
 				// dropdown fallback if Bootstrap JS is not active
 				if(!(window.bootstrap && bootstrap.Dropdown)){
 					var userMenu = document.getElementById('userMenu');

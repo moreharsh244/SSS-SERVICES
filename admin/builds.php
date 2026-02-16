@@ -61,7 +61,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])){
             $pname = mysqli_real_escape_string($con, ($it['product_name'] ?: ('PID:'.$it['product_id'])) );
             $price = floatval($it['price']);
             $pid = intval($it['product_id']);
-            $ins = "INSERT INTO purchase (pname, user, pprice, qty, prod_id, status, delivery_status) VALUES ('{$pname}', '{$user}', '{$price}', 1, '{$pid}', 'pending', 'pending')";
+            $qty = max(1, intval($it['qty'] ?? 1));
+            $ins = "INSERT INTO purchase (pname, user, pprice, qty, prod_id, status, delivery_status) VALUES ('{$pname}', '{$user}', '{$price}', {$qty}, '{$pid}', 'pending', 'pending')";
             mysqli_query($con, $ins);
           }
         }
@@ -114,15 +115,15 @@ if($view === 'history'){
 
 ?>
 
-<div class="col-12 col-lg-10 mx-auto">
-  <div class="admin-card">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="col-12 col-xl-11 mx-auto">
+  <div class="admin-card build-card">
+    <div class="build-card-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div>
         <h4 class="mb-1"><i class="bi bi-hammer text-primary me-2"></i>Build Requests</h4>
         <div class="small-muted">User-submitted PC customizations</div>
       </div>
-      <div class="d-flex align-items-center gap-2">
-        <div class="btn-group me-2" role="group" aria-label="Build filters">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="btn-group build-filters" role="group" aria-label="Build filters">
           <a href="builds.php" class="btn btn-sm btn-outline-secondary <?php echo $view==='active'?'active':''; ?>">Active <span class="ms-1"><?php echo $active_count; ?></span></a>
           <a href="builds.php?view=history" class="btn btn-sm btn-outline-secondary <?php echo $view==='history'?'active':''; ?>">History <span class="ms-1"><?php echo $history_count; ?></span></a>
         </div>
@@ -135,7 +136,7 @@ if($view === 'history'){
     <?php endif; ?>
 
     <div class="table-responsive">
-      <table class="table table-hover align-middle">
+      <table class="table table-hover align-middle build-table">
         <thead class="table-light">
           <tr>
             <th>#</th>
@@ -164,10 +165,12 @@ if($view === 'history'){
       echo "<td class='fw-semibold'>{$bname}</td>";
       echo "<td>{$uname}</td>";
       echo "<td><span class='badge ".($status==='pending'?'bg-warning text-dark':($status==='accepted'?'bg-info text-dark':($status==='processed'||$status==='completed'?'bg-success':'bg-secondary')))."'>".htmlspecialchars(ucfirst($status))."</span></td>";
-      echo "<td>\${$total}</td>";
+      echo "<td>₹{$total}</td>";
       echo "<td>{$date}</td>";
       echo "<td class='text-center'>";
-      echo "<a class='btn btn-sm btn-outline-primary' href='view_build.php?id={$id}'>View</a>";
+      echo "<div class='d-inline-flex gap-2'>";
+      echo "<a class='btn btn-outline-primary btn-sm' href='view_build.php?id={$id}'>View</a>";
+      echo "</div>";
       echo "</td>";
       echo "</tr>";
       $i++;
@@ -190,23 +193,25 @@ if($view === 'history'){
       echo "<td class='fw-semibold'>{$bname}</td>";
       echo "<td>{$uname}</td>";
       echo "<td><span class='badge ".($status==='pending'?'bg-warning text-dark':($status==='accepted'?'bg-info text-dark':($status==='processed'?'bg-success':'bg-secondary')))."'>".htmlspecialchars(ucfirst($status))."</span></td>";
-      echo "<td>\${$total}</td>";
+      echo "<td>₹{$total}</td>";
       echo "<td>{$created}</td>";
       echo "<td class='text-center'>";
-      echo "<a class='btn btn-sm btn-outline-primary' href='view_build.php?id={$id}'>View</a>";
+      echo "<div class='d-inline-flex gap-2'>";
+      echo "<a class='btn btn-outline-primary btn-sm' href='view_build.php?id={$id}'>View</a>";
       if($status === 'pending'){
         echo "<form action='builds.php' method='post' class='d-inline-block'>";
         echo "<input type='hidden' name='id' value='{$id}'>";
         echo "<input type='hidden' name='action' value='accept'>";
-        echo "<button class='btn btn-sm btn-success' type='submit'>Accept</button>";
+        echo "<button class='btn btn-outline-success btn-sm' type='submit'>Accept</button>";
         echo "</form>";
       } elseif($status !== 'pending'){
         echo "<form action='builds.php' method='post' class='d-inline-block' onsubmit='return confirm(\"Mark as complete and move to history?\");'>";
         echo "<input type='hidden' name='id' value='{$id}'>";
         echo "<input type='hidden' name='action' value='complete'>";
-        echo "<button class='btn btn-sm btn-outline-warning' type='submit'>Complete</button>";
+        echo "<button class='btn btn-outline-warning btn-sm' type='submit'>Complete</button>";
         echo "</form>";
       }
+      echo "</div>";
       echo "</td>";
       echo "</tr>";
       $i++;

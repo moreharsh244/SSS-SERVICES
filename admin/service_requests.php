@@ -24,7 +24,7 @@ if($db){
     if($view === 'history'){
       $res = false;
     } else {
-      $res = @mysqli_query($con, "SELECT * FROM service_requests WHERE LOWER(IFNULL(status,'')) <> 'cancelled' ORDER BY created_at DESC");
+      $res = @mysqli_query($con, "SELECT * FROM service_requests WHERE LOWER(IFNULL(status,'')) IN ('pending','in_progress') ORDER BY created_at DESC");
     }
   } else {
     $tbl_missing = true;
@@ -32,7 +32,7 @@ if($db){
 
   $qh = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='service_requests_history' LIMIT 1");
   if($qh && mysqli_num_rows($qh)>0){
-    $hist_res = @mysqli_query($con, "SELECT * FROM service_requests_history WHERE LOWER(IFNULL(status,''))='cancelled' ORDER BY archived_at DESC");
+    $hist_res = @mysqli_query($con, "SELECT * FROM service_requests_history WHERE LOWER(IFNULL(status,'')) IN ('cancelled','completed') ORDER BY archived_at DESC");
   } else {
     $hist_missing = true;
   }
@@ -44,9 +44,9 @@ if($db){
 // counts for tabs
 $active_count = 0;
 $history_count = 0;
-$c1 = @mysqli_query($con, "SELECT COUNT(*) AS total FROM service_requests WHERE LOWER(IFNULL(status,'')) <> 'cancelled'");
+$c1 = @mysqli_query($con, "SELECT COUNT(*) AS total FROM service_requests WHERE LOWER(IFNULL(status,'')) IN ('pending','in_progress')");
 if($c1 && mysqli_num_rows($c1)>0){ $active_count = (int)(mysqli_fetch_assoc($c1)['total'] ?? 0); }
-$c2 = @mysqli_query($con, "SELECT COUNT(*) AS total FROM service_requests_history WHERE LOWER(IFNULL(status,''))='cancelled'");
+$c2 = @mysqli_query($con, "SELECT COUNT(*) AS total FROM service_requests_history WHERE LOWER(IFNULL(status,'')) IN ('cancelled','completed')");
 if($c2 && mysqli_num_rows($c2)>0){ $history_count = (int)(mysqli_fetch_assoc($c2)['total'] ?? 0); }
 
 // active delivery agents list

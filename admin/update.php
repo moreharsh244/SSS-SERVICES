@@ -20,64 +20,198 @@ $result=mysqli_query($con,$sqlq);
 while($row=mysqli_fetch_assoc($result)){
     $currentCat = $row['pcat'] ?? '';
 ?>
-<div class="row justify-content-center">
-    <div class="col-sm-10 col-md-8 col-lg-6">
-        <!-- header  -->
-        <h3 class="alert alert-success text-center">Update Product</h3>
-        <!-- header end  -->
-        <form action="update_product.php" method="post" class="shadow-lg p-4 bg-white rounded" enctype="multipart/form-data">
-            <div class="mb-2">
-                <label for="product_name" class="form-label">Product Name</label>
-                <input type="text" class="form-control" name="pname" value="<?php echo htmlspecialchars($row['pname']); ?>" required>
-                <input type="hidden" name="update_id" value="<?php echo $row['pid']; ?>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    .form-header {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        padding: 25px;
+        color: white;
+        text-align: center;
+    }
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 6px;
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        padding: 10px 15px;
+        transition: all 0.3s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+    }
+    .upload-box {
+        border: 2px dashed #cbd5e1;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+    }
+    .upload-box:hover {
+        border-color: #0d6efd;
+        background: #f1f5f9;
+    }
+    .upload-box input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .upload-icon {
+        font-size: 2rem;
+        color: #0d6efd;
+        margin-bottom: 10px;
+    }
+    .btn-submit {
+        padding: 12px;
+        font-weight: 600;
+        border-radius: 8px;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+
+            <div class="form-card">
+                <div class="form-header">
+                    <h3 class="mb-0"><i class="bi bi-box-seam me-2"></i>Update Product</h3>
+                    <p class="mb-0 opacity-75 small">Edit product details to update inventory</p>
+                </div>
+
+                <form action="update_product.php" method="post" class="p-4 p-md-5" enctype="multipart/form-data">
+                    <input type="hidden" name="update_id" value="<?php echo $row['pid']; ?>">
+                    <input type="hidden" name="current_pimg" value="<?php echo htmlspecialchars($row['pimg']); ?>">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label for="product_name" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" name="pname" value="<?php echo htmlspecialchars($row['pname']); ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="product_company" class="form-label">Brand / Company</label>
+                            <input type="text" class="form-control" name="pcompany" value="<?php echo htmlspecialchars($row['pcompany']); ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="product_category" class="form-label">Category</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-tags"></i></span>
+                            <select class="form-select" name="pcat" required>
+                                <option value="" <?php echo $currentCat === '' ? 'selected' : ''; ?>>Select category...</option>
+                                <option value="CPU" <?php echo $currentCat === 'CPU' ? 'selected' : ''; ?>>CPU</option>
+                                <option value="Motherboard" <?php echo $currentCat === 'Motherboard' ? 'selected' : ''; ?>>Motherboard</option>
+                                <option value="RAM" <?php echo $currentCat === 'RAM' ? 'selected' : ''; ?>>RAM</option>
+                                <option value="GPU" <?php echo $currentCat === 'GPU' ? 'selected' : ''; ?>>GPU</option>
+                                <option value="Storage" <?php echo $currentCat === 'Storage' ? 'selected' : ''; ?>>Storage</option>
+                                <option value="PSU" <?php echo $currentCat === 'PSU' ? 'selected' : ''; ?>>PSU</option>
+                                <option value="Case" <?php echo $currentCat === 'Case' ? 'selected' : ''; ?>>Case</option>
+                                <option value="Cooler" <?php echo $currentCat === 'Cooler' ? 'selected' : ''; ?>>Cooler</option>
+                                <option value="Monitor" <?php echo $currentCat === 'Monitor' ? 'selected' : ''; ?>>Monitor</option>
+                                <option value="Accessory" <?php echo $currentCat === 'Accessory' ? 'selected' : ''; ?>>Accessory</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <label class="form-label">Price (Per Unit)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" class="form-control" id="pprice" name="pprice" value="<?php echo htmlspecialchars($row['pprice']); ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="pqty" name="pqty" value="<?php echo intval($row['pqty']); ?>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Total Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="text" class="form-control bg-light" id="pamount" name="pamount" value="<?php echo htmlspecialchars($row['pamount']); ?>" readonly required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="product_description" class="form-label">Description</label>
+                        <textarea class="form-control" id="product_description" name="product_description" rows="4" required><?php echo htmlspecialchars($row['pdisc']); ?></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Update Product Image</label>
+                        <div class="upload-box">
+                            <div class="upload-content">
+                                <i class="bi bi-cloud-arrow-up-fill upload-icon"></i>
+                                <h6 class="mb-1">Click to upload or drag image here</h6>
+                                <p class="text-muted small mb-0" id="file-name">Current: <?php echo htmlspecialchars($row['pimg']); ?></p>
+                            </div>
+                            <input type="file" id="formFile" name="pimg" accept="image/*" onchange="updateFileName(this)">
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-submit shadow" name="add_product">
+                            <i class="bi bi-save2 me-2"></i>Update Product
+                        </button>
+                    </div>
+
+                </form>
             </div>
-            <div class="mb-2">
-                <label for="product_company" class="form-label">Product Company</label>
-                <input type="text" class="form-control" name="pcompany" value="<?php echo htmlspecialchars($row['pcompany']); ?>" required>
-            </div>
-            <div class="mb-2">
-                <label for="product_price" class="form-label">Product Price</label>
-                <input type="text" class="form-control" name="pprice" value="<?php echo htmlspecialchars($row['pprice']); ?>" required>
-            </div>
-            <div class="mb-2">
-                <label for="product_qty" class="form-label">Product Qty</label>
-                <input type="number" class="form-control" name="pqty" value="<?php echo intval($row['pqty']); ?>" required>
-            </div>
-            <div class="mb-2">
-                <label for="product_amount" class="form-label">Product Amount</label>
-                <input type="text" class="form-control" name="pamount" value="<?php echo htmlspecialchars($row['pamount']); ?>" required>
-            </div>
-            <div class="mb-2">
-                <label for="product_category" class="form-label">Category</label>
-                <select class="form-select" name="pcat">
-                    <option value="">Select category</option>
-                    <option value="CPU" <?php echo $currentCat === 'CPU' ? 'selected' : ''; ?>>CPU</option>
-                    <option value="Motherboard" <?php echo $currentCat === 'Motherboard' ? 'selected' : ''; ?>>Motherboard</option>
-                    <option value="RAM" <?php echo $currentCat === 'RAM' ? 'selected' : ''; ?>>RAM</option>
-                    <option value="GPU" <?php echo $currentCat === 'GPU' ? 'selected' : ''; ?>>GPU</option>
-                    <option value="Storage" <?php echo $currentCat === 'Storage' ? 'selected' : ''; ?>>Storage</option>
-                    <option value="PSU" <?php echo $currentCat === 'PSU' ? 'selected' : ''; ?>>PSU</option>
-                    <option value="Case" <?php echo $currentCat === 'Case' ? 'selected' : ''; ?>>Case</option>
-                    <option value="Cooler" <?php echo $currentCat === 'Cooler' ? 'selected' : ''; ?>>Cooler</option>
-                    <option value="Monitor" <?php echo $currentCat === 'Monitor' ? 'selected' : ''; ?>>Monitor</option>
-                    <option value="Accessory" <?php echo $currentCat === 'Accessory' ? 'selected' : ''; ?>>Accessory</option>
-                </select>
-            </div>
-            <div class="mb-2">
-                <label for="product_description" class="form-label">Product Description</label>
-                <input type="text" class="form-control" name="product_description" value="<?php echo htmlspecialchars($row['pdisc']); ?>" required>
-            </div>
-            <div class="mb-3">
-                <label for="formFile" class="form-label">Update Product Image</label>
-                <input class="form-control" type="file" id="formFile" name="pimg" accept="image/*">
-                <input type="hidden" name="current_pimg" value="<?php echo htmlspecialchars($row['pimg']); ?>">
-            </div>
-            <div class="d-flex justify-content-end mt-3">
-                <button type="submit" class="btn btn-warning" name="add_product">Update Product</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
+
+<script>
+    const priceInput = document.getElementById('pprice');
+    const qtyInput = document.getElementById('pqty');
+    const amountInput = document.getElementById('pamount');
+
+    function calculateTotal() {
+        const price = parseFloat(priceInput.value) || 0;
+        const qty = parseFloat(qtyInput.value) || 0;
+        amountInput.value = (price * qty).toFixed(2);
+    }
+
+    priceInput.addEventListener('input', calculateTotal);
+    qtyInput.addEventListener('input', calculateTotal);
+    calculateTotal();
+
+    function updateFileName(input) {
+        const fileNameElement = document.getElementById('file-name');
+        if (!fileNameElement) return;
+        if (input.files && input.files.length > 0) {
+            fileNameElement.textContent = "Selected: " + input.files[0].name;
+            fileNameElement.classList.add('text-success');
+            fileNameElement.classList.remove('text-muted');
+        }
+    }
+</script>
 <?php
 }
 ?>
