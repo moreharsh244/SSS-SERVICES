@@ -77,18 +77,6 @@
 
 		<script>
 		document.addEventListener('DOMContentLoaded', function(){
-			// delegate image preview clicks (user)
-			document.body.addEventListener('click', function(e){
-				var el = e.target.closest('.img-preview');
-				if(!el) return;
-				e.preventDefault();
-				var src = el.getAttribute('data-full') || el.getAttribute('src');
-				var img = document.getElementById('modalImage');
-				if(img) img.src = src;
-				var m = new bootstrap.Modal(document.getElementById('imageModal'));
-				m.show();
-			});
-
 			var messageModalInstance = null;
 
 			function showMessage(message, type){
@@ -125,22 +113,6 @@
 						messageModalInstance.hide();
 					}
 				});
-			}
-
-			// reveal animations
-			var revealEls = document.querySelectorAll('.reveal');
-			if('IntersectionObserver' in window){
-				var io = new IntersectionObserver(function(entries){
-					entries.forEach(function(entry){
-						if(entry.isIntersecting){
-							entry.target.classList.add('is-visible');
-							io.unobserve(entry.target);
-						}
-					});
-				}, { threshold: 0.12 });
-				revealEls.forEach(function(el){ io.observe(el); });
-			} else {
-				revealEls.forEach(function(el){ el.classList.add('is-visible'); });
 			}
 
 			// toast via URL params

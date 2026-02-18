@@ -297,7 +297,7 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
 <div class="container-fluid">
   <div class="row user-nav-sticky justify-content-center">
     <div class="col-11 col-md-8 col-lg-6">
-      <div class="subnav-search-shell w-100 mx-auto <?php echo in_array($current_page, ['service.php', 'service_submit.php', 'build.php', 'myorder.php', 'myorder_details.php', 'orderstatus.php', 'profile.php']) ? 'search-bar-hide' : ''; ?>">
+      <div class="subnav-search-shell w-100 mx-auto <?php echo in_array($current_page, ['service.php', 'service_submit.php', 'build.php', 'myorder.php', 'myorder_details.php', 'orderstatus.php', 'profile.php', 'product_details.php']) ? 'search-bar-hide' : ''; ?>">
         <form class="subnav-search-form position-relative" id="site-search-form" action="view_products.php" method="get" autocomplete="off">
           <i class="bi bi-search subnav-search-icon"></i>
           <input id="site-search-input" name="q" class="form-control" type="search" placeholder="Search products, brands, categories..." aria-label="Search products">
@@ -312,17 +312,6 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
 <div class="container mt-2">
   <div class="row">
     <main class="col-12" id="mainContentArea">
-      <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content bg-transparent border-0 shadow-none">
-            <div class="modal-body text-center p-0">
-              <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
-              <img id="modalImage" src="" alt="Preview" class="img-fluid rounded-4 shadow-lg">
-            </div>
-          </div>
-        </div>
-      </div>
-      
       <script>
       document.addEventListener('DOMContentLoaded', function(){
         // Search suggestion logic
