@@ -23,15 +23,120 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 include_once('conn.php');
 
+// === Notification Helper Functions ===
+function ensure_admin_notifications_table($con) {
+    $create = "CREATE TABLE IF NOT EXISTS `admin_notifications` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `type` VARCHAR(50) NOT NULL,
+        `title` VARCHAR(255) NOT NULL,
+        `message` TEXT,
+        `link` VARCHAR(255),
+        `is_read` TINYINT(1) DEFAULT 0,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX(`is_read`),
+        INDEX(`created_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    @mysqli_query($con, $create);
+}
+
+function add_admin_notification($con, $type, $title, $message = '', $link = '') {
+    ensure_admin_notifications_table($con);
+    $type = mysqli_real_escape_string($con, $type);
+    $title = mysqli_real_escape_string($con, $title);
+    $message = mysqli_real_escape_string($con, $message);
+    $link = mysqli_real_escape_string($con, $link);
+    $sql = "INSERT INTO admin_notifications (type, title, message, link, is_read) 
+            VALUES ('$type', '$title', '$message', '$link', 0)";
+    return @mysqli_query($con, $sql);
+}
+
+function get_unread_notifications_count($con) {
+    ensure_admin_notifications_table($con);
+    $result = @mysqli_query($con, "SELECT COUNT(*) as count FROM admin_notifications WHERE is_read = 0");
+    if ($result && mysqli_num_rows($result) > 0) {
+        return (int)mysqli_fetch_assoc($result)['count'];
+    }
+    return 0;
+}
+
+function get_recent_notifications($con, $limit = 10) {
+    ensure_admin_notifications_table($con);
+    $limit = (int)$limit;
+    $result = @mysqli_query($con, "SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT $limit");
+    $notifications = [];
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $notifications[] = $row;
+        }
+    }
+    return $notifications;
+}
+
+function mark_all_notifications_read($con) {
+    ensure_admin_notifications_table($con);
+    return @mysqli_query($con, "UPDATE admin_notifications SET is_read = 1 WHERE is_read = 0");
+}
+
+function cleanup_old_notifications($con) {
+    ensure_admin_notifications_table($con);
+    return @mysqli_query($con, "DELETE FROM admin_notifications WHERE is_read = 1 AND created_at < DATE_SUB(NOW(), INTERVAL 7 DAY)");
+}
+
+function get_notification_icon($type) {
+    $icons = [
+        'order' => 'bi-cart-check-fill text-success',
+        'build' => 'bi-cpu-fill text-primary',
+        'service' => 'bi-tools text-warning',
+        'low_stock' => 'bi-exclamation-triangle-fill text-danger'
+    ];
+    return $icons[$type] ?? 'bi-bell-fill text-info';
+}
+
+// Handle mark all notifications as read
+if(isset($_GET['mark_read']) && $_GET['mark_read'] === '1' && isset($con)){
+    mark_all_notifications_read($con);
+    $redirect = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.php';
+    header('Location: ' . $redirect);
+    exit;
+}
+// === End Notification Helper Functions ===
+
 $low_stock = [];
 if(isset($con)){
-    $lsq = "SELECT pid, pname, pcompany, pqty FROM products WHERE pqty < 5 ORDER BY pqty ASC, pname ASC";
+    $lsq = "SELECT pid, pname, pcompany, pqty FROM products WHERE pqty <= 5 ORDER BY pqty ASC, pname ASC";
     $lsr = mysqli_query($con, $lsq);
     if($lsr){
         while($r = mysqli_fetch_assoc($lsr)){
             $low_stock[] = $r;
         }
     }
+}
+
+// Check if we should auto-show the low stock modal on this page load
+$show_low_stock_modal = false;
+if(!empty($low_stock)){
+    if(!isset($_SESSION['low_stock_shown_at'])){
+        // Show modal on first page load when low stock exists
+        $show_low_stock_modal = true;
+        $_SESSION['low_stock_shown_at'] = time();
+    } else {
+        // Re-show modal if it's been more than 2 hours since last shown
+        $time_since_shown = time() - $_SESSION['low_stock_shown_at'];
+        if($time_since_shown > 7200){ // 2 hours
+            $show_low_stock_modal = true;
+            $_SESSION['low_stock_shown_at'] = time();
+        }
+    }
+}
+
+// Get admin notifications
+$unread_count = 0;
+$recent_notifications = [];
+if(isset($con)){
+    $unread_count = get_unread_notifications_count($con);
+    $recent_notifications = get_recent_notifications($con, 5);
+    // Cleanup old notifications periodically (10% chance)
+    if(rand(1, 10) === 1) cleanup_old_notifications($con);
 }
 
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -48,7 +153,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -84,10 +189,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         /* --- BRAND TEXT --- */
         .brand-text {
-            font-weight: 800;
+            font-weight: 900;
             font-size: 2.25rem;
             letter-spacing: -0.03em;
-            color: #4338ca;
+            background: linear-gradient(to right, #4338ca, #be185d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             white-space: nowrap; 
             line-height: 1.2;
         }
@@ -238,7 +345,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <i class="bi bi-bell-fill"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title fw-bold text-dark mb-0">Stock Alert</h5>
+                        <h5 class="modal-title fw-bold text-dark mb-0">
+                            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Inventory Stock Alert
+                        </h5>
+                        <p class="mb-0 small text-muted mt-1">Critical stock levels detected - Action Required</p>
                     </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -338,16 +448,78 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <div class="dropdown">
                             <button class="icon-btn" type="button" id="notifBtn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
                                 <i class="bi bi-bell-fill fs-5"></i>
-                                <?php if(!empty($low_stock)): ?>
+                                <?php if($unread_count > 0 || !empty($low_stock)): ?>
                                     <span class="notification-dot"></span>
                                 <?php endif; ?>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifBtn" style="width: 280px;">
-                                <li><h6 class="dropdown-header text-uppercase small fw-bold">Notifications</h6></li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" aria-labelledby="notifBtn" style="width: 350px; max-height: 450px; overflow-y: auto;">
+                                <li class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                                    <h6 class="mb-0 text-uppercase small fw-bold text-muted">Notifications</h6>
+                                    <?php if($unread_count > 0): ?>
+                                        <span class="badge bg-danger rounded-pill"><?php echo $unread_count; ?></span>
+                                    <?php endif; ?>
+                                </li>
+                                
+                                <?php if(!empty($recent_notifications)): ?>
+                                    <?php foreach($recent_notifications as $notif): 
+                                        $icon_class = get_notification_icon($notif['type']);
+                                        $time_ago = time() - strtotime($notif['created_at']);
+                                        $time_str = $time_ago < 60 ? 'Just now' : 
+                                                    ($time_ago < 3600 ? floor($time_ago/60) . 'm ago' : 
+                                                    ($time_ago < 86400 ? floor($time_ago/3600) . 'h ago' : 
+                                                    floor($time_ago/86400) . 'd ago'));
+                                        $bg_class = $notif['is_read'] ? '' : 'bg-light';
+                                    ?>
+                                        <li>
+                                            <a class="dropdown-item <?php echo $bg_class; ?> py-3" href="<?php echo htmlspecialchars($notif['link'] ?? '#'); ?>" style="white-space: normal;">
+                                                <div class="d-flex gap-2">
+                                                    <div class="flex-shrink-0">
+                                                        <i class="bi <?php echo $icon_class; ?> fs-5"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-bold text-dark small mb-1"><?php echo htmlspecialchars($notif['title']); ?></div>
+                                                        <?php if(!empty($notif['message'])): ?>
+                                                            <div class="text-muted" style="font-size: 0.8rem;"><?php echo htmlspecialchars($notif['message']); ?></div>
+                                                        <?php endif; ?>
+                                                        <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                                                            <i class="bi bi-clock me-1"></i><?php echo $time_str; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                                
                                 <?php if(!empty($low_stock)): ?>
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#lowStockModal"><i class="bi bi-exclamation-circle-fill text-danger me-2"></i><span class="small fw-bold">Low Stock Alert</span></a></li>
-                                <?php else: ?>
-                                    <li><span class="dropdown-item text-muted small">No new alerts</span></li>
+                                    <li>
+                                        <a class="dropdown-item py-3" href="#" data-bs-toggle="modal" data-bs-target="#lowStockModal" style="white-space: normal;">
+                                            <div class="d-flex gap-2">
+                                                <div class="flex-shrink-0">
+                                                    <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold text-dark small mb-1">Low Stock Alert</div>
+                                                    <div class="text-muted" style="font-size: 0.8rem;"><?php echo count($low_stock); ?> products need restocking</div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                                
+                                <?php if(empty($recent_notifications) && empty($low_stock)): ?>
+                                    <li class="text-center py-4">
+                                        <i class="bi bi-bell-slash text-muted fs-1 d-block mb-2"></i>
+                                        <span class="text-muted small">No notifications</span>
+                                    </li>
+                                <?php endif; ?>
+                                
+                                <?php if($unread_count > 0): ?>
+                                    <li class="border-top">
+                                        <a class="dropdown-item text-center text-primary small fw-bold py-2" href="?mark_read=1">
+                                            <i class="bi bi-check-all me-1"></i>Mark all as read
+                                        </a>
+                                    </li>
                                 <?php endif; ?>
                             </ul>
                         </div>
@@ -374,6 +546,39 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </div>
     </div>
 </header>
+
+<?php if(!empty($low_stock)): ?>
+<!-- Professional Low Stock Alert Banner -->
+<div class="alert alert-danger border-0 rounded-0 m-0 shadow-sm" role="alert" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 5px solid #dc2626 !important;">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            <div class="col-12 col-md-8">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center justify-content-center bg-danger rounded-circle" style="width: 42px; height: 42px; flex-shrink: 0;">
+                        <i class="bi bi-exclamation-triangle-fill text-white fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1 fw-bold text-danger">
+                            <i class="bi bi-bell-fill me-1"></i>Low Stock Alert
+                        </h6>
+                        <p class="mb-0 small text-dark">
+                            <strong><?php echo count($low_stock); ?></strong> product<?php echo count($low_stock) > 1 ? 's have' : ' has'; ?> critical stock levels (≤5 units). Immediate restocking recommended.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 text-md-end mt-3 mt-md-0">
+                <button class="btn btn-danger btn-sm rounded-pill px-4 me-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#lowStockModal">
+                    <i class="bi bi-eye-fill me-1"></i>View Details
+                </button>
+                <a href="view_product.php" class="btn btn-outline-danger btn-sm rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i>Restock Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <div class="container-fluid px-4 py-4">
     <div class="row justify-content-center">

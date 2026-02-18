@@ -56,7 +56,7 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="../js/bootstrap.bundle.min.js"></script>
   
   <style>
@@ -91,8 +91,8 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
     }
 
     .brand-text {
-        font-weight: 800;
-      font-size: 2.25rem;
+        font-weight: 900;
+        font-size: 2.25rem;
         letter-spacing: -0.03em;
         background: linear-gradient(to right, #4338ca, #be185d);
         -webkit-background-clip: text;
@@ -102,7 +102,7 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
     }
 
     @media (max-width: 1200px) {
-      .brand-text { font-size: 1.8rem; }
+        .brand-text { font-size: 1.8rem; }
     }
 
     /* --- Nav Pills --- */

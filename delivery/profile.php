@@ -60,21 +60,12 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
 
 <style>
     :root {
-        /* Ocean Blue to Teal Gradient (Matches Dashboard) */
-        --primary-grad: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%); 
-        --primary-solid: #0ea5e9;
-        --bg-surface: #f0f9ff;
-        --card-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.15);
+        /* Purple Gradient to match Admin/User portals */
+        --primary-grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); 
+        --primary-solid: #6366f1;
+        --card-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15);
         --text-dark: #0f172a;
         --text-muted: #64748b;
-    }
-
-    body {
-        background-color: var(--bg-surface);
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: var(--text-dark);
-        background-image: radial-gradient(#e0f2fe 1px, transparent 1px);
-        background-size: 20px 20px;
     }
 
     /* Hero Section */
@@ -105,13 +96,13 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
     }
 
     .stat-pill {
-        background: #e0f2fe;
-        color: #0284c7;
+        background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+        color: #7c3aed;
         padding: 10px 20px;
         border-radius: 12px;
         font-weight: 700;
         font-size: 0.95rem;
-        border: 1px solid #bae6fd;
+        border: 1px solid #e9d5ff;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -139,8 +130,8 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
 
     .panel-icon {
         width: 40px; height: 40px;
-        background: #f0f9ff;
-        color: #0ea5e9;
+        background: #f3e8ff;
+        color: #7c3aed;
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -174,8 +165,8 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
 
     .form-control:focus {
         background: white;
-        border-color: #0ea5e9;
-        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
     }
 
     .form-control[readonly] {
@@ -196,7 +187,7 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
     }
     .btn-primary-custom:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px -4px rgba(14, 165, 233, 0.3);
+        box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.3);
     }
 
     .btn-secondary-custom {
@@ -271,23 +262,23 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
 <div class="container">
     <div class="col-12 col-lg-10 mx-auto">
         
-        <div class="delivery-hero mb-4 fade-in d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="profile-hero d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
                 <h2 class="hero-title mb-1">Agent Profile</h2>
-                <div class="text-muted fw-medium">Manage your personal details & preferences</div>
+                <div class="text-muted">Manage personal details and saved addresses</div>
             </div>
             <div class="stat-pill">
-                <i class="bi bi-person-badge-fill"></i> <?php echo htmlspecialchars($agent['username'] ?? $username); ?>
+                <i class="bi bi-person-badge"></i> <?php echo htmlspecialchars($agent['username'] ?? $username); ?>
             </div>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-3">
             
-            <div class="col-lg-5">
+            <div class="col-md-5">
                 <div class="content-panel">
                     <div class="panel-header">
-                        <div class="panel-icon"><i class="bi bi-person-gear"></i></div>
-                        <h5 class="panel-title">Personal Information</h5>
+                        <div class="panel-icon"><i class="bi bi-person-circle"></i></div>
+                        <h5 class="panel-title">Agent Profile</h5>
                     </div>
                     
                     <form action="profile.php" method="post">
@@ -297,29 +288,29 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
-                            <input type="text" class="form-control" name="full_name" value="<?php echo htmlspecialchars($agent['full_name'] ?? ''); ?>" placeholder="Enter full name">
+                            <input type="text" class="form-control" name="full_name" value="<?php echo htmlspecialchars($agent['full_name'] ?? ''); ?>">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($agent['email'] ?? ''); ?>" placeholder="name@example.com">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($agent['email'] ?? ''); ?>">
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" name="phone" value="<?php echo htmlspecialchars($agent['phone'] ?? ''); ?>" placeholder="Enter phone number">
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-control" name="phone" value="<?php echo htmlspecialchars($agent['phone'] ?? ''); ?>">
                         </div>
                         <button type="submit" name="update_profile" class="btn-primary-custom">
-                            <i class="bi bi-check2-circle me-2"></i> Save Changes
+                            <i class="bi bi-check-circle"></i> Save Profile
                         </button>
                     </form>
                 </div>
             </div>
 
-            <div class="col-lg-7">
+            <div class="col-md-7">
                 
-                <div class="content-panel mb-4">
+                <div class="content-panel">
                     <div class="panel-header">
-                        <div class="panel-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                        <h5 class="panel-title">Add New Location</h5>
+                        <div class="panel-icon"><i class="bi bi-plus-circle"></i></div>
+                        <h5 class="panel-title">Add New Address</h5>
                     </div>
                     
                     <form action="profile.php" method="post" class="row g-3">
@@ -385,18 +376,18 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
                                             </td>
                                             <td>
                                                 <?php if((int)$a['is_default'] === 1): ?>
-                                                    <span class="badge-default"><i class="bi bi-check-circle me-1"></i> Default</span>
+                                                    <span class="badge badge-delivered"><i class="bi bi-check-circle me-1"></i> Default</span>
                                                 <?php else: ?>
                                                     <form method="post" action="profile.php">
                                                         <input type="hidden" name="address_id" value="<?php echo (int)$a['id']; ?>">
-                                                        <button type="submit" name="set_default" class="btn btn-action-sm btn-set-default">Set Default</button>
+                                                        <button type="submit" name="set_default" class="btn btn-sm btn-outline-primary">Set Default</button>
                                                     </form>
                                                 <?php endif; ?>
                                             </td>
                                             <td class="text-end">
                                                 <form method="post" action="profile.php" onsubmit="return confirm('Are you sure you want to delete this address?');">
                                                     <input type="hidden" name="address_id" value="<?php echo (int)$a['id']; ?>">
-                                                    <button type="submit" name="delete_address" class="btn btn-action-sm btn-delete">
+                                                    <button type="submit" name="delete_address" class="btn btn-sm btn-outline-danger">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
@@ -406,7 +397,6 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
                                 <?php else: ?>
                                     <tr>
                                         <td colspan="3" class="text-center py-4 text-muted">
-                                            <i class="bi bi-geo-alt display-6 d-block mb-2 opacity-25"></i>
                                             No saved addresses found.
                                         </td>
                                     </tr>

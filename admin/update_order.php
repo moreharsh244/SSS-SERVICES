@@ -1,5 +1,33 @@
 <?php
 include('conn.php');
+
+// Load notification functions
+function ensure_admin_notifications_table($con) {
+    $create = "CREATE TABLE IF NOT EXISTS `admin_notifications` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `type` VARCHAR(50) NOT NULL,
+        `title` VARCHAR(255) NOT NULL,
+        `message` TEXT,
+        `link` VARCHAR(255),
+        `is_read` TINYINT(1) DEFAULT 0,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX(`is_read`),
+        INDEX(`created_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    @mysqli_query($con, $create);
+}
+
+function add_admin_notification($con, $type, $title, $message = '', $link = '') {
+    ensure_admin_notifications_table($con);
+    $type = mysqli_real_escape_string($con, $type);
+    $title = mysqli_real_escape_string($con, $title);
+    $message = mysqli_real_escape_string($con, $message);
+    $link = mysqli_real_escape_string($con, $link);
+    $sql = "INSERT INTO admin_notifications (type, title, message, link, is_read) 
+            VALUES ('$type', '$title', '$message', '$link', 0)";
+    return @mysqli_query($con, $sql);
+}
+
 if($_SERVER['REQUEST_METHOD']!=='POST') exit('Invalid');
 $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 $dstatus = mysqli_real_escape_string($con, $_POST['delivery_status'] ?? 'pending');
@@ -30,6 +58,18 @@ if($id>0){
         mysqli_rollback($con);
         header('Location: orders_list.php?error=' . rawurlencode('Insufficient stock for this product.'));
         exit;
+      }
+      
+      // Check if stock dropped to critical level and create notification
+      $stock_check = mysqli_query($con, "SELECT pname, pcompany, pqty FROM products WHERE pid = $prod_id LIMIT 1");
+      if($stock_check && mysqli_num_rows($stock_check) > 0){
+        $prod = mysqli_fetch_assoc($stock_check);
+        $current_qty = intval($prod['pqty']);
+        if($current_qty <= 5){
+          $notif_title = "Low Stock Alert: " . $prod['pname'];
+          $notif_msg = $prod['pcompany'] . " - Only $current_qty units remaining after order fulfillment";
+          add_admin_notification($con, 'low_stock', $notif_title, $notif_msg, 'view_product.php');
+        }
       }
     }
 
