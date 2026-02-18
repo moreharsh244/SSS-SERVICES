@@ -1,6 +1,5 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
-  // Keep session alive while browser is open and across refreshes
   session_name('SSS_USER_SESS');
   ini_set('session.gc_maxlifetime', '86400');
   ini_set('session.cookie_lifetime', '0');
@@ -14,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
   ]);
   session_start();
 }
-// Attempt remember-me auto-login if session missing
+// Attempt remember-me auto-login
 if(!isset($_SESSION['is_login'])){
   include('../admin/conn.php');
   if(isset($_COOKIE['remember']) && !empty($_COOKIE['remember']) && isset($con) && $con){
@@ -39,28 +38,10 @@ if(!isset($_SESSION['is_login'])){
   exit;
 }
 if(!defined('HEADER_INCLUDED')) define('HEADER_INCLUDED', true);
-
-// Fetch loyalty points for logged-in user if column exists (non-fatal)
-$loyalty_points = 0;
-if(!empty($_SESSION['user_id'])){
-  if(!isset($con) || !$con){ @include_once('../admin/conn.php'); }
-  $uid = intval($_SESSION['user_id']);
-  if(isset($con) && $con){
-    // Check column existence to avoid exceptions on older DBs
-    $db = '';
-    $rdb = @mysqli_query($con, "SELECT DATABASE() AS dbname");
-    if($rdb && mysqli_num_rows($rdb)>0){ $db = mysqli_fetch_assoc($rdb)['dbname']; }
-    $col_ok = false;
-    if($db){
-      $qc = @mysqli_query($con, "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='cust_reg' AND COLUMN_NAME='loyalty_points' LIMIT 1");
-      if($qc && mysqli_num_rows($qc)>0) $col_ok = true;
-    }
-    if($col_ok){
-      $rp = @mysqli_query($con, "SELECT loyalty_points FROM cust_reg WHERE cid=$uid LIMIT 1");
-      if($rp && mysqli_num_rows($rp)>0){ $rrow = mysqli_fetch_assoc($rp); $loyalty_points = intval($rrow['loyalty_points'] ?? 0); }
-    }
-  }
-}
+$current_page = basename($_SERVER['PHP_SELF'] ?? '');
+$display_name = $_SESSION['username'] ?? 'User';
+$avatar_initial = strtoupper(substr(trim((string)$display_name), 0, 1));
+if($avatar_initial === ''){ $avatar_initial = 'U'; }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -75,187 +56,312 @@ if(!empty($_SESSION['user_id'])){
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="../js/bootstrap.bundle.min.js"></script>
+  
   <style>
-    /* ensure navbar and dropdowns render above other page components */
-    .navbar { position: relative; z-index: 4000; }
-    .navbar .dropdown-menu { z-index: 4001; }
-    .user-nav-sticky{
-      position: sticky;
-      top: 72px;
-      z-index: 3000;
+    :root {
+        --primary-grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        --accent-grad: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+        --glass-bg: rgba(255, 255, 255, 0.75);
+        --text-main: #1e293b;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--text-main);
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+        background: linear-gradient(120deg, #667eea 0%, #764ba2 100%); 
+        background-attachment: fixed;
+    }
+
+    /* --- Glass Navbar --- */
+    .glass-header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+      z-index: 1000;
+        padding: 0.8rem 0;
+    }
+
+    .brand-text {
+        font-weight: 800;
+      font-size: 2.25rem;
+        letter-spacing: -0.03em;
+        background: linear-gradient(to right, #4338ca, #be185d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        white-space: nowrap; 
+        line-height: 1.2;
+    }
+
+    @media (max-width: 1200px) {
+      .brand-text { font-size: 1.8rem; }
+    }
+
+    /* --- Nav Pills --- */
+    .nav-pills-custom {
+        display: flex;
+        gap: 0.25rem;
+      padding: 0.4rem;
+        background: #f1f5f9;
+      border-radius: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+    }
+    .nav-pills-custom::-webkit-scrollbar { display: none; }
+
+    .nav-link-custom {
+        display: inline-flex;
+        align-items: center;
+      padding: 0.6rem 1rem;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.9rem;
+      border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-link-custom:hover {
+        color: #4f46e5;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .nav-link-custom.active {
+        background: var(--primary-grad);
+        color: white;
+        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    /* --- User Profile Pill --- */
+    .user-pill {
+        display: flex;
+        align-items: center;
+      gap: 12px;
+      padding: 5px 14px 5px 5px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: 0.2s;
+        text-decoration: none;
+        max-width: 220px; /* Limit width */
+    }
+    .user-pill:hover { border-color: #4f46e5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+    .user-name-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px; /* Truncate long emails */
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .avatar-circle {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+      font-size: 0.95rem;
+        flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);
+    }
+
+    /* --- Sticky Search Bar --- */
+    .user-nav-sticky {
+        position: sticky;
+        top: 80px; 
+        z-index: 3000;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .subnav-search-shell {
+        max-width: 600px;
+        background: transparent;
+        backdrop-filter: blur(8px);
+        border: none;
+        border-radius: 50px;
+    }
+    .subnav-search-form input {
+        border-radius: 50px;
+        padding-left: 40px;
+        border: none;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    .subnav-search-btn {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        bottom: 5px;
+        border-radius: 50px;
+        background: var(--primary-grad);
+        color: white;
+        border: none;
+        padding: 0 20px;
+        font-weight: 600;
+    }
+    .subnav-search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
     }
     
-    /* Build Page - Complete Styling - Load Before Content */
-    .build-page{
-        min-height: calc(100vh - 140px);
-        background: radial-gradient(1200px 600px at 10% 0%, #e0f2fe 0%, rgba(224,242,254,0) 60%),
-                    radial-gradient(1200px 600px at 90% 10%, #ede9fe 0%, rgba(237,233,254,0) 65%),
-                    linear-gradient(180deg, #f8fafc 0%, #ffffff 60%);
+    .search-bar-hide {
+      display: none !important;
     }
-    .build-page .build-shell{
-        max-width: 1100px;
-    }
-    .build-page .build-card{
-        border-radius: 16px;
-        border: 1px solid rgba(15, 23, 42, 0.08);
-        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-        overflow: hidden;
-    }
-    .build-page .build-header{
-      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 45%, #7c3aed 100%) !important;
-      color: #ffffff !important;
-      position: relative;
-    }
-    .build-page .build-header h5{
-      color: #ffffff !important;
-      font-weight: 700;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    }
-    .build-page .build-header small{
-      color: #ffffff !important;
-      opacity: 0.95;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .build-page .build-header::after{
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(360px 120px at 85% 0%, rgba(255,255,255,0.15), transparent 70%);
-        pointer-events: none;
-    }
-    .build-page .category-grid{
-      display: grid !important;
-      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-      gap: 10px !important;
-      width: 100%;
-    }
-    .build-page .category-btn{
-      width: 100% !important;
-      display: flex !important;
-      align-items: center !important;
-      padding: 8px 10px;
-      font-size: 0.85rem;
-      border-radius: 8px;
-      font-weight: 600;
-      text-align: left;
-      transition: all 0.25s;
-    }
-    .build-page .category-btn span:first-child{
-      margin-right: 8px;
-    }
-    .build-page .build-title{
-        font-weight: 700;
-        letter-spacing: 0.3px;
-    }
-    .build-page .build-subtitle{
-        color: #475569;
-        font-size: 0.95rem;
-    }
-    .build-page .build-footer{
-        background: #f1f5f9;
-    }
-    .build-page .save-btn{
-        padding: 6px 16px;
-        font-size: 0.9rem;
-        border-radius: 8px;
-    }
-    .build-page .price{
-        font-weight: 700;
-    }
-    .build-page .items-list{
-        border-radius: 12px;
-        background: #ffffff;
-    }
-    .build-page .build-empty{
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px dashed rgba(148, 163, 184, 0.6);
-    }
-    @media (max-width: 992px){
-      .build-page .category-grid{ 
-        grid-template-columns: 1fr !important; 
-      }
-      .build-page .build-shell{ max-width: 100%; }
-      .build-page .build-footer{ flex-direction: column; align-items: stretch; gap: 12px; }
-      .build-page .build-footer .w-50{ width: 100% !important; }
-      .build-page .build-footer .ms-3{ margin-left: 0 !important; }
+    
+    /* Responsive Helpers */
+    @media (max-width: 991px) {
+      .glass-header { padding: 0.8rem 0; }
+        .nav-pills-custom { overflow-x: auto; width: 100%; justify-content: center; margin-top: 10px; }
+        .user-nav-sticky { top: 130px; }
     }
   </style>
 </head>
-<body class="user-area pc-theme">
-<!-- Primary navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold d-flex align-items-center" href="view_products.php" style="font-size: 30px;">
-      <img src="../img/logo-mark.svg" alt="Shree Swami Samarth" style="height:36px;width:36px;margin-right:10px;">
-      <span>Shree Swami Samarth</span>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<body>
 
-  
-      <form class="d-flex me-3 position-relative" id="site-search-form" action="view_products.php" method="get" autocomplete="off">
-        <input id="site-search-input" name="q" class="form-control me-2" type="search" placeholder="Search products, brands..." aria-label="Search">
-        <button class="btn btn-success" type="submit">Search</button>
-        <div id="search-suggestions" class="list-group position-absolute shadow-sm" style="z-index:1050; top:100%; left:0; right:0; display:none;"></div>
-      </form>
+<header class="glass-header">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center justify-content-between w-100 flex-wrap flex-lg-nowrap">
+      
+      <a class="d-flex align-items-center gap-3 text-decoration-none me-lg-4" href="view_products.php">
+        <img src="../img/logo-mark.svg" alt="Logo" width="48" height="48" onerror="this.style.display='none'">
+        <span class="brand-text">Shree Swami Samarth</span>
+      </a>
 
-      <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-        <li class="nav-item me-2">
-          <a class="btn btn-sm btn-outline-secondary" href="myorder.php">Orders</a>
-        </li>
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-person-circle me-2"></i>
-            <?php echo htmlentities($_SESSION['username']); ?>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-            <li><a class="dropdown-item" href="view_products.php">Products</a></li>
-            <li><a class="dropdown-item" href="myorder.php">Orders</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
-          </ul>
-        </li>
-      </ul>
+      <button class="navbar-toggler d-lg-none border-0 p-2 bg-light rounded-circle shadow-sm ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+         <i class="bi bi-list fs-4"></i>
+      </button>
+
+      <div class="collapse d-lg-flex w-100 align-items-center" id="navContent">
+          
+          <nav class="nav-pills-custom mx-lg-auto my-3 my-lg-0">
+             <a class="nav-link-custom <?php echo in_array($current_page, ['view_products.php', 'purchase.php', 'purchase_order.php']) ? 'active' : ''; ?>" href="view_products.php">
+                <i class="bi bi-grid-fill me-2" style="<?php echo in_array($current_page, ['view_products.php', 'purchase.php']) ? 'color:white;' : 'color:#6366f1;'; ?>"></i>Products
+             </a>
+             <a class="nav-link-custom <?php echo $current_page === 'build.php' ? 'active' : ''; ?>" href="build.php">
+                <i class="bi bi-pc-display me-2" style="<?php echo $current_page === 'build.php' ? 'color:white;' : 'color:#10b981;'; ?>"></i>PC Builder
+             </a>
+             <a class="nav-link-custom <?php echo $current_page === 'profile.php' ? 'active' : ''; ?>" href="profile.php">
+                <i class="bi bi-person-badge-fill me-2" style="<?php echo $current_page === 'profile.php' ? 'color:white;' : 'color:#f59e0b;'; ?>"></i>Profile
+             </a>
+             <a class="nav-link-custom <?php echo in_array($current_page, ['service.php', 'service_submit.php']) ? 'active' : ''; ?>" href="service.php">
+                <i class="bi bi-tools me-2" style="<?php echo in_array($current_page, ['service.php', 'service_submit.php']) ? 'color:white;' : 'color:#8b5cf6;'; ?>"></i>Support
+             </a>
+             <a class="nav-link-custom <?php echo in_array($current_page, ['myorder.php', 'myorder_details.php']) ? 'active' : ''; ?>" href="myorder.php">
+                <i class="bi bi-bag-check-fill me-2" style="<?php echo in_array($current_page, ['myorder.php']) ? 'color:white;' : 'color:#ec4899;'; ?>"></i>Orders
+             </a>
+          </nav>
+
+          <div class="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0 ms-lg-4">
+             <div class="dropdown">
+                <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                   <div class="avatar-circle">
+                      <?php echo htmlentities($avatar_initial); ?>
+                   </div>
+                   <span class="fw-bold text-dark pe-1 user-name-truncate"><?php echo htmlentities($display_name); ?></span>
+                   <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2">
+                   <li><a class="dropdown-item rounded-3 mb-1" href="profile.php"><i class="bi bi-person-circle me-2 text-primary"></i>My Profile</a></li>
+                   <li><a class="dropdown-item rounded-3 mb-1" href="myorder.php"><i class="bi bi-box-seam me-2 text-info"></i>My Orders</a></li>
+                   <li><hr class="dropdown-divider my-1"></li>
+                   <li><a class="dropdown-item rounded-3 text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+             </div>
+          </div>
+
+      </div>
     </div>
   </div>
-</nav>
+</header>
 
-
-<!-- Page layout -->
-<!-- Page layout -->
-<div class="container mt-3">
-  <div class="row user-nav-sticky">
-    <div class="col-12 d-flex justify-content-center">
-      <nav class="nav nav-pills justify-content-center flex-wrap gap-2 bg-white rounded shadow-sm p-2">
-        <a class="nav-link" href="view_products.php"><i class="bi bi-card-list me-2"></i>Products</a>
-        <a class="nav-link" href="build.php"><i class="bi bi-hammer me-2"></i>PC Builder</a>
-        <a class="nav-link" href="profile.php"><i class="bi bi-person me-2"></i>Profile</a>
-        <a class="nav-link" href="service.php"><i class="bi bi-tools me-2"></i>Support</a>
-        <a class="nav-link" href="myorder.php"><i class="bi bi-bag me-2"></i>Orders</a>
-      </nav>
-    </div>
-  </div>
-  <div class="row mt-4">
-    <main class="col-12">
-
-<!-- Image preview modal (user) -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-transparent border-0 shadow-none">
-      <div class="modal-body text-center p-0">
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
-        <img id="modalImage" src="" alt="Preview" class="img-modal-img rounded">
+<div class="container-fluid">
+  <div class="row user-nav-sticky justify-content-center">
+    <div class="col-11 col-md-8 col-lg-6">
+      <div class="subnav-search-shell w-100 mx-auto <?php echo in_array($current_page, ['service.php', 'service_submit.php', 'build.php', 'myorder.php', 'myorder_details.php', 'orderstatus.php', 'profile.php']) ? 'search-bar-hide' : ''; ?>">
+        <form class="subnav-search-form position-relative" id="site-search-form" action="view_products.php" method="get" autocomplete="off">
+          <i class="bi bi-search subnav-search-icon"></i>
+          <input id="site-search-input" name="q" class="form-control" type="search" placeholder="Search products, brands, categories..." aria-label="Search products">
+          <button class="btn subnav-search-btn" type="submit">Search</button>
+          <div id="search-suggestions" class="list-group position-absolute shadow-sm rounded-4 overflow-hidden mt-2" style="z-index:1050; top:100%; left:0; right:0; display:none;"></div>
+        </form>
       </div>
     </div>
   </div>
 </div>
+
+<div class="container mt-2">
+  <div class="row">
+    <main class="col-12" id="mainContentArea">
+      <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content bg-transparent border-0 shadow-none">
+            <div class="modal-body text-center p-0">
+              <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+              <img id="modalImage" src="" alt="Preview" class="img-fluid rounded-4 shadow-lg">
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <script>
       document.addEventListener('DOMContentLoaded', function(){
+        // Search suggestion logic
+        const input = document.getElementById('site-search-input');
+        const suggBox = document.getElementById('search-suggestions');
+        let timer = null;
+
+        function hideSuggestions(){ suggBox.style.display='none'; suggBox.innerHTML=''; }
+
+        function renderSuggestions(items){
+          if(!items.length){ hideSuggestions(); return; }
+          suggBox.innerHTML = items.map(it=>{
+            const img = it.pimg ? '<img src="../productimg/'+it.pimg+'" style="height:36px;width:36px;object-fit:cover;margin-right:8px;border-radius:4px;">' : '';
+            return `<a href="view_products.php?q=${encodeURIComponent(it.pname)}" class="list-group-item list-group-item-action d-flex align-items-center">
+                    <div class="d-flex align-items-center">${img}<div><div>${it.pname}</div><div class="small text-muted">${it.pcompany} • ₹${Number(it.pprice).toFixed(2)}</div></div></div>
+                  </a>`;
+          }).join('');
+          suggBox.style.display = 'block';
+        }
+
+        if(input){
+            input.addEventListener('input', function(){
+              const v = this.value.trim();
+              clearTimeout(timer);
+              if(!v){ hideSuggestions(); return; }
+              timer = setTimeout(()=>{
+                fetch('search_suggest.php?q='+encodeURIComponent(v))
+                  .then(r=>r.json())
+                  .then(renderSuggestions)
+                  .catch(()=>hideSuggestions());
+              }, 220);
+            });
+        }
+
+        document.addEventListener('click', function(e){
+          if(document.getElementById('site-search-form') && !document.getElementById('site-search-form').contains(e.target)) hideSuggestions();
+        });
+
+        // PC Builder SPA logic
         const main = document.querySelector('main.col-12');
         const enableBuildSpa = false;
         const buildHref = 'build.php';
@@ -319,39 +425,5 @@ if(!empty($_SESSION['user_id'])){
         }
       });
       </script>
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  const input = document.getElementById('site-search-input');
-  const suggBox = document.getElementById('search-suggestions');
-  let timer = null;
-
-  function hideSuggestions(){ suggBox.style.display='none'; suggBox.innerHTML=''; }
-
-  function renderSuggestions(items){
-    if(!items.length){ hideSuggestions(); return; }
-    suggBox.innerHTML = items.map(it=>{
-      const img = it.pimg ? '<img src="../productimg/'+it.pimg+'" style="height:36px;width:36px;object-fit:cover;margin-right:8px;border-radius:4px;">' : '';
-      return `<a href="view_products.php?q=${encodeURIComponent(it.pname)}" class="list-group-item list-group-item-action d-flex align-items-center">
-                <div class="d-flex align-items-center">${img}<div><div>${it.pname}</div><div class="small text-muted">${it.pcompany} • ₹${Number(it.pprice).toFixed(2)}</div></div></div>
-              </a>`;
-    }).join('');
-    suggBox.style.display = 'block';
-  }
-
-  input.addEventListener('input', function(){
-    const v = this.value.trim();
-    clearTimeout(timer);
-    if(!v){ hideSuggestions(); return; }
-    timer = setTimeout(()=>{
-      fetch('search_suggest.php?q='+encodeURIComponent(v))
-        .then(r=>r.json())
-        .then(renderSuggestions)
-        .catch(()=>hideSuggestions());
-    }, 220);
-  });
-
-  document.addEventListener('click', function(e){
-    if(!document.getElementById('site-search-form').contains(e.target)) hideSuggestions();
-  });
-});
-</script>
+</body>
+</html>

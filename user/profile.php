@@ -16,7 +16,7 @@ if($email){
 // format registration time
 $reg_time = '';
 if(isset($user['created_at']) && strlen(trim($user['created_at']))>0){
-  $reg_time = date('d M Y', strtotime($user['created_at']));
+  $reg_time = date('F Y', strtotime($user['created_at'])); // Changed to "Month Year" format
 }
 
 // Prefill logic
@@ -38,13 +38,16 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
   $city = mysqli_real_escape_string($con, $_POST['city'] ?? '');
   $state = mysqli_real_escape_string($con, $_POST['state'] ?? '');
   $pincode = mysqli_real_escape_string($con, $_POST['pincode'] ?? '');
+  
   if($email){
-    // DB Checks (kept as is)
+    // DB Checks
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_address TEXT NULL");
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_city VARCHAR(128) NULL");
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_state VARCHAR(128) NULL");
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_pincode VARCHAR(32) NULL");
     @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN IF NOT EXISTS c_photo VARCHAR(255) NULL");
+    
+    // Check for updated_at column
     $updColQ = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='updated_at' LIMIT 1";
     $updColRes = mysqli_query($con, $updColQ);
     if(!$updColRes || mysqli_num_rows($updColRes)===0){
@@ -66,22 +69,28 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
       $fileName = $_FILES['profile_photo']['name'] ?? '';
       $fileSize = (int)($_FILES['profile_photo']['size'] ?? 0);
       $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+      
       if(in_array($ext, $allowed, true) && $fileSize > 0 && $fileSize <= $maxSize){
         $uploadDir = __DIR__ . '/profile_photos';
         if(!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
         $safeName = 'user_' . ($user['cid'] ?? $_SESSION['user_id'] ?? time()) . '_' . time() . '.' . $ext;
         $dest = $uploadDir . '/' . $safeName;
+        
         if(@move_uploaded_file($_FILES['profile_photo']['tmp_name'], $dest)){
           $photo_path = 'profile_photos/' . $safeName;
           $parts[] = "c_photo='".mysqli_real_escape_string($con, $photo_path)."'";
         }
       }
     }
+    
     if(strlen($password) > 0){
       $parts[] = "c_password='".mysqli_real_escape_string($con,$password)."'";
     }
+    
     $parts[] = "updated_at=NOW()";
+    
     $upd = "UPDATE cust_reg SET " . implode(', ', $parts) . " WHERE c_email='".mysqli_real_escape_string($con,$email)."' LIMIT 1";
+    
     if(mysqli_query($con, $upd)){
       echo "<script>alert('Your profile has been updated successfully.'); window.location='profile.php';</script>";
       exit;
@@ -93,54 +102,77 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
 ?>
 <?php include('header.php'); ?>
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <style>
   :root {
-    --primary-color: #4f46e5; /* Indigo */
-    --primary-hover: #4338ca;
-    --bg-color: #f3f4f6;
-    --card-bg: #ffffff;
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
-    --border-color: #e5e7eb;
+    --primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --bg-surface: #f8fafc;
+    --card-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+    --input-bg: #f1f5f9;
+    --text-dark: #1e293b;
   }
 
   body {
-    background-color: var(--bg-color);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    color: var(--text-main);
+    background-color: var(--bg-surface);
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-dark);
   }
 
   .main-wrapper {
-    padding: 40px 0;
-    min-height: 85vh;
+    padding: 60px 0;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
   }
 
-  /* Main Card Container */
-  .settings-card {
-    background: var(--card-bg);
-    border-radius: 24px;
-    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+  /* Main Card Layout */
+  .profile-card {
+    background: #fff;
+    border-radius: 30px;
+    box-shadow: var(--card-shadow);
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.8);
+    border: none;
   }
 
-  /* Left Sidebar (Identity) */
-  .identity-section {
-    background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
-    border-right: 1px solid var(--border-color);
-    padding: 40px 30px;
+  /* --- Left Sidebar (Colorful) --- */
+  .identity-sidebar {
+    background: var(--primary-grad);
+    color: white;
+    padding: 60px 30px;
     text-align: center;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Decorative Circles in BG */
+  .identity-sidebar::before {
+    content: '';
+    position: absolute;
+    top: -50px; left: -50px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .identity-sidebar::after {
+    content: '';
+    position: absolute;
+    bottom: -50px; right: -50px;
+    width: 150px; height: 150px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
   }
 
   .avatar-wrapper {
     position: relative;
-    width: 140px;
-    height: 140px;
-    margin: 0 auto 20px;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 25px;
   }
 
   .avatar-img {
@@ -148,145 +180,168 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-    border: 4px solid #fff;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: 5px solid rgba(255,255,255,0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
   }
 
-  /* Camera Icon Overlay */
-  .upload-icon-overlay {
+  .avatar-wrapper:hover .avatar-img {
+    transform: scale(1.05);
+    border-color: rgba(255,255,255,0.8);
+  }
+
+  .camera-btn {
     position: absolute;
     bottom: 5px;
     right: 5px;
-    background: var(--primary-color);
-    color: white;
-    width: 36px;
-    height: 36px;
+    background: #fff;
+    color: #6366f1;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 3px solid #fff;
-    transition: transform 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+  }
+  .camera-btn:hover {
+    background: #f0f0f0;
+    transform: rotate(15deg);
   }
 
-  .upload-icon-overlay:hover {
-    transform: scale(1.1);
-  }
-
-  .user-name {
+  .user-name-display {
+    font-size: 1.5rem;
     font-weight: 700;
-    font-size: 1.25rem;
     margin-bottom: 5px;
-    color: #111827;
+    position: relative;
+    z-index: 1;
   }
 
-  .user-email {
-    color: var(--text-muted);
+  .user-email-display {
     font-size: 0.9rem;
-    margin-bottom: 20px;
-    background: #f3f4f6;
-    display: inline-block;
-    padding: 4px 12px;
+    opacity: 0.8;
+    background: rgba(255,255,255,0.2);
+    padding: 5px 15px;
     border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
   }
 
-  .stats-grid {
+  .sidebar-stats {
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin-top: 25px;
+    border-top: 1px solid rgba(255,255,255,0.2);
     padding-top: 25px;
-    border-top: 1px solid var(--border-color);
+    position: relative;
+    z-index: 1;
   }
 
-  .stat-item h6 {
+  .stat-box h6 {
     font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-    margin-bottom: 4px;
+    opacity: 0.7;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
   }
-  
-  .stat-item span {
+  .stat-box span {
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--primary-color);
   }
 
-  /* Right Side (Form) */
-  .form-section {
-    padding: 40px;
+  /* --- Right Form Section --- */
+  .form-container {
+    padding: 50px 40px;
   }
 
-  .section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-
-  .section-subtitle {
-    color: var(--text-muted);
-    font-size: 0.95rem;
+  .section-header {
     margin-bottom: 30px;
   }
-
-  /* Modern Input Styling */
-  .form-group {
-    margin-bottom: 20px;
+  .section-header h3 {
+    font-weight: 700;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header p {
+    color: #64748b;
+    font-size: 0.95rem;
   }
 
+  /* Form Elements */
   .form-label {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #374151;
+    color: #475569;
     margin-bottom: 8px;
   }
 
+  .input-group-text {
+    background: var(--input-bg);
+    border: 1px solid transparent;
+    color: #64748b;
+    border-radius: 12px 0 0 12px;
+  }
+
   .form-control {
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 12px 16px;
+    background: var(--input-bg);
+    border: 1px solid transparent;
+    border-radius: 0 12px 12px 0; /* Rounded right only */
+    padding: 12px 15px;
     font-size: 0.95rem;
-    transition: all 0.2s;
+    color: #334155;
+    transition: all 0.3s;
+  }
+  
+  /* Fix rounding for single inputs (textarea) */
+  textarea.form-control {
+    border-radius: 12px !important;
   }
 
   .form-control:focus {
-    background-color: #fff;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    background: #fff;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    color: #1e293b;
   }
-  
-  textarea.form-control {
-    resize: none;
-    height: 100px;
+  .form-control:focus + .input-group-text, 
+  .input-group:focus-within .input-group-text {
+    background: #fff;
+    border-color: #6366f1;
+    color: #6366f1;
   }
 
-  .btn-save {
-    background: var(--primary-color);
+  .btn-gradient {
+    background: var(--primary-grad);
     color: white;
-    padding: 12px 32px;
+    border: none;
+    padding: 14px 30px;
     border-radius: 12px;
     font-weight: 600;
-    border: none;
+    letter-spacing: 0.5px;
     transition: all 0.3s;
     width: 100%;
+    box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
   }
 
-  .btn-save:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  .btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.5);
+    color: white;
   }
 
-  /* Mobile Adjustments */
+  /* Responsive */
   @media (max-width: 991px) {
-    .identity-section {
-      border-right: none;
-      border-bottom: 1px solid var(--border-color);
-      padding: 30px 20px;
+    .identity-sidebar {
+      padding: 40px 20px;
+      border-radius: 30px 30px 0 0;
     }
-    .form-section {
+    .form-container {
       padding: 30px 20px;
     }
   }
@@ -296,100 +351,126 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
   <div class="container">
     
     <?php if(!empty($err)): ?>
-       <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4"><i class="bi bi-exclamation-circle me-2"></i> <?php echo htmlspecialchars($err); ?></div>
+       <div class="alert alert-danger shadow-sm border-0 rounded-4 mb-4 d-flex align-items-center">
+         <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>
+         <div><?php echo htmlspecialchars($err); ?></div>
+       </div>
     <?php endif; ?>
     
     <?php if($prefill_from_get): ?>
-       <div class="alert alert-info shadow-sm border-0 rounded-3 mb-4"><i class="bi bi-info-circle me-2"></i> Profile data imported from registration. Please review and update as needed.</div>
+       <div class="alert alert-primary shadow-sm border-0 rounded-4 mb-4 d-flex align-items-center" style="background: #e0e7ff; color: #3730a3;">
+         <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+         <div>Profile data imported. Please review and save.</div>
+       </div>
     <?php endif; ?>
 
     <form method="post" enctype="multipart/form-data">
-      <div class="settings-card">
+      <div class="profile-card">
         <div class="row g-0">
           
           <div class="col-lg-4">
-            <div class="identity-section">
+            <div class="identity-sidebar">
               <div class="avatar-wrapper">
                 <?php 
-                  $display_photo = !empty($user['c_photo']) ? htmlspecialchars($user['c_photo']) : 'https://ui-avatars.com/api/?name='.urlencode($user['c_name'] ?? 'User').'&background=random&size=200';
+                  $display_photo = !empty($user['c_photo']) ? htmlspecialchars($user['c_photo']) : 'https://ui-avatars.com/api/?name='.urlencode($user['c_name'] ?? 'User').'&background=random&size=256&bold=true';
                 ?>
                 <img src="<?php echo $display_photo; ?>" alt="Profile" class="avatar-img" id="photoPreview">
                 
-                <label for="profile_photo" class="upload-icon-overlay" title="Change Photo">
-                  <i class="bi bi-camera"></i>
+                <label for="profile_photo" class="camera-btn" title="Upload New Photo">
+                  <i class="bi bi-camera-fill"></i>
                 </label>
                 <input type="file" id="profile_photo" name="profile_photo" style="display:none;" accept="image/png,image/jpeg,image/webp" onchange="previewImage(this)">
               </div>
               
-              <div class="user-name"><?php echo htmlspecialchars($user['c_name'] ?? 'My Profile'); ?></div>
-              <div class="user-email"><?php echo htmlspecialchars($user['c_email'] ?? $email); ?></div>
+              <div class="user-name-display"><?php echo htmlspecialchars($user['c_name'] ?? 'My Profile'); ?></div>
+              <div class="user-email-display"><?php echo htmlspecialchars($user['c_email'] ?? $email); ?></div>
               
-              <div class="stats-grid">
-                <div class="stat-item">
+              <div class="sidebar-stats">
+                <div class="stat-box">
                   <h6>Joined</h6>
                   <span><?php echo $reg_time ?: 'Recently'; ?></span>
                 </div>
-                <div class="stat-item">
+                <div style="width: 1px; background: rgba(255,255,255,0.3);"></div>
+                <div class="stat-box">
                   <h6>Status</h6>
-                  <span class="text-success">Active</span>
+                  <span class="badge bg-white text-primary rounded-pill px-3">Active</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="col-lg-8">
-            <div class="form-section">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                 <div>
-                    <h2 class="section-title">Account Settings</h2>
-                    <p class="section-subtitle">Manage your personal details and delivery address.</p>
-                 </div>
+            <div class="form-container">
+              
+              <div class="section-header">
+                 <h3><i class="bi bi-person-lines-fill text-primary"></i> Edit Profile</h3>
+                 <p>Update your personal information and shipping address.</p>
               </div>
 
-              <div class="row">
-                <div class="col-md-6 form-group">
+              <div class="row g-3">
+                <div class="col-md-6">
                   <label class="form-label">Full Name</label>
-                  <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($user['c_name'] ?? ''); ?>">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" name="name" class="form-control" placeholder="Your Name" value="<?php echo htmlspecialchars($user['c_name'] ?? ''); ?>">
+                  </div>
                 </div>
                 
-                <div class="col-md-6 form-group">
+                <div class="col-md-6">
                   <label class="form-label">Phone Number</label>
-                  <input type="text" name="contact" class="form-control" value="<?php echo htmlspecialchars($user['c_contact'] ?? ''); ?>">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                    <input type="text" name="contact" class="form-control" placeholder="10-digit Mobile" value="<?php echo htmlspecialchars($user['c_contact'] ?? ''); ?>">
+                  </div>
                 </div>
 
-                <div class="col-12 form-group">
-                  <label class="form-label">Address</label>
-                  <textarea name="address" class="form-control" placeholder="Street address, Apartment, Suite, Unit, etc."><?php echo htmlspecialchars($user['c_address'] ?? ''); ?></textarea>
+                <div class="col-12">
+                  <label class="form-label">Shipping Address</label>
+                  <div class="input-group">
+                     <span class="input-group-text border-end-0" style="border-radius: 12px 0 0 12px;"><i class="bi bi-geo-alt"></i></span>
+                     <textarea name="address" class="form-control border-start-0" rows="2" placeholder="Street, Sector, Apartment..." style="border-radius: 0 12px 12px 0 !important;"><?php echo htmlspecialchars($user['c_address'] ?? ''); ?></textarea>
+                  </div>
                 </div>
 
-                <div class="col-md-4 form-group">
+                <div class="col-md-4">
                   <label class="form-label">City</label>
-                  <input type="text" name="city" class="form-control" value="<?php echo htmlspecialchars($user['c_city'] ?? ''); ?>">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-buildings"></i></span>
+                    <input type="text" name="city" class="form-control" placeholder="City" value="<?php echo htmlspecialchars($user['c_city'] ?? ''); ?>">
+                  </div>
                 </div>
 
-                <div class="col-md-4 form-group">
+                <div class="col-md-4">
                   <label class="form-label">State</label>
-                  <input type="text" name="state" class="form-control" value="<?php echo htmlspecialchars($user['c_state'] ?? ''); ?>">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-map"></i></span>
+                    <input type="text" name="state" class="form-control" placeholder="State" value="<?php echo htmlspecialchars($user['c_state'] ?? ''); ?>">
+                  </div>
                 </div>
 
-                <div class="col-md-4 form-group">
+                <div class="col-md-4">
                   <label class="form-label">Pincode</label>
-                  <input type="text" name="pincode" class="form-control" value="<?php echo htmlspecialchars($user['c_pincode'] ?? ''); ?>">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-pin-map"></i></span>
+                    <input type="text" name="pincode" class="form-control" placeholder="ZIP Code" value="<?php echo htmlspecialchars($user['c_pincode'] ?? ''); ?>">
+                  </div>
                 </div>
 
-                <div class="col-12 mt-2">
-                   <hr class="text-muted opacity-25 mb-4">
-                   <h5 class="mb-3" style="font-size:1rem; font-weight:700;">Security</h5>
+                <div class="col-12 my-2">
+                   <hr class="text-muted opacity-25">
                 </div>
 
-                <div class="col-md-12 form-group">
-                  <label class="form-label">New Password <span class="text-muted fw-normal">(Leave blank to keep current)</span></label>
-                  <input type="password" name="password" class="form-control" autocomplete="new-password">
+                <div class="col-md-12">
+                  <label class="form-label text-danger">Change Password <small class="text-muted fw-normal">(Optional)</small></label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                    <input type="password" name="password" class="form-control" placeholder="Enter new password only if changing" autocomplete="new-password">
+                  </div>
                 </div>
 
                 <div class="col-12 mt-4">
-                  <button type="submit" name="update_profile" class="btn-save">
-                    Save Changes
+                  <button type="submit" name="update_profile" class="btn-gradient">
+                    <i class="bi bi-check-lg me-2"></i> Save Changes
                   </button>
                 </div>
 
@@ -404,7 +485,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
 </div>
 
 <script>
-// Simple JS to preview image before upload
 function previewImage(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();

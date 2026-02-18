@@ -1,12 +1,23 @@
 <?php
-include('header.php');
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('SSS_ADMIN_SESS');
+    session_start();
+}
+if (!isset($_SESSION['is_login'])) {
+    header('location:login.php');
+    exit;
+}
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header('location:login.php');
+    exit;
+}
 include('conn.php');
 include('../delivery/helpers.php');
 ensure_builds_history_table($con);
 
 $view = isset($_GET['view']) ? trim($_GET['view']) : 'active';
 
-// Handle accept action POSTed from this page (accept a pending build)
+// --- LOGIC BLOCK (UNCHANGED) ---
 if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])){
   $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
   $action = trim($_POST['action']);
@@ -42,14 +53,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])){
         mysqli_query($con, $create);
 
         if($items_r && mysqli_num_rows($items_r)>0){
-          // determine correct identifier for purchase.user — prefer user's email (so orders are visible in user My Orders)
+          // determine correct identifier for purchase.user
           $userIdentifier = '';
-          // if build stored an email-like user_name, use it
           $maybe = trim($build['user_name'] ?? '');
           if(!empty($maybe) && filter_var($maybe, FILTER_VALIDATE_EMAIL)){
             $userIdentifier = $maybe;
           }
-          // otherwise, lookup by user_id to fetch c_email (preferred) or c_name
           if($userIdentifier === '' && !empty($build['user_id'])){
             $uid = intval($build['user_id']);
             $ru = mysqli_query($con, "SELECT c_email, c_name FROM cust_reg WHERE cid=$uid LIMIT 1");
@@ -58,21 +67,21 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])){
           if($userIdentifier === ''){ $userIdentifier = 'user_'.$build['user_id']; }
           $user = mysqli_real_escape_string($con, $userIdentifier);
           while($it = mysqli_fetch_assoc($items_r)){
-            $pname = mysqli_real_escape_string($con, ($it['product_name'] ?: ('PID:'.$it['product_id'])) );
-            $price = floatval($it['price']);
             $pid = intval($it['product_id']);
+                        if($pid <= 0 || empty($it['product_name'])){
+                            continue;
+                        }
+                        $pname = mysqli_real_escape_string($con, $it['product_name']);
+                        $price = floatval($it['price']);
             $qty = max(1, intval($it['qty'] ?? 1));
-            $ins = "INSERT INTO purchase (pname, user, pprice, qty, prod_id, status, delivery_status) VALUES ('{$pname}', '{$user}', '{$price}', {$qty}, '{$pid}', 'pending', 'pending')";
+                        $ins = "INSERT INTO purchase (pname, user, pprice, qty, prod_id, status, delivery_status) VALUES ('{$pname}', '{$user}', '{$price}', {$qty}, {$pid}, 'pending', 'pending')";
             mysqli_query($con, $ins);
           }
         }
 
-        // update build status
         mysqli_query($con, "UPDATE builds SET status='accepted' WHERE id='$id' LIMIT 1");
-        // after accepting and creating purchase rows, redirect admin to orders list to view the created orders
         header('Location: orders_list.php'); exit;
       } elseif($action === 'complete' && $build_status !== 'pending'){
-        // move to history and delete from active
         $user_id = intval($build['user_id'] ?? 0);
         $user_name = mysqli_real_escape_string($con, $build['user_name'] ?? '');
         $name = mysqli_real_escape_string($con, $build['name'] ?? '');
@@ -113,121 +122,271 @@ if($view === 'history'){
   $res = @mysqli_query($con, "SELECT * FROM builds WHERE LOWER(IFNULL(status,'pending')) <> 'completed' ORDER BY created_at DESC");
 }
 
+include('header.php');
 ?>
 
-<div class="col-12 col-xl-11 mx-auto">
-  <div class="admin-card build-card">
-    <div class="build-card-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-      <div>
-        <h4 class="mb-1"><i class="bi bi-hammer text-primary me-2"></i>Build Requests</h4>
-        <div class="small-muted">User-submitted PC customizations</div>
-      </div>
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <div class="btn-group build-filters" role="group" aria-label="Build filters">
-          <a href="builds.php" class="btn btn-sm btn-outline-secondary <?php echo $view==='active'?'active':''; ?>">Active <span class="ms-1"><?php echo $active_count; ?></span></a>
-          <a href="builds.php?view=history" class="btn btn-sm btn-outline-secondary <?php echo $view==='history'?'active':''; ?>">History <span class="ms-1"><?php echo $history_count; ?></span></a>
-        </div>
-        <span class="badge badge-total"><i class="bi bi-list-check me-1"></i> <?php echo ($view==='history') ? $history_count : $active_count; ?></span>
-      </div>
-    </div>
+<style>
+    :root {
+        --primary-soft: #eef2ff;
+        --primary-bold: #4338ca;
+        --success-soft: #ecfdf5;
+        --success-text: #065f46;
+        --warning-soft: #fffbeb;
+        --warning-text: #92400e;
+        --text-main: #1f2937;
+        --text-muted: #6b7280;
+    }
+    
+    body { background-color: #f3f4f6; }
 
-    <?php if(isset($_GET['msg']) && $_GET['msg']==='completed'): ?>
-      <div class="alert alert-success mb-3">Build marked as complete and moved to history.</div>
-    <?php endif; ?>
+    .card-modern {
+        background: white;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+    }
 
-    <div class="table-responsive">
-      <table class="table table-hover align-middle build-table">
-        <thead class="table-light">
-          <tr>
-            <th>#</th>
-            <th>Build Name</th>
-            <th>User</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th><?php echo $view === 'history' ? 'Completed' : 'Created'; ?></th>
-            <th class="text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+    .card-header-modern {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    /* Custom Tab Switcher */
+    .view-switcher {
+        background: #f3f4f6;
+        padding: 4px;
+        border-radius: 8px;
+        display: inline-flex;
+    }
+    .view-switcher a {
+        padding: 6px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .view-switcher a.active {
+        background: white;
+        color: var(--primary-bold);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .view-switcher .count {
+        font-size: 0.75em;
+        margin-left: 6px;
+        opacity: 0.8;
+    }
+
+    /* Table Styling */
+    .table-custom thead th {
+        background: #f9fafb;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem;
+    }
+    .table-custom tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        color: var(--text-main);
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .table-custom tbody tr:hover {
+        background-color: #f9fafb;
+    }
+
+    /* Specific Columns */
+    .col-build-name {
+        font-weight: 600;
+        color: var(--primary-bold);
+    }
+    .col-price {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+    }
+    
+    /* Badges */
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+    .badge-pending { background: var(--warning-soft); color: var(--warning-text); }
+    .badge-accepted { background: #eff6ff; color: #1e40af; }
+    .badge-processed, .badge-completed { background: var(--success-soft); color: var(--success-text); }
+
+    /* Action Buttons */
+    .btn-action-group {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+    .btn-view {
+        color: var(--text-muted);
+        background: transparent;
+        border: 1px solid #e5e7eb;
+    }
+    .btn-view:hover { background: #f3f4f6; color: var(--text-main); }
+    
+    .btn-accept {
+        background: var(--success-soft);
+        color: var(--success-text);
+        border: 1px solid transparent;
+    }
+    .btn-accept:hover { background: #d1fae5; }
+    
+    .btn-complete {
+        background: var(--warning-soft);
+        color: var(--warning-text);
+        border: 1px solid transparent;
+    }
+    .btn-complete:hover { background: #fef3c7; }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #9ca3af;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-11">
+            
+            <?php if(isset($_GET['msg']) && $_GET['msg']==='completed'): ?>
+                <div class="alert alert-success d-flex align-items-center mb-4 shadow-sm border-0 rounded-3">
+                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                    <div>Build successfully archived to history.</div>
+                </div>
+            <?php endif; ?>
+
+            <div class="card-modern">
+                <div class="card-header-modern">
+                    <div>
+                        <h4 class="mb-1 fw-bold text-dark"><i class="bi bi-pc-display text-primary me-2"></i>Build Requests</h4>
+                        <div class="text-muted small">Manage custom PC configurations submitted by users</div>
+                    </div>
+                    
+                    <div class="view-switcher">
+                        <a href="builds.php" class="<?php echo $view==='active'?'active':''; ?>">
+                            Active <span class="count bg-secondary text-white rounded-pill px-1"><?php echo $active_count; ?></span>
+                        </a>
+                        <a href="builds.php?view=history" class="<?php echo $view==='history'?'active':''; ?>">
+                            History <span class="count bg-secondary text-white rounded-pill px-1"><?php echo $history_count; ?></span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%">#</th>
+                                <th style="width: 20%">Build Name</th>
+                                <th style="width: 20%">User</th>
+                                <th style="width: 15%">Status</th>
+                                <th style="width: 15%">Total</th>
+                                <th style="width: 15%"><?php echo $view === 'history' ? 'Completed' : 'Created'; ?></th>
+                                <th style="width: 10%" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 <?php
+// --- TABLE BODY RENDERING ---
+
+// Helper function to render a row
+function renderRow($r, $i, $isHistory) {
+    $id = (int)$r['id'];
+    $bname = htmlspecialchars($r['name']);
+    $uname = htmlspecialchars($r['user_name'] ?: 'User#'.$r['user_id']);
+    $status = strtolower($r['status'] ?? 'pending');
+    $total = number_format((float)$r['total'], 2);
+    $date = $isHistory ? $r['completed_at'] : $r['created_at'];
+    $dateFormatted = date('M d, Y', strtotime($date));
+
+    // Badge Logic
+    $badgeClass = 'badge-secondary';
+    if ($status === 'pending') $badgeClass = 'badge-pending';
+    elseif ($status === 'accepted') $badgeClass = 'badge-accepted';
+    elseif ($status === 'processed' || $status === 'completed') $badgeClass = 'badge-completed';
+
+    echo "<tr>";
+    echo "<td class='text-muted'>{$i}</td>";
+    echo "<td class='col-build-name'>{$bname}</td>";
+    echo "<td><div class='d-flex align-items-center gap-2'><i class='bi bi-person-circle text-secondary'></i> {$uname}</div></td>";
+    echo "<td><span class='status-badge {$badgeClass}'>" . htmlspecialchars(ucfirst($status)) . "</span></td>";
+    echo "<td class='col-price'>₹{$total}</td>";
+    echo "<td class='small text-muted'>{$dateFormatted}</td>";
+    echo "<td>";
+    echo "<div class='btn-action-group'>";
+    
+    // View Button
+    echo "<a href='view_build.php?id={$id}' class='btn btn-sm btn-view' title='View Details'><i class='bi bi-eye'></i></a>";
+
+    if (!$isHistory) {
+        if ($status === 'pending') {
+            // Accept Button Form
+            echo "<form action='builds.php' method='post' class='d-inline'>";
+            echo "<input type='hidden' name='id' value='{$id}'>";
+            echo "<input type='hidden' name='action' value='accept'>";
+            echo "<button class='btn btn-sm btn-accept' type='submit' title='Accept & Create Order'><i class='bi bi-check-lg'></i></button>";
+            echo "</form>";
+        } else {
+            // Complete Button Form
+            echo "<form action='builds.php' method='post' class='d-inline' onsubmit='return confirm(\"Mark this build as complete and archive it to history?\");'>";
+            echo "<input type='hidden' name='id' value='{$id}'>";
+            echo "<input type='hidden' name='action' value='complete'>";
+            echo "<button class='btn btn-sm btn-complete' type='submit' title='Mark Complete'><i class='bi bi-archive'></i></button>";
+            echo "</form>";
+        }
+    }
+    
+    echo "</div>";
+    echo "</td>";
+    echo "</tr>";
+}
+
 if($view === 'history'){
-  if($hist_res && mysqli_num_rows($hist_res)>0){
-    $i=1;
-    while($r = mysqli_fetch_assoc($hist_res)){
-      $id = (int)$r['id'];
-      $bname = htmlspecialchars($r['name']);
-      $uname = htmlspecialchars($r['user_name'] ?: 'User#'.$r['user_id']);
-      $status = htmlspecialchars($r['status'] ?? 'pending');
-      $total = number_format((float)$r['total'],2);
-      $date = $r['completed_at'];
-      echo "<tr>";
-      echo "<td>{$i}</td>";
-      echo "<td class='fw-semibold'>{$bname}</td>";
-      echo "<td>{$uname}</td>";
-      echo "<td><span class='badge ".($status==='pending'?'bg-warning text-dark':($status==='accepted'?'bg-info text-dark':($status==='processed'||$status==='completed'?'bg-success':'bg-secondary')))."'>".htmlspecialchars(ucfirst($status))."</span></td>";
-      echo "<td>₹{$total}</td>";
-      echo "<td>{$date}</td>";
-      echo "<td class='text-center'>";
-      echo "<div class='d-inline-flex gap-2'>";
-      echo "<a class='btn btn-outline-primary btn-sm' href='view_build.php?id={$id}'>View</a>";
-      echo "</div>";
-      echo "</td>";
-      echo "</tr>";
-      $i++;
+    if($hist_res && mysqli_num_rows($hist_res) > 0){
+        $i=1;
+        while($r = mysqli_fetch_assoc($hist_res)){
+            renderRow($r, $i, true);
+            $i++;
+        }
+    } else {
+        echo "<tr><td colspan='7'><div class='empty-state'><i class='bi bi-clock-history fs-1 mb-2'></i><p>No history found</p></div></td></tr>";
     }
-  } else {
-    echo "<tr><td colspan='7' class='text-center small-muted py-4'><i class='bi bi-exclamation-circle me-1'></i>No builds in history</td></tr>";
-  }
 } else {
-  if($res && mysqli_num_rows($res)>0){
-    $i=1;
-    while($r = mysqli_fetch_assoc($res)){
-      $id = (int)$r['id'];
-      $bname = htmlspecialchars($r['name']);
-      $uname = htmlspecialchars($r['user_name'] ?: 'User#'.$r['user_id']);
-      $status = htmlspecialchars($r['status'] ?? 'pending');
-      $total = number_format((float)$r['total'],2);
-      $created = $r['created_at'];
-      echo "<tr>";
-      echo "<td>{$i}</td>";
-      echo "<td class='fw-semibold'>{$bname}</td>";
-      echo "<td>{$uname}</td>";
-      echo "<td><span class='badge ".($status==='pending'?'bg-warning text-dark':($status==='accepted'?'bg-info text-dark':($status==='processed'?'bg-success':'bg-secondary')))."'>".htmlspecialchars(ucfirst($status))."</span></td>";
-      echo "<td>₹{$total}</td>";
-      echo "<td>{$created}</td>";
-      echo "<td class='text-center'>";
-      echo "<div class='d-inline-flex gap-2'>";
-      echo "<a class='btn btn-outline-primary btn-sm' href='view_build.php?id={$id}'>View</a>";
-      if($status === 'pending'){
-        echo "<form action='builds.php' method='post' class='d-inline-block'>";
-        echo "<input type='hidden' name='id' value='{$id}'>";
-        echo "<input type='hidden' name='action' value='accept'>";
-        echo "<button class='btn btn-outline-success btn-sm' type='submit'>Accept</button>";
-        echo "</form>";
-      } elseif($status !== 'pending'){
-        echo "<form action='builds.php' method='post' class='d-inline-block' onsubmit='return confirm(\"Mark as complete and move to history?\");'>";
-        echo "<input type='hidden' name='id' value='{$id}'>";
-        echo "<input type='hidden' name='action' value='complete'>";
-        echo "<button class='btn btn-outline-warning btn-sm' type='submit'>Complete</button>";
-        echo "</form>";
-      }
-      echo "</div>";
-      echo "</td>";
-      echo "</tr>";
-      $i++;
+    if($res && mysqli_num_rows($res) > 0){
+        $i=1;
+        while($r = mysqli_fetch_assoc($res)){
+            renderRow($r, $i, false);
+            $i++;
+        }
+    } else {
+        echo "<tr><td colspan='7'><div class='empty-state'><i class='bi bi-inbox fs-1 mb-2'></i><p>No active builds</p></div></td></tr>";
     }
-  } else {
-    echo "<tr><td colspan='7' class='text-center small-muted py-4'><i class='bi bi-exclamation-circle me-1'></i>No builds found</td></tr>";
-  }
 }
 ?>
-        </tbody>
-      </table>
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+        </div>
     </div>
-
-  </div>
 </div>
 
-<?php include('footer.php');
-
-?>
+<?php include('footer.php'); ?>

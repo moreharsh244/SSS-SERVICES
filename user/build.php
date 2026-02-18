@@ -8,7 +8,7 @@ include('../admin/conn.php');
 
 $is_partial = isset($_GET['partial']);
 
-// --- PHP Processing Logic (Same as before) ---
+// --- PHP Processing Logic (kept exactly as original) ---
 $user_id = $_SESSION['user_id'] ?? $_SESSION['id'] ?? 0;
 $user_name = mysqli_real_escape_string($con, $_SESSION['username'] ?? $_SESSION['email'] ?? '');
 
@@ -22,7 +22,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         exit;
     }
 
-    // Required components mapping
     $required_components = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
     $category_map = [
         'CPU' => 'CPU', 'Motherboard' => 'Motherboard',
@@ -50,7 +49,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     $total = floatval($data['total'] ?? 0);
 
-    // Database insertions
     $sqlc = "CREATE TABLE IF NOT EXISTS `builds` (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` INT NOT NULL, `user_name` VARCHAR(255), `name` VARCHAR(255), `total` DECIMAL(10,2), `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB;";
     mysqli_query($con, $sqlc);
     $sqlc2 = "CREATE TABLE IF NOT EXISTS `build_items` (`id` INT AUTO_INCREMENT PRIMARY KEY, `build_id` INT NOT NULL, `product_id` INT, `category` VARCHAR(100), `product_name` VARCHAR(255), `product_img` VARCHAR(255), `price` DECIMAL(10,2), `qty` INT DEFAULT 1, FOREIGN KEY (`build_id`) REFERENCES `builds`(`id`) ON DELETE CASCADE) ENGINE=InnoDB;";
@@ -73,7 +71,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     }
 }
 
-// Fetch products for modal
 $products = [];
 $pq = mysqli_query($con, "SELECT pid, pname, pprice, pcat, pimg FROM products");
 if($pq){ while($r = mysqli_fetch_assoc($pq)) $products[] = $r; }
@@ -84,112 +81,305 @@ if(!$is_partial){
 }
 ?>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
 <style>
+    :root {
+        --primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        --glass-bg: rgba(255, 255, 255, 0.8);
+        --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+        --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        --hover-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
     .build-page-wrap {
         min-height: 100vh;
-        background: radial-gradient(1200px 600px at 10% 0%, #eef6ff 0%, #ffffff 45%),
-                    radial-gradient(900px 500px at 90% 10%, #f2f8ff 0%, #ffffff 40%);
+        font-family: 'Poppins', sans-serif;
+        background: #f8fafc;
+        /* Subtle mesh background */
+        background-image: 
+            radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+            radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+        background: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+        padding-top: 20px;
     }
+
     .build-container { max-width: 1200px; margin: 0 auto; }
+
+    /* --- HERO SECTION --- */
     .build-hero {
-        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 55%, #0a58ca 100%);
-        color: #ffffff;
-        border-radius: 16px;
-        padding: 20px 24px;
-        box-shadow: 0 12px 30px rgba(13,110,253,0.25);
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255,255,255,0.8);
+        position: relative;
+        overflow: hidden;
     }
+    
+    .build-hero::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 6px; height: 100%;
+        background: var(--primary-grad);
+    }
+
+    /* --- SLOT CARDS --- */
     .slot-card {
-        height: 120px; /* Short fixed height */
-        border: 2px dashed #dee2e6;
-        border-radius: 10px;
+        height: 160px;
+        background: white;
+        border-radius: 20px;
+        border: 2px dashed #cbd5e1;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: all 0.2s;
-        background: #f8f9fa;
-        color: #6c757d;
-        flex-direction: column;
-        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
-    .slot-card:hover { border-color: #0d6efd; background: #e7f1ff; color: #0d6efd; }
+
+    .slot-card:hover {
+        transform: translateY(-5px);
+        border-color: #6366f1;
+        box-shadow: var(--hover-shadow);
+    }
+
+    .slot-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        transition: transform 0.3s;
+    }
+
+    .slot-card:hover .slot-icon-wrapper {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    /* --- FILLED STATE --- */
     .slot-card.filled {
-        border: 1px solid #dee2e6;
-        border-left: 5px solid #0d6efd;
-        background: #fff;
-        padding: 10px;
-        flex-direction: row;
-        justify-content: start;
-        text-align: left;
+        border: none;
+        background: white;
+        padding: 15px;
+        align-items: flex-start;
+        justify-content: space-between;
+        height: auto;
+        min-height: 160px;
     }
-    .slot-icon { font-size: 24px; margin-bottom: 5px; }
-    .slot-label { font-size: 14px; font-weight: 600; }
-    .slot-img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; margin-right: 15px; }
-    .slot-info { flex: 1; overflow: hidden; }
-    .slot-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .slot-price { color: #198754; font-weight: 700; font-size: 14px; }
-    .slot-actions { display: flex; flex-direction: column; gap: 4px; }
+
+    .slot-card.filled::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 6px;
+        background: var(--slot-color, #6366f1); /* Dynamic Color */
+    }
+
+    .filled-content {
+        display: flex;
+        gap: 15px;
+        width: 100%;
+        align-items: center;
+    }
+
+    .slot-img {
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+        border-radius: 10px;
+        background: #f8fafc;
+        padding: 5px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .slot-details { flex: 1; overflow: hidden; }
     
-    /* Sticky Footer for Total/Save */
+    .slot-category-badge {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        color: var(--slot-color, #64748b);
+        margin-bottom: 4px;
+        display: inline-block;
+    }
+
+    .slot-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 4px;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .slot-price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #10b981;
+    }
+
+    .slot-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        width: 100%;
+    }
+
+    .btn-slot {
+        flex: 1;
+        border: none;
+        border-radius: 8px;
+        padding: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-change { background: #eff6ff; color: #3b82f6; }
+    .btn-change:hover { background: #dbeafe; }
+    
+    .btn-remove { background: #fef2f2; color: #ef4444; }
+    .btn-remove:hover { background: #fee2e2; }
+
+    /* --- FLOATING FOOTER --- */
     .sticky-total-bar {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: #fff;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-        padding: 15px 0;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 1000px;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(12px);
+        color: white;
+        border-radius: 100px;
+        padding: 12px 30px;
         z-index: 1000;
-        border-top: 1px solid #dee2e6;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid rgba(255,255,255,0.1);
+        animation: slideUp 0.5s ease-out;
     }
-    /* Modal Product Grid */
-    .modal-product-card { cursor: pointer; transition: transform 0.2s; border: 1px solid #eee; }
-    .modal-product-card:hover { transform: translateY(-3px); border-color: #0d6efd; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+    @keyframes slideUp { from { bottom: -100px; } to { bottom: 20px; } }
+
+    .total-label { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+    .total-value { font-size: 1.5rem; font-weight: 700; color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
+
+    .build-name-input {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        border-radius: 20px;
+        padding: 8px 15px;
+        outline: none;
+    }
+    .build-name-input::placeholder { color: rgba(255,255,255,0.5); }
+    .build-name-input:focus { background: rgba(255,255,255,0.2); border-color: white; }
+
+    #saveBtn {
+        background: linear-gradient(to right, #10b981, #059669);
+        border: none;
+        border-radius: 50px;
+        padding: 10px 30px;
+        font-weight: 700;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        transition: 0.3s;
+    }
+    #saveBtn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(16, 185, 129, 0.6); }
+
+    /* --- MODAL STYLING --- */
+    .modal-content { border-radius: 20px; overflow: hidden; border: none; }
+    .modal-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 20px; }
+    .modal-title { font-weight: 700; color: #1e293b; }
+    .product-select-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        transition: 0.2s;
+        cursor: pointer;
+        height: 100%;
+        overflow: hidden;
+    }
+    .product-select-card:hover {
+        border-color: #6366f1;
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.15);
+        transform: translateY(-3px);
+    }
 </style>
 
 <div id="buildPageRoot">
 <div class="build-page-wrap">
-<div class="container build-container py-4 pb-5 mb-5">
-    <div class="build-hero mb-4 d-flex flex-wrap align-items-center justify-content-between">
-        <div>
-            <h2 class="fw-bold mb-1">PC Builder</h2>
-            <div class="small" style="opacity:0.85;">Pick parts, see the total live, and save the build.</div>
+    <div class="container build-container py-4 pb-5 mb-5">
+        
+        <div class="build-hero mb-5 d-flex flex-wrap align-items-center justify-content-between">
+            <div>
+                <h1 class="fw-extrabold mb-0 text-dark" style="font-size: 2.5rem;">
+                    <span style="background: -webkit-linear-gradient(45deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Dream PC</span> Builder
+                </h1>
+                <p class="text-muted mt-2 mb-0" style="font-size: 1.1rem;">Select components to craft your ultimate machine.</p>
+            </div>
+            <div class="d-none d-md-block">
+                <i class="bi bi-pc-display text-primary" style="font-size: 3rem; opacity: 0.2;"></i>
+            </div>
         </div>
-        <div class="mt-3 mt-md-0">
-            <span class="badge bg-light text-primary px-3 py-2">Smart Build Planner</span>
-        </div>
+
+        <div class="row g-4" id="buildGrid">
+            </div>
     </div>
 
-    <div class="row g-3" id="buildGrid"></div>
-</div>
-
-<div class="sticky-total-bar">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div>
-            <span class="text-muted small d-block">Total Estimate</span>
-            <span class="h3 fw-bold text-primary m-0" id="totalPrice">₹0.00</span>
+    <div class="sticky-total-bar">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex flex-column">
+                <span class="total-label">Estimated Total</span>
+                <span class="total-value" id="totalPrice">₹0.00</span>
+            </div>
         </div>
-        <div class="d-flex gap-2 align-items-center">
-            <input type="text" id="buildName" class="form-control" placeholder="Build Name" style="width: 200px;">
+        
+        <div class="d-flex align-items-center gap-2">
+            <input type="text" id="buildName" class="build-name-input d-none d-sm-block" placeholder="Name your build...">
             <form id="saveForm" method="post" class="m-0">
                 <input type="hidden" id="itemsJson" name="items_json">
-                <button id="saveBtn" class="btn btn-success fw-bold px-4"><i class="fas fa-save me-2"></i>SAVE</button>
+                <button id="saveBtn" class="btn btn-primary">
+                    <i class="bi bi-cloud-upload-fill me-2"></i>SAVE BUILD
+                </button>
             </form>
         </div>
     </div>
-</div>
-<div style="height: 90px;"></div>
+    
+    <div style="height: 60px;"></div>
 </div>
 
 <div class="modal fade" id="productSelectorModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="productSelectorTitle">Select Component</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="productSelectorTitle">Select Component</h5>
+                    <small class="text-muted">Choose the best part for your build</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body bg-light" style="max-height: 70vh; overflow-y: auto;">
-                <div id="productSelectorBody" class="row g-3"></div>
+            <div class="modal-body bg-light p-4">
+                <div id="productSelectorBody" class="row g-4"></div>
             </div>
         </div>
     </div>
@@ -198,63 +388,51 @@ if(!$is_partial){
 </div>
 
 <script>
+    // --- Data & Config ---
     let productsData = <?php echo json_encode($products, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE); ?>;
     if(!Array.isArray(productsData)) productsData = [];
     let items = [];
     const STORAGE_KEY = 'buildItemsCurrent';
     const QUEUE_KEY = 'buildItems';
 
-    // Categories Layout
+    // Categories Configuration (Colors & Icons)
     const SLOTS = [
-        { key: 'CPU', label: 'Processor', icon: '🧠' },
-        { key: 'Motherboard', label: 'Motherboard', icon: '🔌' },
-        { key: 'GPU', label: 'Graphics Card', icon: '🎮' },
-        { key: 'RAM', label: 'RAM Memory', icon: '💾' },
-        { key: 'Storage', label: 'Storage', icon: '💽' },
-        { key: 'PSU', label: 'Power Supply', icon: '⚡' },
-        { key: 'Case', label: 'Cabinet', icon: '📦' },
-        { key: 'Cooler', label: 'Cooler', icon: '❄️' },
-        { key: 'Monitor', label: 'Monitor', icon: '🖥️' }
+        { key: 'CPU', label: 'Processor', icon: 'bi-cpu', color: '#3b82f6', bg: '#eff6ff' },
+        { key: 'Motherboard', label: 'Motherboard', icon: 'bi-motherboard', color: '#8b5cf6', bg: '#f5f3ff' },
+        { key: 'GPU', label: 'Graphics Card', icon: 'bi-gpu-card', color: '#ef4444', bg: '#fef2f2' },
+        { key: 'RAM', label: 'Memory (RAM)', icon: 'bi-memory', color: '#10b981', bg: '#ecfdf5' },
+        { key: 'Storage', label: 'Storage (SSD/HDD)', icon: 'bi-device-hdd', color: '#f59e0b', bg: '#fffbeb' },
+        { key: 'PSU', label: 'Power Supply', icon: 'bi-plug', color: '#6366f1', bg: '#eef2ff' },
+        { key: 'Case', label: 'Cabinet / Case', icon: 'bi-pc-display', color: '#14b8a6', bg: '#f0fdfa' },
+        { key: 'Cooler', label: 'CPU Cooler', icon: 'bi-fan', color: '#0ea5e9', bg: '#f0f9ff' },
+        { key: 'Monitor', label: 'Monitor', icon: 'bi-display', color: '#ec4899', bg: '#fdf2f8' }
     ];
 
     const CAT_MAP = {
-        'graphics card':'GPU',
-        'gpu':'GPU',
-        'ram memory':'RAM',
-        'ram':'RAM',
-        'storage drive':'Storage',
-        'storage':'Storage',
-        'power supply':'PSU',
-        'psu':'PSU',
-        'cabinet':'Case',
-        'case':'Case',
-        'cpu cooler':'Cooler',
-        'cooler':'Cooler',
-        'cpu':'CPU',
-        'processor':'CPU',
-        'intel':'CPU',
-        'amd':'CPU',
+        'graphics card':'GPU', 'gpu':'GPU',
+        'ram memory':'RAM', 'ram':'RAM',
+        'storage drive':'Storage', 'storage':'Storage',
+        'power supply':'PSU', 'psu':'PSU',
+        'cabinet':'Case', 'case':'Case',
+        'cpu cooler':'Cooler', 'cooler':'Cooler',
+        'cpu':'CPU', 'processor':'CPU',
         'monitor':'Monitor'
     };
 
-    function normalizeCat(c) {
-        return String(c || '').trim().toLowerCase();
-    }
-
+    function normalizeCat(c) { return String(c || '').trim().toLowerCase(); }
+    
     function getCanon(c) {
         const key = normalizeCat(c);
         if (CAT_MAP[key]) return CAT_MAP[key];
-
-        if (key.includes('intel') || key.includes('amd') || key.includes('cpu') || key.includes('processor')) return 'CPU';
+        if (key.includes('cpu') || key.includes('processor')) return 'CPU';
         if (key.includes('mother')) return 'Motherboard';
         if (key.includes('graphic') || key.includes('gpu')) return 'GPU';
         if (key.includes('ram')) return 'RAM';
-        if (key.includes('storage') || key.includes('ssd') || key.includes('hdd') || key.includes('nvme')) return 'Storage';
+        if (key.includes('storage') || key.includes('ssd')) return 'Storage';
         if (key.includes('power') || key.includes('psu')) return 'PSU';
         if (key.includes('case') || key.includes('cabinet')) return 'Case';
         if (key.includes('cooler') || key.includes('fan')) return 'Cooler';
         if (key.includes('monitor')) return 'Monitor';
-
         return c;
     }
 
@@ -264,34 +442,20 @@ if(!$is_partial){
         return Number.isFinite(parsed) ? parsed : 0;
     }
 
-    productsData = productsData.map(p => {
-        return {
-            ...p,
-            pprice: parsePrice(p.pprice)
-        };
-    });
+    productsData = productsData.map(p => { return { ...p, pprice: parsePrice(p.pprice) }; });
 
-    // --- LOGIC: INITIALIZATION ---
+    // --- Initialization ---
     function initBuildPage(){
         const grid = document.getElementById('buildGrid');
         if(!grid) return;
+        
         const modalEl = document.getElementById('productSelectorModal');
-        if(modalEl && modalEl.parentElement !== document.body){
-            document.body.appendChild(modalEl);
-        }
+        if(modalEl && modalEl.parentElement !== document.body){ document.body.appendChild(modalEl); }
+        
         loadItems();
         bindModalSelection();
-        // Process items coming from view_products
-        const urlParams = new URLSearchParams(window.location.search);
-        const pid = urlParams.get('product');
-        if(pid) {
-            const pData = sessionStorage.getItem('buildProduct_' + pid);
-            if(pData) {
-                addItem(JSON.parse(pData));
-                sessionStorage.removeItem('buildProduct_' + pid);
-            }
-        }
 
+        // Check for items added from view_products page
         let queueRaw = null;
         try { queueRaw = localStorage.getItem(QUEUE_KEY); } catch(e){}
         if(!queueRaw){ queueRaw = sessionStorage.getItem(QUEUE_KEY); }
@@ -303,7 +467,10 @@ if(!$is_partial){
 
         saveItems();
         renderGrid();
+        bindSaveButton();
+    }
 
+    function bindSaveButton() {
         const saveBtn = document.getElementById('saveBtn');
         if(saveBtn && !saveBtn.dataset.bound){
             saveBtn.dataset.bound = '1';
@@ -311,53 +478,45 @@ if(!$is_partial){
                 e.preventDefault();
                 if(items.length === 0) { alert('Build is empty!'); return; }
                 
-                // Simple Validation
-                const required = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
+                const required = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case'];
                 const currentCats = items.map(i => getCanon(i.category));
                 const missing = required.filter(c => !currentCats.includes(c));
                 
                 if(missing.length > 0) {
-                    alert('Missing components: ' + missing.join(', '));
-                    return;
+                    if(!confirm('Your build is missing: ' + missing.join(', ') + '. Save anyway?')) return;
                 }
 
-                const payload = {
-                    items: items,
-                    total: items.reduce((s,i) => s + i.price, 0)
-                };
+                const payload = { items: items, total: items.reduce((s,i) => s + i.price, 0) };
                 document.getElementById('itemsJson').value = JSON.stringify(payload);
                 
-                // Append Name
-                const nameVal = document.getElementById('buildName').value || 'My Build';
+                const nameVal = document.getElementById('buildName').value || 'My Custom Build';
                 const form = document.getElementById('saveForm');
-                const ni = document.createElement('input'); 
-                ni.type='hidden'; ni.name='build_name'; ni.value=nameVal;
-                form.appendChild(ni);
+                
+                let ni = form.querySelector('input[name="build_name"]');
+                if(!ni) {
+                    ni = document.createElement('input'); 
+                    ni.type='hidden'; ni.name='build_name'; 
+                    form.appendChild(ni);
+                }
+                ni.value=nameVal;
                 
                 form.submit();
             });
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initBuildPage);
-    } else {
-        initBuildPage();
-    }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initBuildPage); } 
+    else { initBuildPage(); }
 
     function addItem(p) {
         const cat = getCanon(p.category);
+        // Replace existing item in same category (except multi-slot logic which we simplify here for UI)
         if(['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler','Monitor'].includes(cat)){
             items = items.filter(i => getCanon(i.category) !== cat);
         }
-
         items.push({
-            pid: p.pid,
-            name: p.name,
-            price: parsePrice(p.price),
-            category: p.category,
-            img: p.img,
-            qty: 1
+            pid: p.pid, name: p.name, price: parsePrice(p.price),
+            category: p.category, img: p.img, qty: 1
         });
     }
 
@@ -367,31 +526,42 @@ if(!$is_partial){
         let total = 0;
 
         SLOTS.forEach(slot => {
-            // Find item for this slot
             const item = items.find(i => getCanon(i.category) === slot.key);
             const col = document.createElement('div');
-            col.className = 'col-6 col-md-4 col-lg-3'; // 4 per row = Compact
+            col.className = 'col-12 col-sm-6 col-lg-4 col-xl-3'; 
 
             if(item) {
                 total += item.price;
                 col.innerHTML = `
-                    <div class="slot-card filled">
-                        <img src="${escapeHtml(item.img || '../img/pc1.jpg')}" class="slot-img">
-                        <div class="slot-info">
-                            <div class="text-uppercase text-muted" style="font-size:10px;">${slot.label}</div>
-                            <div class="slot-title" title="${item.name}">${item.name}</div>
-                            <div class="slot-price">₹${item.price.toFixed(2)}</div>
+                    <div class="slot-card filled" style="--slot-color: ${slot.color}">
+                        <div class="filled-content">
+                            <img src="${escapeHtml(item.img || '../img/pc1.jpg')}" class="slot-img">
+                            <div class="slot-details">
+                                <span class="slot-category-badge">${slot.label}</span>
+                                <div class="slot-title" title="${escapeHtml(item.name)}">${item.name}</div>
+                                <div class="slot-price">₹${item.price.toFixed(2)}</div>
+                            </div>
                         </div>
                         <div class="slot-actions">
-                             <button class="btn btn-sm btn-outline-danger p-0 px-2" onclick="removeItem('${item.pid}', '${item.category}')" title="Remove">&times;</button>
-                             <button class="btn btn-sm btn-outline-primary p-0 px-2" onclick="openSelector('${slot.key}')" title="Change">&#8635;</button>
+                             <button class="btn-slot btn-change" onclick="openSelector('${slot.key}')">
+                                <i class="bi bi-arrow-repeat"></i> Replace
+                             </button>
+                             <button class="btn-slot btn-remove" onclick="removeItem('${item.pid}', '${item.category}')">
+                                <i class="bi bi-trash"></i>
+                             </button>
                         </div>
                     </div>`;
             } else {
                 col.innerHTML = `
-                    <div class="slot-card" onclick="openSelector('${slot.key}')">
-                        <div class="slot-icon">${slot.icon}</div>
-                        <div class="slot-label">Select ${slot.label}</div>
+                    <div class="slot-card" onclick="openSelector('${slot.key}')" style="border-color: ${slot.color}40; background: ${slot.bg};">
+                        <div class="slot-icon-wrapper" style="background: ${slot.color}; color: white;">
+                            <i class="bi ${slot.icon}"></i>
+                        </div>
+                        <div class="text-dark fw-bold">${slot.label}</div>
+                        <div class="text-muted small">Tap to select</div>
+                        <div style="position:absolute; bottom:15px; right:15px; color:${slot.color};">
+                            <i class="bi bi-plus-circle-fill fs-4"></i>
+                        </div>
                     </div>`;
             }
             grid.appendChild(col);
@@ -401,55 +571,54 @@ if(!$is_partial){
     }
 
     function openSelector(key) {
-        // Filter products matching this canonical key
         const filtered = productsData.filter(p => getCanon(p.pcat) === key);
         const body = document.getElementById('productSelectorBody');
         document.getElementById('productSelectorTitle').innerText = 'Select ' + key;
 
         if(filtered.length === 0) {
-            body.innerHTML = '<div class="col-12 text-center py-5 text-muted">No products found.</div>';
+            body.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-box-seam display-4 text-muted"></i>
+                <p class="mt-3 text-muted">No ${key} available currently.</p>
+                <a href="view_products.php" class="btn btn-outline-primary mt-2">Browse All Products</a>
+            </div>`;
         } else {
             body.innerHTML = filtered.map(p => {
                 const img = p.pimg ? `../productimg/${encodeURIComponent(p.pimg)}` : '../img/pc1.jpg';
                 const priceVal = parsePrice(p.pprice);
                 return `
-                <div class="col-6 col-md-4">
-                    <div class="card modal-product-card h-100 product-select" role="button" onclick="selectProductFromCard(this)"
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="product-select-card product-select bg-white p-3 h-100 d-flex flex-column" 
+                        role="button"
                         data-pid="${String(p.pid)}"
                         data-name="${escapeAttr(p.pname)}"
                         data-price="${String(priceVal)}"
                         data-category="${escapeAttr(p.pcat)}"
                         data-img="${escapeAttr(img)}">
-                        <img src="${img}" class="card-img-top" style="height:100px; object-fit:contain;">
-                        <div class="card-body p-2 text-center">
-                            <div class="small fw-bold text-truncate">${p.pname}</div>
-                            <div class="text-success fw-bold">₹${priceVal.toFixed(2)}</div>
+                        
+                        <div class="text-center mb-3" style="height:120px; display:flex; align-items:center; justify-content:center;">
+                            <img src="${img}" style="max-height:100%; max-width:100%; object-fit:contain;">
+                        </div>
+                        <div class="fw-bold text-dark small mb-1" style="line-height:1.2;">${p.pname}</div>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="h5 mb-0 text-success fw-bold">₹${priceVal.toFixed(2)}</span>
+                                <button class="btn btn-sm btn-primary rounded-circle"><i class="bi bi-plus"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>`;
             }).join('');
         }
-        const modalEl = document.getElementById('productSelectorModal');
-        if(modalEl && modalEl.parentElement !== document.body){
-            document.body.appendChild(modalEl);
-        }
-        new bootstrap.Modal(modalEl).show();
+        new bootstrap.Modal(document.getElementById('productSelectorModal')).show();
     }
 
+    // Modal & Selection Helpers
     function closeProductModal(){
         const modalEl = document.getElementById('productSelectorModal');
         if(!modalEl) return;
-        if(window.bootstrap && bootstrap.Modal){
-            const inst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-            inst.hide();
-            return;
-        }
-        // Fallback if bootstrap instance is not available
-        modalEl.classList.remove('show');
-        modalEl.style.display = 'none';
-        document.body.classList.remove('modal-open');
-        const backdrop = document.querySelector('.modal-backdrop');
-        if(backdrop) backdrop.remove();
+        const inst = bootstrap.Modal.getInstance(modalEl);
+        if(inst) inst.hide();
     }
 
     function selectProduct(pid, name, price, cat, img) {
@@ -459,36 +628,17 @@ if(!$is_partial){
         closeProductModal();
     }
 
-    function selectProductFromCard(card){
-        if(!card) return;
-        const pid = card.getAttribute('data-pid') || '';
-        const name = card.getAttribute('data-name') || '';
-        const price = card.getAttribute('data-price') || '0';
-        const category = card.getAttribute('data-category') || '';
-        const img = card.getAttribute('data-img') || '';
-        selectProduct(pid, name, price, category, img);
-    }
-
-    document.addEventListener('click', function(e){
-        const card = e.target.closest('.product-select');
-        if(!card) return;
-        e.preventDefault();
-        selectProductFromCard(card);
-    });
-
-    window.selectProductFromCard = selectProductFromCard;
-
     function bindModalSelection(){
         const body = document.getElementById('productSelectorBody');
         if(!body) return;
         body.addEventListener('click', function(e){
             const card = e.target.closest('.product-select');
             if(!card) return;
-            const pid = card.getAttribute('data-pid') || '';
-            const name = card.getAttribute('data-name') || '';
-            const price = card.getAttribute('data-price') || '0';
-            const category = card.getAttribute('data-category') || '';
-            const img = card.getAttribute('data-img') || '';
+            const pid = card.getAttribute('data-pid');
+            const name = card.getAttribute('data-name');
+            const price = card.getAttribute('data-price');
+            const category = card.getAttribute('data-category');
+            const img = card.getAttribute('data-img');
             selectProduct(pid, name, price, category, img);
         });
     }
@@ -513,18 +663,8 @@ if(!$is_partial){
         try { items = JSON.parse(raw) || []; } catch(e){ items = []; }
     }
 
-    function escapeHtml(text) {
-        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    }
-
-    function escapeAttr(text){
-        return String(text || '')
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#39;");
-    }
+    function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    function escapeAttr(text){ return String(text || '').replace(/"/g, "&quot;"); }
 
 </script>
 <?php if(!$is_partial){ include('footer.php'); } ?>
