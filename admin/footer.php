@@ -17,12 +17,14 @@
 					m.show();
 				});
 
-				// low stock alert modal
-				var lowStockModal = document.getElementById('lowStockModal');
-				if(lowStockModal && window.bootstrap && bootstrap.Modal){
-					var ls = new bootstrap.Modal(lowStockModal);
-					ls.show();
-				}
+// low stock alert modal - auto-show on login or every 2 hours
+			var lowStockModal = document.getElementById('lowStockModal');
+			<?php if(!empty($low_stock) && $show_low_stock_modal): ?>
+			if(lowStockModal && window.bootstrap && bootstrap.Modal){
+				var ls = new bootstrap.Modal(lowStockModal);
+				ls.show();
+			}
+			<?php endif; ?>
 
 				// Initialize Bootstrap Dropdowns
 				if(window.bootstrap && bootstrap.Dropdown){

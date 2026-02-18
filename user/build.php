@@ -6,6 +6,33 @@ if (session_status() === PHP_SESSION_NONE) {
 if(!isset($_SESSION['is_login'])){ header('location:login.php'); exit; }
 include('../admin/conn.php');
 
+// Load notification functions
+function ensure_admin_notifications_table($con) {
+    $create = "CREATE TABLE IF NOT EXISTS `admin_notifications` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `type` VARCHAR(50) NOT NULL,
+        `title` VARCHAR(255) NOT NULL,
+        `message` TEXT,
+        `link` VARCHAR(255),
+        `is_read` TINYINT(1) DEFAULT 0,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX(`is_read`),
+        INDEX(`created_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    @mysqli_query($con, $create);
+}
+
+function add_admin_notification($con, $type, $title, $message = '', $link = '') {
+    ensure_admin_notifications_table($con);
+    $type = mysqli_real_escape_string($con, $type);
+    $title = mysqli_real_escape_string($con, $title);
+    $message = mysqli_real_escape_string($con, $message);
+    $link = mysqli_real_escape_string($con, $link);
+    $sql = "INSERT INTO admin_notifications (type, title, message, link, is_read) 
+            VALUES ('$type', '$title', '$message', '$link', 0)";
+    return @mysqli_query($con, $sql);
+}
+
 $is_partial = isset($_GET['partial']);
 
 // --- PHP Processing Logic (kept exactly as original) ---
@@ -57,6 +84,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $ins = "INSERT INTO builds (user_id, user_name, name, total) VALUES ('$user_id', '$user_name', '$name', '$total')";
     if(mysqli_query($con, $ins)){
         $build_id = mysqli_insert_id($con);
+        
+        // Create admin notification for new build
+        $notif_title = "New PC Build: $name";
+        $notif_msg = "Customer: $user_name | Total: ₹" . number_format($total, 2) . " | Items: " . count($data['items']);
+        add_admin_notification($con, 'build', $notif_title, $notif_msg, 'builds.php');
+        
         foreach($data['items'] as $it){
             $pid = intval($it['pid'] ?? 0);
             $price = floatval($it['price'] ?? 0);
