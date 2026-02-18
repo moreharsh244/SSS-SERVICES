@@ -1,22 +1,5 @@
-<div class="toast-container position-fixed top-0 end-0 p-3">
-	<div id="globalToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-		<div class="toast-header">
-			<strong class="me-auto">Shree Swami Samarth</strong>
-			<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-		</div>
-		<div class="toast-body"></div>
-	</div>
-</div>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-	function showToast(message){
-		var toastEl = document.getElementById('globalToast');
-		if(!toastEl) return;
-		toastEl.querySelector('.toast-body').textContent = message;
-		var t = new bootstrap.Toast(toastEl);
-		t.show();
-	}
-
 	var revealEls = document.querySelectorAll('.reveal');
 	if('IntersectionObserver' in window){
 		var io = new IntersectionObserver(function(entries){
@@ -32,9 +15,6 @@ document.addEventListener('DOMContentLoaded', function(){
 		revealEls.forEach(function(el){ el.classList.add('is-visible'); });
 	}
 
-	var params = new URLSearchParams(window.location.search);
-	var msg = params.get('toast');
-	if(msg){ showToast(msg); }
 });
 </script>
 </body>

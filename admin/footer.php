@@ -2,51 +2,9 @@
 	</div>
 </div>
 
-		<div class="toast-container position-fixed top-0 end-0 p-3">
-  <div id="globalToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header">
-      <strong class="me-auto">Shree Swami Samarth</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body"></div>
-  </div>
-</div>
 		<script src="../js/bootstrap.bundle.min.js"></script>
 		<script>
 			document.addEventListener('DOMContentLoaded', function () {
-				var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-				tooltipTriggerList.map(function (tooltipTriggerEl) {
-					return new bootstrap.Tooltip(tooltipTriggerEl)
-				})
-
-				function showToast(message){
-					var toastEl = document.getElementById('globalToast');
-					if(!toastEl) return;
-					toastEl.querySelector('.toast-body').textContent = message;
-					var t = new bootstrap.Toast(toastEl);
-					t.show();
-				}
-
-				// reveal animations
-				var revealEls = document.querySelectorAll('.reveal');
-				if('IntersectionObserver' in window){
-					var io = new IntersectionObserver(function(entries){
-						entries.forEach(function(entry){
-							if(entry.isIntersecting){
-								entry.target.classList.add('is-visible');
-								io.unobserve(entry.target);
-							}
-						});
-					}, { threshold: 0.12 });
-					revealEls.forEach(function(el){ io.observe(el); });
-				} else {
-					revealEls.forEach(function(el){ el.classList.add('is-visible'); });
-				}
-
-				var params = new URLSearchParams(window.location.search);
-				var msg = params.get('toast');
-				if(msg){ showToast(msg); }
-
 				// image preview click handler (admin)
 				document.body.addEventListener('click', function(e){
 					var el = e.target.closest('.img-preview');
@@ -66,49 +24,49 @@
 					ls.show();
 				}
 
+				// Initialize Bootstrap Dropdowns
+				if(window.bootstrap && bootstrap.Dropdown){
+					var dropdownButtons = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+					dropdownButtons.forEach(function(btn){
+						new bootstrap.Dropdown(btn);
+					});
+				}
+
 				// dropdown fallback if Bootstrap JS is not active
 				if(!(window.bootstrap && bootstrap.Dropdown)){
-					var userMenu = document.getElementById('userMenu');
-					if(userMenu){
-						var menu = userMenu.nextElementSibling;
-						userMenu.addEventListener('click', function(e){
+					// Fallback for user menu button
+					var userMenuBtn = document.getElementById('userMenuBtn');
+					if(userMenuBtn && userMenuBtn.nextElementSibling){
+						var userMenu = userMenuBtn.nextElementSibling;
+						userMenuBtn.addEventListener('click', function(e){
 							e.preventDefault();
-							if(!menu) return;
-							menu.classList.toggle('show');
-							userMenu.setAttribute('aria-expanded', menu.classList.contains('show') ? 'true' : 'false');
+							userMenu.classList.toggle('show');
+							userMenuBtn.setAttribute('aria-expanded', userMenu.classList.contains('show') ? 'true' : 'false');
 						});
 						document.addEventListener('click', function(e){
-							if(!menu || userMenu.contains(e.target) || menu.contains(e.target)) return;
-							menu.classList.remove('show');
-							userMenu.setAttribute('aria-expanded', 'false');
+							if(!userMenu || userMenuBtn.contains(e.target) || userMenu.contains(e.target)) return;
+							userMenu.classList.remove('show');
+							userMenuBtn.setAttribute('aria-expanded', 'false');
+						});
+					}
+					
+					// Fallback for notification button
+					var notifBtn = document.getElementById('notifBtn');
+					if(notifBtn && notifBtn.nextElementSibling){
+						var notifMenu = notifBtn.nextElementSibling;
+						notifBtn.addEventListener('click', function(e){
+							e.preventDefault();
+							notifMenu.classList.toggle('show');
+							notifBtn.setAttribute('aria-expanded', notifMenu.classList.contains('show') ? 'true' : 'false');
+						});
+						document.addEventListener('click', function(e){
+							if(!notifMenu || notifBtn.contains(e.target) || notifMenu.contains(e.target)) return;
+							notifMenu.classList.remove('show');
+							notifBtn.setAttribute('aria-expanded', 'false');
 						});
 					}
 				}
 
-				// ensure dropdown toggles even if auto-init fails
-				var userMenuEl = document.getElementById('userMenu');
-				if(userMenuEl && window.bootstrap && bootstrap.Dropdown){
-					userMenuEl.addEventListener('click', function(e){
-						e.preventDefault();
-						bootstrap.Dropdown.getOrCreateInstance(userMenuEl).toggle();
-					});
-				}
-
-				// navigation fallbacks for header links
-				var viewProducts = document.getElementById('adminViewProducts');
-				if(viewProducts){
-					viewProducts.addEventListener('click', function(e){
-						e.preventDefault();
-						window.location.href = viewProducts.getAttribute('href');
-					});
-				}
-				var logoutLink = document.getElementById('adminLogout');
-				if(logoutLink){
-					logoutLink.addEventListener('click', function(e){
-						e.preventDefault();
-						window.location.href = logoutLink.getAttribute('href');
-					});
-				}
 			});
 		</script>
 </body>
