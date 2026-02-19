@@ -1,33 +1,6 @@
 <?php
     include('../admin/conn.php');
     
-    // Load notification functions
-    function ensure_admin_notifications_table($con) {
-        $create = "CREATE TABLE IF NOT EXISTS `admin_notifications` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
-            `type` VARCHAR(50) NOT NULL,
-            `title` VARCHAR(255) NOT NULL,
-            `message` TEXT,
-            `link` VARCHAR(255),
-            `is_read` TINYINT(1) DEFAULT 0,
-            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX(`is_read`),
-            INDEX(`created_at`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        @mysqli_query($con, $create);
-    }
-    
-    function add_admin_notification($con, $type, $title, $message = '', $link = '') {
-        ensure_admin_notifications_table($con);
-        $type = mysqli_real_escape_string($con, $type);
-        $title = mysqli_real_escape_string($con, $title);
-        $message = mysqli_real_escape_string($con, $message);
-        $link = mysqli_real_escape_string($con, $link);
-        $sql = "INSERT INTO admin_notifications (type, title, message, link, is_read) 
-                VALUES ('$type', '$title', '$message', '$link', 0)";
-        return @mysqli_query($con, $sql);
-    }
-    
     $pid = isset($_POST['pid']) ? intval($_POST['pid']) : 0;
     $pname = mysqli_real_escape_string($con, $_POST['pname'] ?? '');
     $pprice = floatval($_POST['pprice'] ?? 0);
@@ -85,7 +58,7 @@
         $order_total = $pprice * $qty;
         $notif_title = "New Order: $pname";
         $notif_msg = "Customer: $username | Qty: $qty | Total: ₹" . number_format($order_total, 2);
-        add_admin_notification($con, 'order', $notif_title, $notif_msg, 'orders_list.php');
+        add_admin_notification('order', $notif_title, $notif_msg, 'orders_list.php');
         
         // award loyalty points: 1 point per 10 currency units
         $points = floor(($pprice * $qty) / 10);

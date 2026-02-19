@@ -29,7 +29,7 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery Portal</title>
+    <title>Shree Swami Samarth - Hardware</title>
     
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <script src="../js/bootstrap.bundle.min.js"></script>
@@ -66,11 +66,11 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
-            z-index: 1020;
+            z-index: 1020; /* High z-index to stay on top */
             padding: 0.8rem 0;
         }
 
-        /* --- Brand Text --- */
+        /* --- BRAND TEXT --- */
         .brand-text {
             font-weight: 900;
             font-size: 2.25rem;
@@ -78,12 +78,12 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
             background: linear-gradient(to right, #4338ca, #be185d);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            white-space: nowrap;
+            white-space: nowrap; 
             line-height: 1.2;
         }
 
         @media (max-width: 1200px) {
-            .brand-text { font-size: 1.8rem; }
+            .brand-text { font-size: 1.8rem; } 
         }
 
         /* --- Nav Pills --- */

@@ -1,6 +1,5 @@
 <?php
 include('../admin/conn.php');
-require_once('../admin/notifications.php');
 
 if (session_status() === PHP_SESSION_NONE) {
   session_name('SSS_USER_SESS');

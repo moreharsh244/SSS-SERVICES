@@ -25,8 +25,10 @@ if($order_id > 0){
     $u = "UPDATE purchase SET assigned_agent=".($agent_esc === '' ? "NULL" : "'$agent_esc'")." WHERE pid='$order_id' LIMIT 1";
     mysqli_query($con, $u);
     if($agent_esc !== ''){
-        @mysqli_query($con, "UPDATE purchase SET delivery_status='shipped' WHERE pid='$order_id' LIMIT 1");
+        @mysqli_query($con, "UPDATE purchase SET status='out_for_delivery', delivery_status='out_for_delivery' WHERE pid='$order_id' LIMIT 1");
         log_delivery_action($con, $agent, 'assign_order', 'Assigned order #'.$order_id.' by admin '.$_SESSION['username']);
+    } else {
+        @mysqli_query($con, "UPDATE purchase SET status='order_confirmed', delivery_status='order_confirmed' WHERE pid='$order_id' LIMIT 1");
     }
 }
 
