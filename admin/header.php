@@ -23,83 +23,22 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 include_once('conn.php');
 
-// === Notification Helper Functions ===
-function ensure_admin_notifications_table($con) {
-    $create = "CREATE TABLE IF NOT EXISTS `admin_notifications` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `type` VARCHAR(50) NOT NULL,
-        `title` VARCHAR(255) NOT NULL,
-        `message` TEXT,
-        `link` VARCHAR(255),
-        `is_read` TINYINT(1) DEFAULT 0,
-        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX(`is_read`),
-        INDEX(`created_at`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-    @mysqli_query($con, $create);
-}
-
-function add_admin_notification($con, $type, $title, $message = '', $link = '') {
-    ensure_admin_notifications_table($con);
-    $type = mysqli_real_escape_string($con, $type);
-    $title = mysqli_real_escape_string($con, $title);
-    $message = mysqli_real_escape_string($con, $message);
-    $link = mysqli_real_escape_string($con, $link);
-    $sql = "INSERT INTO admin_notifications (type, title, message, link, is_read) 
-            VALUES ('$type', '$title', '$message', '$link', 0)";
-    return @mysqli_query($con, $sql);
-}
-
-function get_unread_notifications_count($con) {
-    ensure_admin_notifications_table($con);
-    $result = @mysqli_query($con, "SELECT COUNT(*) as count FROM admin_notifications WHERE is_read = 0");
-    if ($result && mysqli_num_rows($result) > 0) {
-        return (int)mysqli_fetch_assoc($result)['count'];
+// Handle notification actions
+if(isset($_GET['delete_notif'])){
+    $id = preg_replace('/[^a-zA-Z0-9_\.-]/', '', (string)$_GET['delete_notif']);
+    if($id !== ''){
+        delete_admin_notification($id);
     }
-    return 0;
-}
-
-function get_recent_notifications($con, $limit = 10) {
-    ensure_admin_notifications_table($con);
-    $limit = (int)$limit;
-    $result = @mysqli_query($con, "SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT $limit");
-    $notifications = [];
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $notifications[] = $row;
-        }
-    }
-    return $notifications;
-}
-
-function mark_all_notifications_read($con) {
-    ensure_admin_notifications_table($con);
-    return @mysqli_query($con, "UPDATE admin_notifications SET is_read = 1 WHERE is_read = 0");
-}
-
-function cleanup_old_notifications($con) {
-    ensure_admin_notifications_table($con);
-    return @mysqli_query($con, "DELETE FROM admin_notifications WHERE is_read = 1 AND created_at < DATE_SUB(NOW(), INTERVAL 7 DAY)");
-}
-
-function get_notification_icon($type) {
-    $icons = [
-        'order' => 'bi-cart-check-fill text-success',
-        'build' => 'bi-cpu-fill text-primary',
-        'service' => 'bi-tools text-warning',
-        'low_stock' => 'bi-exclamation-triangle-fill text-danger'
-    ];
-    return $icons[$type] ?? 'bi-bell-fill text-info';
-}
-
-// Handle mark all notifications as read
-if(isset($_GET['mark_read']) && $_GET['mark_read'] === '1' && isset($con)){
-    mark_all_notifications_read($con);
     $redirect = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.php';
     header('Location: ' . $redirect);
     exit;
 }
-// === End Notification Helper Functions ===
+if(isset($_GET['clear_notifs']) && $_GET['clear_notifs'] === '1'){
+    clear_admin_notifications();
+    $redirect = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.php';
+    header('Location: ' . $redirect);
+    exit;
+}
 
 $low_stock = [];
 if(isset($con)){
@@ -133,10 +72,8 @@ if(!empty($low_stock)){
 $unread_count = 0;
 $recent_notifications = [];
 if(isset($con)){
-    $unread_count = get_unread_notifications_count($con);
-    $recent_notifications = get_recent_notifications($con, 5);
-    // Cleanup old notifications periodically (10% chance)
-    if(rand(1, 10) === 1) cleanup_old_notifications($con);
+    $unread_count = get_unread_notifications_count();
+    $recent_notifications = get_recent_notifications(5);
 }
 
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -146,7 +83,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Shree Swami Samarth</title>
+    <title>Shree Swami Samarth - Hardware</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -419,20 +356,20 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <div class="collapse d-lg-flex justify-content-between align-items-center" id="navContent">
                     
                     <nav class="nav-pills-custom my-3 my-lg-0 mx-lg-auto">
-                        <a class="nav-link-custom <?php echo ($current_page == 'add_product.php') ? 'active' : ''; ?>" href="add_product.php">
-                            <i class="bi bi-plus-circle-fill" style="color: <?php echo ($current_page == 'add_product.php') ? 'white' : '#10b981'; ?>"></i> Add
-                        </a>
                         <a class="nav-link-custom <?php echo ($current_page == 'view_product.php') ? 'active' : ''; ?>" href="view_product.php">
                             <i class="bi bi-box-seam-fill" style="color: <?php echo ($current_page == 'view_product.php') ? 'white' : '#f59e0b'; ?>"></i> Inventory
                         </a>
                         <a class="nav-link-custom <?php echo ($current_page == 'products_card.php') ? 'active' : ''; ?>" href="products_card.php">
                             <i class="bi bi-grid-fill" style="color: <?php echo ($current_page == 'products_card.php') ? 'white' : '#6366f1'; ?>"></i> Grid
                         </a>
+                        <a class="nav-link-custom <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">
+                            <i class="bi bi-graph-up-arrow" style="color: <?php echo ($current_page == 'index.php') ? 'white' : '#10b981'; ?>"></i> Analytics
+                        </a>
                         <a class="nav-link-custom <?php echo ($current_page == 'orders_list.php') ? 'active' : ''; ?>" href="orders_list.php">
                             <i class="bi bi-bag-check-fill" style="color: <?php echo ($current_page == 'orders_list.php') ? 'white' : '#ec4899'; ?>"></i> Orders
                         </a>
                         <a class="nav-link-custom <?php echo ($current_page == 'service_requests.php') ? 'active' : ''; ?>" href="service_requests.php">
-                            <i class="bi bi-wrench-adjustable" style="color: <?php echo ($current_page == 'service_requests.php') ? 'white' : '#8b5cf6'; ?>"></i> Support
+                            <i class="bi bi-wrench-adjustable" style="color: <?php echo ($current_page == 'service_requests.php') ? 'white' : '#8b5cf6'; ?>"></i> Service
                         </a>
                          <a class="nav-link-custom <?php echo ($current_page == 'builds.php') ? 'active' : ''; ?>" href="builds.php">
                             <i class="bi bi-cpu-fill" style="color: <?php echo ($current_page == 'builds.php') ? 'white' : '#0ea5e9'; ?>"></i> Builds
@@ -462,22 +399,29 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 
                                 <?php if(!empty($recent_notifications)): ?>
                                     <?php foreach($recent_notifications as $notif): 
-                                        $icon_class = get_notification_icon($notif['type']);
-                                        $time_ago = time() - strtotime($notif['created_at']);
+                                        $icon_class = get_notification_icon($notif['type'] ?? '');
+                                        $created_at = $notif['created_at'] ?? '';
+                                        $time_ago = $created_at ? (time() - strtotime($created_at)) : 0;
                                         $time_str = $time_ago < 60 ? 'Just now' : 
                                                     ($time_ago < 3600 ? floor($time_ago/60) . 'm ago' : 
                                                     ($time_ago < 86400 ? floor($time_ago/3600) . 'h ago' : 
                                                     floor($time_ago/86400) . 'd ago'));
-                                        $bg_class = $notif['is_read'] ? '' : 'bg-light';
                                     ?>
                                         <li>
-                                            <a class="dropdown-item <?php echo $bg_class; ?> py-3" href="<?php echo htmlspecialchars($notif['link'] ?? '#'); ?>" style="white-space: normal;">
+                                            <div class="dropdown-item py-3" style="white-space: normal;">
                                                 <div class="d-flex gap-2">
                                                     <div class="flex-shrink-0">
                                                         <i class="bi <?php echo $icon_class; ?> fs-5"></i>
                                                     </div>
                                                     <div class="flex-grow-1">
-                                                        <div class="fw-bold text-dark small mb-1"><?php echo htmlspecialchars($notif['title']); ?></div>
+                                                        <div class="d-flex justify-content-between gap-2">
+                                                            <div class="fw-bold text-dark small mb-1"><?php echo htmlspecialchars($notif['title'] ?? ''); ?></div>
+                                                            <?php if(!empty($notif['id'])): ?>
+                                                                <a class="text-muted small" href="?delete_notif=<?php echo urlencode($notif['id']); ?>" title="Delete">
+                                                                    <i class="bi bi-x-lg"></i>
+                                                                </a>
+                                                            <?php endif; ?>
+                                                        </div>
                                                         <?php if(!empty($notif['message'])): ?>
                                                             <div class="text-muted" style="font-size: 0.8rem;"><?php echo htmlspecialchars($notif['message']); ?></div>
                                                         <?php endif; ?>
@@ -486,7 +430,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </a>
+                                            </div>
                                         </li>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -516,8 +460,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 
                                 <?php if($unread_count > 0): ?>
                                     <li class="border-top">
-                                        <a class="dropdown-item text-center text-primary small fw-bold py-2" href="?mark_read=1">
-                                            <i class="bi bi-check-all me-1"></i>Mark all as read
+                                        <a class="dropdown-item text-center text-primary small fw-bold py-2" href="?clear_notifs=1">
+                                            <i class="bi bi-trash me-1"></i>Clear all
                                         </a>
                                     </li>
                                 <?php endif; ?>

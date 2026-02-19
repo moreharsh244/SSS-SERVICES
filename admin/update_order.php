@@ -1,6 +1,5 @@
 <?php
 include('conn.php');
-require_once(__DIR__ . '/notifications.php');
 
 if($_SERVER['REQUEST_METHOD']!=='POST') exit('Invalid');
 $id = isset($_POST['id']) ? intval($_POST['id']) : 0;

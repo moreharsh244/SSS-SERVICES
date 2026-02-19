@@ -15,12 +15,32 @@ include('conn.php');
 include('../delivery/helpers.php');
 ensure_builds_history_table($con);
 
+// Ensure assigned_agent column exists in builds table
+$col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='builds' AND COLUMN_NAME='assigned_agent' LIMIT 1";
+$col_res = mysqli_query($con, $col_check);
+if(!$col_res || mysqli_num_rows($col_res)===0){
+    @mysqli_query($con, "ALTER TABLE builds ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL");
+}
+
 $view = isset($_GET['view']) ? trim($_GET['view']) : 'active';
 
-// --- LOGIC BLOCK (UNCHANGED) ---
+// --- LOGIC BLOCK ---
 if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])){
   $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
   $action = trim($_POST['action']);
+  
+  // Handle assign agent
+  if($action === 'assign_agent' && $id > 0){
+    $agent = trim($_POST['assigned_agent'] ?? '');
+    $agent_esc = mysqli_real_escape_string($con, $agent);
+    if($agent_esc !== ''){
+      mysqli_query($con, "UPDATE builds SET assigned_agent='$agent_esc' WHERE id='$id' LIMIT 1");
+      log_delivery_action($con, $agent, 'assign_build', 'Assigned build #'.$id.' by admin '.$_SESSION['username']);
+    } else {
+      mysqli_query($con, "UPDATE builds SET assigned_agent=NULL WHERE id='$id' LIMIT 1");
+    }
+    header('Location: builds.php'); exit;
+  }
   
   if($id>0){
     // ensure builds table has status column
@@ -103,6 +123,16 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])){
     }
   }
   header('Location: builds.php'); exit;
+}
+
+// Fetch delivery agents
+$agents = [];
+$agent_query = "SELECT DISTINCT username FROM del_login WHERE role='delivery' AND is_active=1 ORDER BY username ASC";
+$agent_result = mysqli_query($con, $agent_query);
+if($agent_result && mysqli_num_rows($agent_result) > 0){
+    while($ag = mysqli_fetch_assoc($agent_result)){
+        $agents[] = $ag['username'];
+    }
 }
 
 // count queries
@@ -295,12 +325,13 @@ include('header.php');
                         <thead>
                             <tr>
                                 <th style="width: 5%">#</th>
-                                <th style="width: 20%">Build Name</th>
-                                <th style="width: 20%">User</th>
-                                <th style="width: 15%">Status</th>
-                                <th style="width: 15%">Total</th>
-                                <th style="width: 15%"><?php echo $view === 'history' ? 'Completed' : 'Created'; ?></th>
-                                <th style="width: 10%" class="text-center">Actions</th>
+                                <th style="width: 18%">Build Name</th>
+                                <th style="width: 15%">User</th>
+                                <th style="width: 12%">Status</th>
+                                <th style="width: 12%">Agent</th>
+                                <th style="width: 12%">Total</th>
+                                <th style="width: 12%"><?php echo $view === 'history' ? 'Completed' : 'Created'; ?></th>
+                                <th style="width: 14%" class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -308,11 +339,12 @@ include('header.php');
 // --- TABLE BODY RENDERING ---
 
 // Helper function to render a row
-function renderRow($r, $i, $isHistory) {
+function renderRow($r, $i, $isHistory, $agents) {
     $id = (int)$r['id'];
     $bname = htmlspecialchars($r['name']);
     $uname = htmlspecialchars($r['user_name'] ?: 'User#'.$r['user_id']);
     $status = strtolower($r['status'] ?? 'pending');
+    $assigned_agent = $r['assigned_agent'] ?? '';
     $total = number_format((float)$r['total'], 2);
     $date = $isHistory ? $r['completed_at'] : $r['created_at'];
     $dateFormatted = date('M d, Y', strtotime($date));
@@ -327,8 +359,26 @@ function renderRow($r, $i, $isHistory) {
     echo "<td class='text-muted'>{$i}</td>";
     echo "<td class='col-build-name'>{$bname}</td>";
     echo "<td><div class='d-flex align-items-center gap-2'><i class='bi bi-person-circle text-secondary'></i> {$uname}</div></td>";
-    echo "<td><span class='status-badge {$badgeClass}'>" . htmlspecialchars(ucfirst($status)) . "</span></td>";
-    echo "<td class='col-price'>₹{$total}</td>";
+    echo "<td><span class='status-badge {$badgeClass}'>" . htmlspecialchars(ucfirst($status)) . "</span></td>";    
+    // Agent Column
+    echo "<td>";
+    if($isHistory || empty($agents)){
+        echo $assigned_agent ? "<small class='text-muted'><i class='bi bi-truck'></i> ".htmlspecialchars($assigned_agent)."</small>" : "<small class='text-muted'>—</small>";
+    } else {
+        echo "<form action='builds.php' method='post' class='d-inline'>";
+        echo "<input type='hidden' name='id' value='{$id}'>";
+        echo "<input type='hidden' name='action' value='assign_agent'>";
+        echo "<select name='assigned_agent' class='form-select form-select-sm' onchange='this.form.submit()' style='font-size:0.75rem;'>";
+        echo "<option value=''".($assigned_agent===''?' selected':'')."'>Unassigned</option>";
+        foreach($agents as $ag){
+            $sel = ($assigned_agent === $ag) ? ' selected' : '';
+            echo "<option value='".htmlspecialchars($ag)."'{$sel}>".htmlspecialchars($ag)."</option>";
+        }
+        echo "</select>";
+        echo "</form>";
+    }
+    echo "</td>";
+        echo "<td class='col-price'>₹{$total}</td>";
     echo "<td class='small text-muted'>{$dateFormatted}</td>";
     echo "<td>";
     echo "<div class='btn-action-group'>";
@@ -363,21 +413,21 @@ if($view === 'history'){
     if($hist_res && mysqli_num_rows($hist_res) > 0){
         $i=1;
         while($r = mysqli_fetch_assoc($hist_res)){
-            renderRow($r, $i, true);
+            renderRow($r, $i, true, $agents);
             $i++;
         }
     } else {
-        echo "<tr><td colspan='7'><div class='empty-state'><i class='bi bi-clock-history fs-1 mb-2'></i><p>No history found</p></div></td></tr>";
+        echo "<tr><td colspan='8'><div class='empty-state'><i class='bi bi-clock-history fs-1 mb-2'></i><p>No history found</p></div></td></tr>";
     }
 } else {
     if($res && mysqli_num_rows($res) > 0){
         $i=1;
         while($r = mysqli_fetch_assoc($res)){
-            renderRow($r, $i, false);
+            renderRow($r, $i, false, $agents);
             $i++;
         }
     } else {
-        echo "<tr><td colspan='7'><div class='empty-state'><i class='bi bi-inbox fs-1 mb-2'></i><p>No active builds</p></div></td></tr>";
+        echo "<tr><td colspan='8'><div class='empty-state'><i class='bi bi-inbox fs-1 mb-2'></i><p>No active builds</p></div></td></tr>";
     }
 }
 ?>
