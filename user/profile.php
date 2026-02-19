@@ -412,7 +412,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                   <label class="form-label">Full Name</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-person"></i></span>
-                    <input type="text" name="name" class="form-control" placeholder="Your Name" value="<?php echo htmlspecialchars($user['c_name'] ?? ''); ?>">
+                    <input type="text" name="name" class="form-control" placeholder="Your Name" value="<?php echo htmlspecialchars($user['c_name'] ?? ''); ?>" required>
                   </div>
                 </div>
                 
@@ -420,7 +420,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                   <label class="form-label">Phone Number</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                    <input type="text" name="contact" class="form-control" placeholder="10-digit Mobile" value="<?php echo htmlspecialchars($user['c_contact'] ?? ''); ?>">
+                    <input type="text" name="contact" class="form-control" placeholder="10-digit Mobile" value="<?php echo htmlspecialchars($user['c_contact'] ?? ''); ?>" required>
                   </div>
                 </div>
 
@@ -428,7 +428,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                   <label class="form-label">Shipping Address</label>
                   <div class="input-group">
                      <span class="input-group-text border-end-0" style="border-radius: 12px 0 0 12px;"><i class="bi bi-geo-alt"></i></span>
-                     <textarea name="address" class="form-control border-start-0" rows="2" placeholder="Street, Sector, Apartment..." style="border-radius: 0 12px 12px 0 !important;"><?php echo htmlspecialchars($user['c_address'] ?? ''); ?></textarea>
+                     <textarea name="address" class="form-control border-start-0" rows="2" placeholder="Street, Sector, Apartment..." style="border-radius: 0 12px 12px 0 !important;" required><?php echo htmlspecialchars($user['c_address'] ?? ''); ?></textarea>
                   </div>
                 </div>
 
@@ -436,7 +436,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                   <label class="form-label">City</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-buildings"></i></span>
-                    <input type="text" name="city" class="form-control" placeholder="City" value="<?php echo htmlspecialchars($user['c_city'] ?? ''); ?>">
+                    <input type="text" name="city" class="form-control" placeholder="City" value="<?php echo htmlspecialchars($user['c_city'] ?? ''); ?>" required>
                   </div>
                 </div>
 
@@ -444,7 +444,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                   <label class="form-label">State</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-map"></i></span>
-                    <input type="text" name="state" class="form-control" placeholder="State" value="<?php echo htmlspecialchars($user['c_state'] ?? ''); ?>">
+                    <input type="text" name="state" class="form-control" placeholder="State" value="<?php echo htmlspecialchars($user['c_state'] ?? ''); ?>" required>
                   </div>
                 </div>
 
@@ -452,7 +452,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
                   <label class="form-label">Pincode</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-pin-map"></i></span>
-                    <input type="text" name="pincode" class="form-control" placeholder="ZIP Code" value="<?php echo htmlspecialchars($user['c_pincode'] ?? ''); ?>">
+                    <input type="text" name="pincode" class="form-control" placeholder="ZIP Code" value="<?php echo htmlspecialchars($user['c_pincode'] ?? ''); ?>" required>
                   </div>
                 </div>
 

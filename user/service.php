@@ -297,8 +297,8 @@ include('header.php');
           
           <div class="row g-3 mb-4">
             <div class="col-6">
-              <label class="form-label">Phone (Optional)</label>
-              <input type="tel" name="phone" class="form-control" placeholder="Mobile No.">
+              <label class="form-label">Phone <span class="text-danger">*</span></label>
+              <input type="tel" name="phone" class="form-control" placeholder="Mobile No." required>
             </div>
             <div class="col-6">
               <label class="form-label">Best Time</label>
@@ -341,8 +341,8 @@ include('header.php');
           
           <div class="row g-3 mb-4">
             <div class="col-6">
-              <label class="form-label">Phone (Optional)</label>
-              <input type="tel" name="phone" class="form-control" placeholder="Mobile No.">
+              <label class="form-label">Phone <span class="text-danger">*</span></label>
+              <input type="tel" name="phone" class="form-control" placeholder="Mobile No." required>
             </div>
             <div class="col-6">
               <label class="form-label">Best Time</label>
@@ -385,8 +385,8 @@ include('header.php');
           
           <div class="row g-3 mb-4">
             <div class="col-6">
-              <label class="form-label">Phone (Optional)</label>
-              <input type="tel" name="phone" class="form-control" placeholder="Mobile No.">
+              <label class="form-label">Phone <span class="text-danger">*</span></label>
+              <input type="tel" name="phone" class="form-control" placeholder="Mobile No." required>
             </div>
             <div class="col-6">
               <label class="form-label">Best Time</label>

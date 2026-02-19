@@ -356,11 +356,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <div class="collapse d-lg-flex justify-content-between align-items-center" id="navContent">
                     
                     <nav class="nav-pills-custom my-3 my-lg-0 mx-lg-auto">
-                        <a class="nav-link-custom <?php echo ($current_page == 'view_product.php') ? 'active' : ''; ?>" href="view_product.php">
-                            <i class="bi bi-box-seam-fill" style="color: <?php echo ($current_page == 'view_product.php') ? 'white' : '#f59e0b'; ?>"></i> Inventory
-                        </a>
                         <a class="nav-link-custom <?php echo ($current_page == 'products_card.php') ? 'active' : ''; ?>" href="products_card.php">
                             <i class="bi bi-grid-fill" style="color: <?php echo ($current_page == 'products_card.php') ? 'white' : '#6366f1'; ?>"></i> Grid
+                        </a>
+                        <a class="nav-link-custom <?php echo ($current_page == 'view_product.php') ? 'active' : ''; ?>" href="view_product.php">
+                            <i class="bi bi-box-seam-fill" style="color: <?php echo ($current_page == 'view_product.php') ? 'white' : '#f59e0b'; ?>"></i> Inventory
                         </a>
                         <a class="nav-link-custom <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">
                             <i class="bi bi-graph-up-arrow" style="color: <?php echo ($current_page == 'index.php') ? 'white' : '#10b981'; ?>"></i> Analytics
