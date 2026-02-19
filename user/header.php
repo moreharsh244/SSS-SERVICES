@@ -86,24 +86,26 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         position: sticky;
         top: 0;
-      z-index: 1000;
+        z-index: 1020; /* High z-index to stay on top */
         padding: 0.8rem 0;
     }
 
-    .brand-text {
-        font-weight: 900;
-        font-size: 2.25rem;
-        letter-spacing: -0.03em;
-        background: linear-gradient(to right, #4338ca, #be185d);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        white-space: nowrap; 
-        line-height: 1.2;
-    }
+      /* --- BRAND TEXT (Forced !important to block external CSS interference) --- */
+      .brand-text {
+        font-weight: 700 !important;
+        font-size: 2.25rem !important;
+        letter-spacing: -0.03em !important;
+        background: linear-gradient(to right, #4338ca, #be185d) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
+        white-space: nowrap !important;
+        line-height: 1.2 !important;
+      }
 
-    @media (max-width: 1200px) {
-        .brand-text { font-size: 1.8rem; }
-    }
+      @media (max-width: 1200px) {
+        .brand-text { font-size: 1.8rem !important; }
+      }
 
     /* --- Nav Pills --- */
     .nav-pills-custom {
@@ -414,5 +416,8 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
         }
       });
       </script>
+    </main>
+  </div>
+</div>
 </body>
 </html>

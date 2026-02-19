@@ -79,7 +79,7 @@
         }
     }
 
-    $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`payment_method`,`payment_ref`,`payment_status`,`status`) VALUES ('$pname','$username','$pprice','$qty',$prod_id_value,'$payment_method','$payment_ref','$payment_status','pending')";
+    $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`payment_method`,`payment_ref`,`payment_status`,`status`,`delivery_status`) VALUES ('$pname','$username','$pprice','$qty',$prod_id_value,'$payment_method','$payment_ref','$payment_status','order_confirmed','order_confirmed')";
     if(mysqli_query($con,$sql)){
         // Create admin notification for new order
         $order_total = $pprice * $qty;

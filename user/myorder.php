@@ -121,8 +121,8 @@ $is_service = ($view === 'service');
         gap: 5px;
     }
     
-    .badge-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
-    .badge-shipped, .badge-in_progress { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+    .badge-pending, .badge-order_confirmed { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .badge-shipped, .badge-in_progress, .badge-out_for_delivery { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
     .badge-delivered, .badge-completed { background: #ecfdf5; color: #047857; border: 1px solid #d1fae5; }
     .badge-cancelled { background: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
     .badge-default { background: #f3f4f6; color: #4b5563; }
@@ -312,15 +312,19 @@ $is_service = ($view === 'service');
                                 while($row=mysqli_fetch_assoc($result)){
                                     $raw_delivery = trim($row['delivery_status'] ?? '');
                                     $raw_status = trim($row['status'] ?? '');
-                                    $status = strtolower($raw_delivery !== '' ? $raw_delivery : ($raw_status !== '' ? $raw_status : 'pending'));
+                                    $status = strtolower($raw_delivery !== '' ? $raw_delivery : ($raw_status !== '' ? $raw_status : 'order_confirmed'));
+                                    if($status === 'pending') $status = 'order_confirmed';
+                                    if($status === 'shipped') $status = 'out_for_delivery';
                                     
                                     $badge_class = 'badge-' . $status;
-                                    $status_label = ucfirst($status);
+                                    $status_label = ucfirst(str_replace('_', ' ', $status));
+                                    if($status === 'order_confirmed') $status_label = 'Order Confirmed';
+                                    if($status === 'out_for_delivery') $status_label = 'Out for Delivery';
                                     
                                     // Icons
                                     $icon = 'bi-hourglass-split';
                                     if($status == 'delivered') $icon = 'bi-check-circle-fill';
-                                    if($status == 'shipped') $icon = 'bi-truck';
+                                    if($status == 'out_for_delivery') $icon = 'bi-truck';
                                     if($status == 'cancelled') $icon = 'bi-x-circle-fill';
 
                                     $total = $row['pprice'] * $row['qty'];
@@ -353,7 +357,7 @@ $is_service = ($view === 'service');
                                                 <i class="bi bi-eye"></i>
                                             </button>
                                         </form>
-                                        <?php if($view !== 'history' && $status === 'pending'): ?>
+                                        <?php if($view !== 'history' && in_array($status, ['pending','order_confirmed'], true)): ?>
                                             <form action="cancel_order.php" method="post" onsubmit="return confirm('Cancel Order?');">
                                                 <input type="hidden" name="order_id" value="<?php echo $row['pid']; ?>">
                                                 <button type="submit" class="btn-icon btn-cancel" title="Cancel Order">
