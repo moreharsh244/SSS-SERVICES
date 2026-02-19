@@ -1,7 +1,4 @@
 <?php
-$con=mysqli_connect("localhost","root","","SSS");
-
-// Notification System Functions
 function admin_notifications_path() {
     return __DIR__ . '/admin_notifications.json';
 }

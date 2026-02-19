@@ -39,7 +39,7 @@ $res = false;
 
 // Count Queries
 $count_all = 0; $count_pending = 0; $count_assigned = 0; $count_history = 0;
-$count_res = @mysqli_query($con, "SELECT COUNT(*) AS total, SUM(CASE WHEN LOWER(IFNULL(delivery_status,'pending'))='pending' THEN 1 ELSE 0 END) AS pending, SUM(CASE WHEN IFNULL(assigned_agent,'') <> '' THEN 1 ELSE 0 END) AS assigned FROM purchase");
+$count_res = @mysqli_query($con, "SELECT COUNT(*) AS total, SUM(CASE WHEN LOWER(IFNULL(delivery_status,'order_confirmed')) IN ('pending','order_confirmed') THEN 1 ELSE 0 END) AS pending, SUM(CASE WHEN IFNULL(assigned_agent,'') <> '' THEN 1 ELSE 0 END) AS assigned FROM purchase");
 if($count_res){ $cr = mysqli_fetch_assoc($count_res); $count_all = $cr['total']??0; $count_pending = $cr['pending']??0; $count_assigned = $cr['assigned']??0; }
 
 if($db){
@@ -58,7 +58,7 @@ if($view === 'history'){
     $res = @mysqli_query($con, $q);
   }
 } elseif($view === 'pending'){
-  $q = "SELECT purchase.*, products.pname AS prod_name, products.pimg AS prod_img, c.c_name AS customer_name, c.c_email AS customer_email FROM purchase LEFT JOIN products ON purchase.prod_id = products.pid LEFT JOIN cust_reg c ON (purchase.user = c.c_email OR purchase.user = c.c_name) WHERE LOWER(IFNULL(purchase.delivery_status,'pending'))='pending' ORDER BY pdate DESC";
+    $q = "SELECT purchase.*, products.pname AS prod_name, products.pimg AS prod_img, c.c_name AS customer_name, c.c_email AS customer_email FROM purchase LEFT JOIN products ON purchase.prod_id = products.pid LEFT JOIN cust_reg c ON (purchase.user = c.c_email OR purchase.user = c.c_name) WHERE LOWER(IFNULL(purchase.delivery_status,'order_confirmed')) IN ('pending','order_confirmed') ORDER BY pdate DESC";
   $res = mysqli_query($con, $q);
 } elseif($view === 'assigned'){
   $q = "SELECT purchase.*, products.pname AS prod_name, products.pimg AS prod_img, c.c_name AS customer_name, c.c_email AS customer_email FROM purchase LEFT JOIN products ON purchase.prod_id = products.pid LEFT JOIN cust_reg c ON (purchase.user = c.c_email OR purchase.user = c.c_name) WHERE IFNULL(purchase.assigned_agent,'')<>'' AND LOWER(IFNULL(purchase.delivery_status,'pending')) NOT IN ('delivered','cancelled') ORDER BY pdate DESC";
@@ -122,7 +122,8 @@ if($view === 'history'){
         background: #f8f9fa; border: 1px solid #e9ecef; color: #555;
         margin-bottom: 4px;
     }
-    .status-pill.pending { border-color: #ffeeba; background: #fff3cd; color: #856404; }
+    .status-pill.pending, .status-pill.order_confirmed { border-color: #ffeeba; background: #fff3cd; color: #856404; }
+    .status-pill.out_for_delivery, .status-pill.shipped { border-color: #dbeafe; background: #eff6ff; color: #1d4ed8; }
     .status-pill.delivered { border-color: #c3e6cb; background: #d4edda; color: #155724; }
     .status-pill.cancelled { border-color: #f5c6cb; background: #f8d7da; color: #721c24; }
 
@@ -198,14 +199,18 @@ if($view === 'history'){
                             $c_name = htmlspecialchars($r['customer_name'] ?: 'Guest');
                             $c_email = htmlspecialchars($r['user']);
                             
-                            $d_status = strtolower($r['delivery_status'] ?? 'pending');
+                            $d_status = strtolower($r['delivery_status'] ?? 'order_confirmed');
+                            if($d_status === 'pending') $d_status = 'order_confirmed';
+                            if($d_status === 'shipped') $d_status = 'out_for_delivery';
                             $assigned = htmlspecialchars($r['assigned_agent'] ?? '');
                             $date = date('d M, Y', strtotime($r['pdate']));
 
                             // Determine Status Class
-                            $status_class = 'pending';
+                            $status_class = 'order_confirmed';
+                            if($d_status == 'out_for_delivery') $status_class = 'out_for_delivery';
                             if($d_status == 'delivered') $status_class = 'delivered';
                             if($d_status == 'cancelled') $status_class = 'cancelled';
+                            $status_label = ucwords(str_replace('_', ' ', $d_status));
                     ?>
                     <tr>
                         <td>
@@ -234,7 +239,7 @@ if($view === 'history'){
 
                         <td>
                             <div class="status-pill <?php echo $status_class; ?>">
-                                <?php echo ucfirst($d_status); ?>
+                                <?php echo $status_label; ?>
                             </div>
                             <?php if($assigned): ?>
                                 <div class="text-truncate" style="font-size:0.75rem; color:#666;">
