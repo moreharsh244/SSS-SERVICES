@@ -78,7 +78,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 }
 
 $products = [];
-$pq = mysqli_query($con, "SELECT pid, pname, pprice, pcat, pimg FROM products");
+$pq = mysqli_query($con, "SELECT pid, pname, pprice, pcat, pimg, pcompany, pdisc, pqty FROM products");
 if($pq){ while($r = mysqli_fetch_assoc($pq)) $products[] = $r; }
 
 if(!$is_partial){
@@ -87,28 +87,26 @@ if(!$is_partial){
 }
 ?>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
 <style>
     :root {
-        --primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        --glass-bg: rgba(255, 255, 255, 0.8);
-        --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-        --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        --hover-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        --primary-grad: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
+        --glass-bg: rgba(248, 251, 255, 0.9);
+        --glass-border: 1px solid rgba(191, 219, 254, 0.8);
+        --card-shadow: 0 10px 20px rgba(30,64,175,0.10);
+        --hover-shadow: 0 15px 30px rgba(2,132,199,0.16);
     }
 
     .build-page-wrap {
         min-height: 100vh;
         font-family: 'Poppins', sans-serif;
-        background: #f8fafc;
-        /* Subtle mesh background */
-        background-image: 
-            radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-            radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-            radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-        background: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.10) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
         padding-top: 20px;
     }
 
@@ -116,12 +114,12 @@ if(!$is_partial){
 
     /* --- HERO SECTION --- */
     .build-hero {
-        background: rgba(255, 255, 255, 0.9);
+        background: linear-gradient(120deg, rgba(245,243,255,0.92) 0%, rgba(238,246,255,0.92) 55%, rgba(240,253,244,0.92) 100%);
         backdrop-filter: blur(10px);
         border-radius: 24px;
         padding: 30px;
         box-shadow: var(--card-shadow);
-        border: 1px solid rgba(255,255,255,0.8);
+        border: 1px solid rgba(191,219,254,0.8);
         position: relative;
         overflow: hidden;
     }
@@ -272,53 +270,53 @@ if(!$is_partial){
         transform: translateX(-50%);
         width: 90%;
         max-width: 1000px;
-        background: rgba(15, 23, 42, 0.9);
+        background: linear-gradient(90deg, rgba(245,243,255,0.95) 0%, rgba(238,246,255,0.95) 100%);
         backdrop-filter: blur(12px);
-        color: white;
+        color: #1f2a44;
         border-radius: 100px;
         padding: 12px 30px;
         z-index: 1000;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        box-shadow: 0 20px 40px rgba(30,64,175,0.18);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid rgba(191,219,254,0.9);
         animation: slideUp 0.5s ease-out;
     }
 
     @keyframes slideUp { from { bottom: -100px; } to { bottom: 20px; } }
 
     .total-label { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
-    .total-value { font-size: 1.5rem; font-weight: 700; color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
+    .total-value { font-size: 1.5rem; font-weight: 700; color: #0284c7; text-shadow: none; }
 
     .build-name-input {
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
+        background: #f8fbff;
+        border: 1px solid #bfdbfe;
+        color: #1f2a44;
         border-radius: 20px;
         padding: 8px 15px;
         outline: none;
     }
-    .build-name-input::placeholder { color: rgba(255,255,255,0.5); }
-    .build-name-input:focus { background: rgba(255,255,255,0.2); border-color: white; }
+    .build-name-input::placeholder { color: #94a3b8; }
+    .build-name-input:focus { background: #ffffff; border-color: #93c5fd; }
 
     #saveBtn {
-        background: linear-gradient(to right, #10b981, #059669);
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         border: none;
         border-radius: 50px;
         padding: 10px 30px;
         font-weight: 700;
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        box-shadow: 0 0 15px rgba(124, 58, 237, 0.35);
         transition: 0.3s;
     }
-    #saveBtn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(16, 185, 129, 0.6); }
+    #saveBtn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(124, 58, 237, 0.5); }
 
     /* --- MODAL STYLING --- */
     .modal-content { border-radius: 20px; overflow: hidden; border: none; }
-    .modal-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 20px; }
+    .modal-header { background: #eef6ff; border-bottom: 1px solid #bfdbfe; padding: 20px; }
     .modal-title { font-weight: 700; color: #1e293b; }
     .product-select-card {
-        border: 1px solid #e2e8f0;
+        border: 1px solid #bfdbfe;
         border-radius: 16px;
         transition: 0.2s;
         cursor: pointer;
@@ -326,9 +324,33 @@ if(!$is_partial){
         overflow: hidden;
     }
     .product-select-card:hover {
-        border-color: #6366f1;
-        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.15);
+        border-color: #93c5fd;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15);
         transform: translateY(-3px);
+    }
+
+    .product-brand {
+        font-size: 0.78rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .product-desc {
+        font-size: 0.82rem;
+        color: #475569;
+        line-height: 1.35;
+        margin-top: 4px;
+        min-height: 34px;
+    }
+
+    .product-stock {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #0f766e;
+        background: #ecfeff;
+        border: 1px solid #a5f3fc;
+        border-radius: 999px;
+        padding: 2px 8px;
     }
 </style>
 
@@ -446,6 +468,12 @@ if(!$is_partial){
         const cleaned = String(value || '').replace(/[^0-9.]/g, '');
         const parsed = parseFloat(cleaned);
         return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function previewText(value, max = 90) {
+        const text = String(value || '').trim();
+        if(!text) return 'No description available.';
+        return text.length > max ? text.slice(0, max - 3) + '...' : text;
     }
 
     productsData = productsData.map(p => { return { ...p, pprice: parsePrice(p.pprice) }; });
@@ -592,6 +620,10 @@ if(!$is_partial){
             body.innerHTML = filtered.map(p => {
                 const img = p.pimg ? `../productimg/${encodeURIComponent(p.pimg)}` : '../img/pc1.jpg';
                 const priceVal = parsePrice(p.pprice);
+                const productName = escapeHtml(String(p.pname || 'Unnamed Product'));
+                const productBrand = escapeHtml(String(p.pcompany || ''));
+                const productDesc = escapeHtml(previewText(p.pdisc, 100));
+                const stock = Number.isFinite(parseInt(p.pqty, 10)) ? parseInt(p.pqty, 10) : 0;
                 return `
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="product-select-card product-select bg-white p-3 h-100 d-flex flex-column" 
@@ -605,11 +637,14 @@ if(!$is_partial){
                         <div class="text-center mb-3" style="height:120px; display:flex; align-items:center; justify-content:center;">
                             <img src="${img}" style="max-height:100%; max-width:100%; object-fit:contain;">
                         </div>
-                        <div class="fw-bold text-dark small mb-1" style="line-height:1.2;">${p.pname}</div>
+                        <div class="fw-bold text-dark small mb-1" style="line-height:1.2;">${productName}</div>
+                        <div class="product-brand">${productBrand || 'Generic Brand'}</div>
+                        <div class="product-desc">${productDesc}</div>
                         <div class="mt-auto">
                             <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="product-stock">Stock: ${stock}</span>
                                 <span class="h5 mb-0 text-success fw-bold">₹${priceVal.toFixed(2)}</span>
-                                <button class="btn btn-sm btn-primary rounded-circle"><i class="bi bi-plus"></i></button>
+                                <button type="button" class="btn btn-sm btn-primary rounded-circle"><i class="bi bi-plus"></i></button>
                             </div>
                         </div>
                     </div>
