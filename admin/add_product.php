@@ -6,17 +6,21 @@ include('header.php');
 
 <style>
     body {
-        background-color: #f8f9fa;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
     }
     .form-card {
-        background: white;
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
         border-radius: 15px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: 1px solid #bfdbfe;
+        box-shadow: 0 10px 30px rgba(30, 64, 175, 0.12);
         overflow: hidden;
     }
     .form-header {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        background: linear-gradient(135deg, #7c3aed 0%, #0ea5e9 100%);
         padding: 25px;
         color: white;
         text-align: center;
@@ -24,18 +28,19 @@ include('header.php');
     .form-label {
         font-weight: 600;
         font-size: 0.9rem;
-        color: #555;
+        color: #1f2a44;
         margin-bottom: 6px;
     }
     .form-control, .form-select {
         border-radius: 8px;
-        border: 1px solid #dee2e6;
+        border: 1px solid #bfdbfe;
         padding: 10px 15px;
         transition: all 0.3s;
+        background: rgba(255, 255, 255, 0.7);
     }
     .form-control:focus, .form-select:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
     }
     
     /* Custom File Upload Styling */
@@ -124,7 +129,7 @@ include('header.php');
                         <div class="col-md-4 mb-3 mb-md-0">
                             <label class="form-label">Price (Per Unit)</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">₹</span>
                                 <input type="number" step="0.01" class="form-control" id="pprice" name="pprice" placeholder="0.00" required>
                             </div>
                         </div>
@@ -135,7 +140,7 @@ include('header.php');
                         <div class="col-md-4">
                             <label class="form-label">Total Amount</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">₹</span>
                                 <input type="text" class="form-control bg-light" id="pamount" name="pamount" readonly required>
                             </div>
                         </div>
@@ -201,49 +206,26 @@ include('header.php');
 if(isset($_POST['add_product'])){
     include('conn.php'); // Ensure this path is correct
     
-    // Load notification functions
-    function ensure_admin_notifications_table($con) {
-        $create = "CREATE TABLE IF NOT EXISTS `admin_notifications` (
-            `id` INT AUTO_INCREMENT PRIMARY KEY,
-            `type` VARCHAR(50) NOT NULL,
-            `title` VARCHAR(255) NOT NULL,
-            `message` TEXT,
-            `link` VARCHAR(255),
-            `is_read` TINYINT(1) DEFAULT 0,
-            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX(`is_read`),
-            INDEX(`created_at`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        @mysqli_query($con, $create);
-    }
-    
-    function add_admin_notification($con, $type, $title, $message = '', $link = '') {
-        ensure_admin_notifications_table($con);
-        $type = mysqli_real_escape_string($con, $type);
-        $title = mysqli_real_escape_string($con, $title);
-        $message = mysqli_real_escape_string($con, $message);
-        $link = mysqli_real_escape_string($con, $link);
-        $sql = "INSERT INTO admin_notifications (type, title, message, link, is_read) 
-                VALUES ('$type', '$title', '$message', '$link', 0)";
-        return @mysqli_query($con, $sql);
-    }
-    
-    // Sanitize inputs roughly to prevent basic errors (Recommend using Prepared Statements in production)
-    $pname = $_POST['pname'];
-    $pcompany = $_POST['pcompany'];
-    $pprice = $_POST['pprice'];
-    $pqty = $_POST['pqty'];
-    $pamount = $_POST['pamount'];
-    $pdescription = $_POST['product_description'];
-    $pcat = isset($_POST['pcat']) ? $_POST['pcat'] : '';
+    // Sanitize inputs to prevent SQL injection
+    $pname = mysqli_real_escape_string($con, $_POST['pname']);
+    $pcompany = mysqli_real_escape_string($con, $_POST['pcompany']);
+    $pprice = mysqli_real_escape_string($con, $_POST['pprice']);
+    $pqty = mysqli_real_escape_string($con, $_POST['pqty']);
+    $pamount = mysqli_real_escape_string($con, $_POST['pamount']);
+    $pdescription = mysqli_real_escape_string($con, $_POST['product_description']);
+    $pcat = isset($_POST['pcat']) ? mysqli_real_escape_string($con, $_POST['pcat']) : '';
 
     // Image Upload Logic
     $filename = $_FILES["pimg"]["name"];
-    // Added time to filename to prevent duplicates
     $target_dir = "../productimg/";
     $target_file = $target_dir . basename($filename);
 
-    // Check if directory exists, if not, careful handling needed or manual creation
+    // Check if directory exists
+    if(!is_dir($target_dir)){
+        mkdir($target_dir, 0755, true);
+    }
+
+    // Move uploaded file
     if(move_uploaded_file($_FILES["pimg"]["tmp_name"], $target_file)){
         
         $sqlq = "INSERT INTO `products` (`pname`, `pcompany`, `pqty`, `pprice`, `pamount`, `pdisc`, `pimg`, `pcat`) 
@@ -257,18 +239,18 @@ if(isset($_POST['add_product'])){
             if($qty_int <= 5){
                 $notif_title = "Low Stock: $pname";
                 $notif_msg = "$pcompany - Only $qty_int units remaining";
-                add_admin_notification($con, 'low_stock', $notif_title, $notif_msg, 'view_product.php');
+                add_admin_notification('low_stock', $notif_title, $notif_msg, 'view_product.php');
             }
             
             echo "<script>
                     alert('Product Added Successfully');
-                    window.location.href='add_product.php'; // Optional redirect to clear form
+                    window.location.href='add_product.php';
                   </script>";
         } else {
-            echo "<script>alert('Error: Product Not Added');</script>";        
+            echo "<script>alert('Error: Product Not Added - " . addslashes(mysqli_error($con)) . "');</script>";        
         }
     } else {
-        echo "<script>alert('Error Uploading Image');</script>";
+        echo "<script>alert('Error Uploading Image. Please check folder permissions.');</script>";
     }
 }
 ?>
