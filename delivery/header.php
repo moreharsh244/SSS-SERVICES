@@ -37,41 +37,73 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-grad: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
-            --accent-grad: linear-gradient(135deg, #fb7185 0%, #fda4af 100%);
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --text-main: #1e293b;
+            --primary-color: #7c3aed;
+            --primary-dark: #6d28d9;
+            --secondary-color: #0ea5e9;
+            --card-bg: #f8fbff;
+            --text-dark: #1f2a44;
+            --text-muted: #64748b;
+            --surface-soft: #eef6ff;
+            --surface-border: #dbeafe;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
-            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
-            background-attachment: fixed;
+            background:
+                radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+                radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+                radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+                linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
         }
 
-        /* --- Glass Navbar --- */
+        /* --- TOP BRAND HEADER --- */
         .glass-header {
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(90deg, rgba(245, 243, 255, 0.95) 0%, rgba(224, 242, 254, 0.95) 55%, rgba(240, 253, 244, 0.95) 100%);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(186, 230, 253, 0.5);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.06);
             position: sticky;
             top: 0;
-            z-index: 1020; /* High z-index to stay on top */
-            padding: 0.8rem 0;
+            z-index: 1020;
+            padding: 1rem 0;
         }
+
+        /* --- SECONDARY NAVBAR --- */
+        .secondary-navbar {
+            background: linear-gradient(90deg, rgba(245, 243, 255, 0.92) 0%, rgba(238, 246, 255, 0.92) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(186, 230, 253, 0.9);
+            box-shadow: 0 6px 18px rgba(30, 64, 175, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1019;
+            padding: 0;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-container::-webkit-scrollbar { display: none; }
 
         /* --- BRAND TEXT --- */
         .brand-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Poppins', sans-serif;
             font-weight: 900;
             font-size: 2.25rem;
             letter-spacing: -0.03em;
@@ -80,75 +112,96 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
             -webkit-text-fill-color: transparent;
             white-space: nowrap; 
             line-height: 1.2;
+            text-decoration: none;
+        }
+
+        .brand-text span {
+            background: linear-gradient(to right, #4338ca, #be185d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-accent {
+            background: linear-gradient(to right, #be185d, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         @media (max-width: 1200px) {
             .brand-text { font-size: 1.8rem; } 
         }
 
-        /* --- Nav Pills --- */
-        .nav-pills-custom {
-            display: flex;
-            gap: 0.25rem;
-            padding: 0.4rem;
-            background: #f1f5f9;
-            border-radius: 14px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
-        }
-        .nav-pills-custom::-webkit-scrollbar { display: none; }
-
-        .nav-link-custom {
+        /* --- NAV LINK ITEMS --- */
+        .nav-link-item {
             display: inline-flex;
             align-items: center;
-            padding: 0.6rem 1rem;
-            color: #64748b;
+            gap: 8px;
+            padding: 16px 24px;
+            color: #334155;
             font-weight: 600;
-            font-size: 0.9rem;
-            border-radius: 10px;
+            font-size: 0.95rem;
             text-decoration: none;
-            transition: all 0.2s ease;
+            position: relative;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
             white-space: nowrap;
         }
 
-        .nav-link-custom:hover {
-            color: #4f46e5;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        .nav-link-item i {
+            font-size: 1.1rem;
+            color: #64748b;
+            transition: 0.3s;
         }
 
-        .nav-link-custom.active {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            color: white;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        .nav-link-item:hover {
+            color: var(--primary-color);
+            background: #eef6ff;
         }
 
-        /* --- User Profile Pill --- */
+        .nav-link-item:hover i {
+            color: #0284c7;
+        }
+
+        .nav-link-item.active {
+            color: var(--primary-color);
+            border-bottom-color: #7c3aed;
+            background: #f5f3ff;
+        }
+
+        .nav-link-item.active i {
+            color: var(--primary-color);
+        }
+
+        /* --- USER PILL --- */
         .user-pill {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 5px 14px 5px 5px;
-            background: white;
-            border: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(186, 230, 253, 0.6);
             border-radius: 50px;
             cursor: pointer;
             transition: 0.2s;
             text-decoration: none;
             color: inherit;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
             margin: 0;
             box-sizing: border-box;
         }
-        .user-pill:hover { border-color: #4f46e5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: inherit; }
-        .user-pill:focus { outline: none; border-color: #4f46e5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .user-pill:hover { border-color: #93c5fd; box-shadow: 0 2px 5px rgba(14, 165, 233, 0.15); color: inherit; }
+        .user-pill:focus { outline: none; border-color: #93c5fd; box-shadow: 0 2px 5px rgba(14, 165, 233, 0.15); }
+
+        .user-name-text {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
 
         .avatar-circle {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
             border-radius: 50%;
             display: flex;
@@ -156,23 +209,26 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
             justify-content: center;
             font-weight: 700;
             font-size: 0.95rem;
-            flex-shrink: 0;
-            box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 2px 5px rgba(124, 58, 237, 0.3);
         }
 
-        /* --- Dropdown Menu --- */
+        /* --- Dropdowns & Modals --- */
         .dropdown-menu {
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            border: none;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
         }
-
+        
         .dropdown-item {
-            font-weight: 500;
-            transition: all 0.2s;
+            color: var(--text-dark);
+            padding: 0.6rem 1rem;
+            border-radius: 6px !important;
         }
-
-        .dropdown-item:hover {
-            background: #f8fafc;
+        
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            background-color: rgba(124, 58, 237, 0.08);
+            color: var(--primary-color);
         }
 
         /* Responsive Helpers */
@@ -185,55 +241,50 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
 <body>
 
 <header class="glass-header">
-    <div class="container-fluid px-4">
-        <div class="d-flex align-items-center justify-content-between w-100 flex-wrap flex-lg-nowrap">
-            
-            <a class="d-flex align-items-center gap-3 text-decoration-none me-lg-4" href="index.php">
-                <img src="../img/logo-mark.svg" alt="Logo" width="48" height="48" onerror="this.style.display='none'">
-                <span class="brand-text">Shree Swami Samarth</span>
+  <div class="container-fluid px-lg-5 px-3">
+    <div class="d-flex align-items-center justify-content-between">
+      
+      <a href="index.php" class="brand-text">
+        <img src="../img/logo-mark.svg" alt="Logo" width="38" height="38" onerror="this.style.display='none'">
+        <span>Shree Swami <span class="brand-accent">Samarth</span></span>
+      </a>
+
+      <div class="dropdown">
+        <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           <div class="avatar-circle">
+              <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
+           </div>
+           <span class="user-name-text d-none d-sm-inline-block"><?php echo htmlentities($_SESSION['username']); ?></span>
+           <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" style="background: linear-gradient(180deg, #f5f3ff 0%, #eef6ff 100%); border: 1px solid rgba(191,219,254,0.9); box-shadow: 0 14px 30px rgba(30, 64, 175, 0.12); border-radius: 12px; margin-top: 10px;">
+           <li><a class="dropdown-item" href="index.php"><i class="bi bi-truck-front-fill me-2 text-danger"></i> Deliveries</a></li>
+           <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person-badge-fill me-2 text-warning"></i> Profile</a></li>
+           <li><a class="dropdown-item" href="audit_log.php"><i class="bi bi-clock-history me-2 text-primary"></i> Audit Log</a></li>
+           <li><hr class="dropdown-divider" style="border-color: rgba(191,219,254,0.7);"></li>
+           <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<nav class="secondary-navbar">
+    <div class="container-fluid">
+        <div class="nav-container">
+            <a class="nav-link-item <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''; ?>" href="index.php">
+                <i class="bi bi-truck-front-fill"></i> Deliveries
             </a>
-
-            <button class="navbar-toggler d-lg-none border-0 p-2 bg-light rounded-circle shadow-sm ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
-                <i class="bi bi-list fs-4"></i>
-            </button>
-
-            <div class="collapse d-lg-flex w-100 align-items-center" id="navContent">
-                
-                <nav class="nav-pills-custom mx-lg-auto my-3 my-lg-0">
-                    <a class="nav-link-custom <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''; ?>" href="index.php">
-                        <i class="bi bi-truck-front-fill me-2" style="<?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'color:white;' : 'color:#f43f5e;'; ?>"></i>Deliveries
-                    </a>
-                    <a class="nav-link-custom <?php echo basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : ''; ?>" href="profile.php">
-                        <i class="bi bi-person-badge-fill me-2" style="<?php echo basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'color:white;' : 'color:#f59e0b;'; ?>"></i>Profile
-                    </a>
-                    <a class="nav-link-custom <?php echo basename($_SERVER['PHP_SELF']) === 'audit_log.php' ? 'active' : ''; ?>" href="audit_log.php">
-                        <i class="bi bi-clock-history me-2" style="<?php echo basename($_SERVER['PHP_SELF']) === 'audit_log.php' ? 'color:white;' : 'color:#8b5cf6;'; ?>"></i>Audit Log
-                    </a>
-                </nav>
-
-                <div class="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0 ms-lg-4">
-                    <div class="dropdown">
-                        <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="avatar-circle">
-                                <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
-                            </div>
-                            <span class="fw-bold text-dark pe-1"><?php echo htmlentities($_SESSION['username']); ?></span>
-                            <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2">
-                            <li><a class="dropdown-item rounded-3 mb-1" href="index.php"><i class="bi bi-truck-front-fill me-2 text-danger"></i>Deliveries</a></li>
-                            <li><a class="dropdown-item rounded-3 mb-1" href="profile.php"><i class="bi bi-person-circle me-2 text-warning"></i>My Profile</a></li>
-                            <li><a class="dropdown-item rounded-3 mb-1" href="audit_log.php"><i class="bi bi-clock-history me-2 text-primary"></i>Audit Log</a></li>
-                            <li><hr class="dropdown-divider my-1"></li>
-                            <li><a class="dropdown-item rounded-3 text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>
+            <a class="nav-link-item <?php echo basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : ''; ?>" href="profile.php">
+                <i class="bi bi-person-badge-fill"></i> Profile
+            </a>
+            <a class="nav-link-item <?php echo basename($_SERVER['PHP_SELF']) === 'audit_log.php' ? 'active' : ''; ?>" href="audit_log.php">
+                <i class="bi bi-clock-history"></i> Audit Log
+            </a>
         </div>
     </div>
-</header>
+</nav>
 
 <div class="container-fluid px-4 py-4">
     <div class="row justify-content-center">
