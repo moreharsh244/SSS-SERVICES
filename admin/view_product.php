@@ -6,34 +6,38 @@ include('header.php');
 
 <style>
     body {
-        background-color: #f8f9fa;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
     }
     
     .dashboard-card {
-        background: #fff;
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
         border-radius: 12px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        border: none;
+        box-shadow: 0 10px 22px rgba(30, 64, 175, 0.12);
+        border: 1px solid #bfdbfe;
         overflow: hidden;
     }
 
     .table-header {
-        background: white;
+        background: rgba(255, 255, 255, 0.6);
         padding: 20px 25px;
-        border-bottom: 1px solid #edf2f7;
+        border-bottom: 1px solid #bfdbfe;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
     .table thead th {
-        background-color: #f8f9fa;
-        color: #8898aa;
+        background-color: rgba(255, 255, 255, 0.4);
+        color: #7c3aed;
         font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid #bfdbfe;
         padding: 15px 20px;
     }
 

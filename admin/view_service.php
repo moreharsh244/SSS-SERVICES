@@ -36,23 +36,27 @@ $display_status = ucwords(str_replace('_', ' ', $r['status']));
 
 <style>
     body {
-        background-color: #f8fafc;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
+        font-family: 'Poppins', sans-serif;
     }
 
     .ticket-card {
-        background: #ffffff;
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
         border-radius: 20px;
-        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 22px rgba(30, 64, 175, 0.12);
+        border: 1px solid #bfdbfe;
         overflow: hidden;
         margin-bottom: 40px;
     }
 
     .ticket-header {
-        background: #f8fafc;
+        background: rgba(255, 255, 255, 0.6);
         padding: 24px 30px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid #bfdbfe;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -63,7 +67,7 @@ $display_status = ucwords(str_replace('_', ' ', $r['status']));
     .ticket-title {
         margin: 0;
         font-weight: 800;
-        color: #0f172a;
+        color: #1f2a44;
         font-size: 1.4rem;
         display: flex;
         align-items: center;

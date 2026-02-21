@@ -75,20 +75,26 @@ $res = mysqli_query($con, "SELECT username, full_name, email, phone, role, is_ac
 
 <style>
     :root {
-        --primary-brand: #4f46e5;
-        --primary-soft: #eef2ff;
-        --text-main: #1f2937;
-        --text-muted: #6b7280;
-        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        --primary-brand: #7c3aed;
+        --primary-soft: #ede9fe;
+        --text-main: #1f2a44;
+        --text-muted: #64748b;
+        --card-shadow: 0 10px 22px rgba(30, 64, 175, 0.12);
     }
     
-    body { background-color: #f3f4f6; }
+    body {
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
+    }
 
     .page-header h4 { font-weight: 700; color: var(--text-main); }
     
     .admin-card-modern {
-        background: white;
-        border: none;
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
+        border: 1px solid #bfdbfe;
         border-radius: 12px;
         box-shadow: var(--card-shadow);
         overflow: hidden;
@@ -96,8 +102,8 @@ $res = mysqli_query($con, "SELECT username, full_name, email, phone, role, is_ac
     }
 
     .card-header-custom {
-        background: #fff;
-        border-bottom: 1px solid #f3f4f6;
+        background: rgba(255, 255, 255, 0.6);
+        border-bottom: 1px solid #bfdbfe;
         padding: 1.25rem 1.5rem;
         font-weight: 600;
         color: var(--text-main);

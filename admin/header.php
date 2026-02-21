@@ -73,7 +73,7 @@ $unread_count = 0;
 $recent_notifications = [];
 if(isset($con)){
     $unread_count = get_unread_notifications_count();
-    $recent_notifications = get_recent_notifications(5);
+    $recent_notifications = get_recent_notifications(20);
 }
 
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -90,42 +90,73 @@ $current_page = basename($_SERVER['PHP_SELF']);
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            --accent-grad: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --text-main: #1e293b;
+            --primary-color: #7c3aed;
+            --primary-dark: #6d28d9;
+            --secondary-color: #0ea5e9;
+            --card-bg: #f8fbff;
+            --text-dark: #1f2a44;
+            --text-muted: #64748b;
+            --surface-soft: #eef6ff;
+            --surface-border: #dbeafe;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
-            /* Static, Attractive Gradient Background */
-            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%); 
-            background-attachment: fixed;
+            background:
+                radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+                radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+                radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+                linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
         }
 
-        /* --- Glass Navbar --- */
-        .glass-header {
-            background: rgba(255, 255, 255, 0.95);
+        /* --- TOP BRAND HEADER --- */
+        .top-brand-header {
+            background: linear-gradient(90deg, rgba(245, 243, 255, 0.95) 0%, rgba(224, 242, 254, 0.95) 55%, rgba(240, 253, 244, 0.95) 100%);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(186, 230, 253, 0.5);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.06);
             position: sticky;
             top: 0;
-            z-index: 1020; /* High z-index to stay on top */
-            padding: 0.8rem 0;
+            z-index: 1020;
+            padding: 1rem 0;
         }
+
+        /* --- SECONDARY NAVBAR --- */
+        .secondary-navbar {
+            background: linear-gradient(90deg, rgba(245, 243, 255, 0.92) 0%, rgba(238, 246, 255, 0.92) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(186, 230, 253, 0.9);
+            box-shadow: 0 6px 18px rgba(30, 64, 175, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1019;
+            padding: 0;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-container::-webkit-scrollbar { display: none; }
 
         /* --- BRAND TEXT --- */
         .brand-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Poppins', sans-serif;
             font-weight: 900;
             font-size: 2.25rem;
             letter-spacing: -0.03em;
@@ -134,93 +165,97 @@ $current_page = basename($_SERVER['PHP_SELF']);
             -webkit-text-fill-color: transparent;
             white-space: nowrap; 
             line-height: 1.2;
+            text-decoration: none;
+        }
+
+        .brand-text span {
+            background: linear-gradient(to right, #4338ca, #be185d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-accent {
+            background: linear-gradient(to right, #be185d, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         @media (max-width: 1200px) {
             .brand-text { font-size: 1.8rem; } 
         }
 
-        /* --- Nav Pills --- */
-        .nav-pills-custom {
-            display: flex;
-            gap: 0.25rem;
-            padding: 0.4rem;
-            background: #f1f5f9;
-            border-radius: 14px;
-            overflow-x: auto;
-            scrollbar-width: none; 
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
-        }
-        .nav-pills-custom::-webkit-scrollbar { display: none; }
-
-        .nav-link-custom {
+        /* --- NAV LINK ITEMS --- */
+        .nav-link-item {
             display: inline-flex;
             align-items: center;
-            padding: 0.6rem 1rem;
-            color: #64748b;
+            gap: 8px;
+            padding: 16px 24px;
+            color: #334155;
             font-weight: 600;
-            font-size: 0.9rem;
-            border-radius: 10px;
+            font-size: 0.95rem;
             text-decoration: none;
-            transition: all 0.2s ease;
+            position: relative;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
             white-space: nowrap;
         }
 
-        .nav-link-custom:hover {
-            color: #4f46e5;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .nav-link-custom.active {
-            background: var(--primary-grad);
-            color: white;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-        }
-
-        /* --- Icons & User --- */
-        .icon-btn {
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: white;
+        .nav-link-item i {
+            font-size: 1.1rem;
             color: #64748b;
-            border: 1px solid #e2e8f0;
-            transition: 0.2s;
-            position: relative;
-            text-decoration: none;
-            cursor: pointer;
-            padding: 0;
+            transition: 0.3s;
         }
-        .icon-btn:hover { color: #4f46e5; border-color: #4f46e5; background: #f8fafc; }
 
+        .nav-link-item:hover {
+            color: var(--primary-color);
+            background: #eef6ff;
+        }
+
+        .nav-link-item:hover i {
+            color: #0284c7;
+        }
+
+        .nav-link-item.active {
+            color: var(--primary-color);
+            border-bottom-color: #7c3aed;
+            background: #f5f3ff;
+        }
+
+        .nav-link-item.active i {
+            color: var(--primary-color);
+        }
+
+        /* --- USER PILL --- */
         .user-pill {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 5px 14px 5px 5px;
-            background: white;
-            border: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(186, 230, 253, 0.6);
             border-radius: 50px;
             cursor: pointer;
             transition: 0.2s;
             text-decoration: none;
             color: inherit;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
             margin: 0;
             box-sizing: border-box;
         }
-        .user-pill:hover { border-color: #4f46e5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: inherit; }
-        .user-pill:focus { outline: none; border-color: #4f46e5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .user-pill:hover { border-color: #93c5fd; box-shadow: 0 2px 5px rgba(14, 165, 233, 0.15); color: inherit; }
+        .user-pill:focus { outline: none; border-color: #93c5fd; box-shadow: 0 2px 5px rgba(14, 165, 233, 0.15); }
+
+        .user-name-text {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
 
         .avatar-circle {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
             border-radius: 50%;
             display: flex;
@@ -228,18 +263,120 @@ $current_page = basename($_SERVER['PHP_SELF']);
             justify-content: center;
             font-weight: 700;
             font-size: 0.95rem;
-            box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 2px 5px rgba(124, 58, 237, 0.3);
         }
         
-        .notification-dot {
-            position: absolute;
-            top: 10px;
-            right: 11px;
-            width: 9px;
-            height: 9px;
-            background: #ef4444;
+        /* --- NOTIFICATION BELL --- */
+        .notification-bell {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(186, 230, 253, 0.6);
             border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+        }
+
+        .notification-bell:hover {
+            border-color: #93c5fd;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
+            color: var(--primary-color);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
             border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        .notification-dropdown {
+            width: 420px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid rgba(191, 219, 254, 0.9);
+            box-shadow: 0 14px 30px rgba(30, 64, 175, 0.12);
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+
+        .notification-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(180deg, #f5f3ff 0%, #eef6ff 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .notification-item {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+
+        .notification-item.unread {
+            background: rgba(239, 246, 255, 0.6);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.info { background: #dbeafe; color: #1e40af; }
+        .notification-icon.success { background: #d1fae5; color: #065f46; }
+        .notification-icon.warning { background: #fed7aa; color: #c2410c; }
+        .notification-icon.danger { background: #fee2e2; color: #dc2626; }
+
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .notification-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #e5e7eb;
+            background: #f8fafc;
+            border-radius: 0 0 12px 12px;
         }
 
         /* --- Dropdowns & Modals --- */
@@ -250,15 +387,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
         
         .dropdown-item {
-            color: #1f2937;
+            color: var(--text-dark);
             padding: 0.6rem 1rem;
             border-radius: 6px !important;
         }
         
         .dropdown-item:hover,
         .dropdown-item:focus {
-            background-color: #f3f4f6;
-            color: #4f46e5;
+            background-color: rgba(124, 58, 237, 0.08);
+            color: var(--primary-color);
         }
         
         .modal-content {
@@ -337,159 +474,154 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
 </div>
 
-<header class="glass-header">
-    <div class="container-fluid px-4">
-        <div class="row align-items-center gy-3">
+<header class="top-brand-header">
+  <div class="container-fluid px-lg-5 px-3">
+    <div class="d-flex align-items-center justify-content-between">
+      
+      <a href="products_card.php" class="brand-text">
+        <img src="../img/logo-mark.svg" alt="Logo" width="38" height="38" onerror="this.style.display='none'">
+        <span>Shree Swami <span class="brand-accent">Samarth</span></span>
+      </a>
+
+      <div class="d-flex align-items-center gap-3">
+        <!-- Notification Bell -->
+        <div class="dropdown">
+          <a href="#" class="notification-bell" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-bell-fill"></i>
+            <?php if($unread_count > 0): ?>
+              <span class="notification-badge"><?php echo $unread_count > 99 ? '99+' : $unread_count; ?></span>
+            <?php endif; ?>
+          </a>
+          
+          <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+            <div class="notification-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-bold" style="color: var(--text-dark);">Notifications</h6>
+                <?php if($unread_count > 0): ?>
+                  <a href="?clear_notifs=1" class="btn btn-sm btn-link text-primary text-decoration-none p-0" style="font-size: 0.8rem;">
+                    Clear All
+                  </a>
+                <?php endif; ?>
+              </div>
+            </div>
             
-            <div class="col-12 col-lg-auto d-flex align-items-center justify-content-between">
-                <a href="products_card.php" class="d-flex align-items-center gap-3 text-decoration-none">
-                    <img src="../img/logo-mark.svg" alt="Logo" width="48" height="48" onerror="this.style.display='none'">
-                    <span class="brand-text">Shree Swami Samarth</span>
-                </a>
-                
-                <button class="navbar-toggler d-lg-none border-0 p-2 bg-light rounded-circle shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
-                    <i class="bi bi-list fs-4"></i>
-                </button>
-            </div>
-
-            <div class="col-12 col-lg">
-                <div class="collapse d-lg-flex justify-content-between align-items-center" id="navContent">
-                    
-                    <nav class="nav-pills-custom my-3 my-lg-0 mx-lg-auto">
-                        <a class="nav-link-custom <?php echo ($current_page == 'products_card.php') ? 'active' : ''; ?>" href="products_card.php">
-                            <i class="bi bi-grid-fill" style="color: <?php echo ($current_page == 'products_card.php') ? 'white' : '#6366f1'; ?>"></i> Grid
-                        </a>
-                        <a class="nav-link-custom <?php echo ($current_page == 'view_product.php') ? 'active' : ''; ?>" href="view_product.php">
-                            <i class="bi bi-box-seam-fill" style="color: <?php echo ($current_page == 'view_product.php') ? 'white' : '#f59e0b'; ?>"></i> Inventory
-                        </a>
-                        <a class="nav-link-custom <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">
-                            <i class="bi bi-graph-up-arrow" style="color: <?php echo ($current_page == 'index.php') ? 'white' : '#10b981'; ?>"></i> Analytics
-                        </a>
-                        <a class="nav-link-custom <?php echo ($current_page == 'orders_list.php') ? 'active' : ''; ?>" href="orders_list.php">
-                            <i class="bi bi-bag-check-fill" style="color: <?php echo ($current_page == 'orders_list.php') ? 'white' : '#ec4899'; ?>"></i> Orders
-                        </a>
-                        <a class="nav-link-custom <?php echo ($current_page == 'service_requests.php') ? 'active' : ''; ?>" href="service_requests.php">
-                            <i class="bi bi-wrench-adjustable" style="color: <?php echo ($current_page == 'service_requests.php') ? 'white' : '#8b5cf6'; ?>"></i> Service
-                        </a>
-                         <a class="nav-link-custom <?php echo ($current_page == 'builds.php') ? 'active' : ''; ?>" href="builds.php">
-                            <i class="bi bi-cpu-fill" style="color: <?php echo ($current_page == 'builds.php') ? 'white' : '#0ea5e9'; ?>"></i> Builds
-                        </a>
-                        <a class="nav-link-custom <?php echo ($current_page == 'delivery_agents.php') ? 'active' : ''; ?>" href="delivery_agents.php">
-                            <i class="bi bi-truck-front-fill" style="color: <?php echo ($current_page == 'delivery_agents.php') ? 'white' : '#f43f5e'; ?>"></i> Agents
-                        </a>
-                    </nav>
-
-                    <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0 justify-content-end">
-                        
-                        <!-- Notification Dropdown -->
-                        <div class="dropdown">
-                            <button class="icon-btn" type="button" id="notifBtn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
-                                <i class="bi bi-bell-fill fs-5"></i>
-                                <?php if($unread_count > 0 || !empty($low_stock)): ?>
-                                    <span class="notification-dot"></span>
-                                <?php endif; ?>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" aria-labelledby="notifBtn" style="width: 350px; max-height: 450px; overflow-y: auto;">
-                                <li class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-                                    <h6 class="mb-0 text-uppercase small fw-bold text-muted">Notifications</h6>
-                                    <?php if($unread_count > 0): ?>
-                                        <span class="badge bg-danger rounded-pill"><?php echo $unread_count; ?></span>
-                                    <?php endif; ?>
-                                </li>
-                                
-                                <?php if(!empty($recent_notifications)): ?>
-                                    <?php foreach($recent_notifications as $notif): 
-                                        $icon_class = get_notification_icon($notif['type'] ?? '');
-                                        $created_at = $notif['created_at'] ?? '';
-                                        $time_ago = $created_at ? (time() - strtotime($created_at)) : 0;
-                                        $time_str = $time_ago < 60 ? 'Just now' : 
-                                                    ($time_ago < 3600 ? floor($time_ago/60) . 'm ago' : 
-                                                    ($time_ago < 86400 ? floor($time_ago/3600) . 'h ago' : 
-                                                    floor($time_ago/86400) . 'd ago'));
-                                    ?>
-                                        <li>
-                                            <div class="dropdown-item py-3" style="white-space: normal;">
-                                                <div class="d-flex gap-2">
-                                                    <div class="flex-shrink-0">
-                                                        <i class="bi <?php echo $icon_class; ?> fs-5"></i>
-                                                    </div>
-                                                    <div class="flex-grow-1">
-                                                        <div class="d-flex justify-content-between gap-2">
-                                                            <div class="fw-bold text-dark small mb-1"><?php echo htmlspecialchars($notif['title'] ?? ''); ?></div>
-                                                            <?php if(!empty($notif['id'])): ?>
-                                                                <a class="text-muted small" href="?delete_notif=<?php echo urlencode($notif['id']); ?>" title="Delete">
-                                                                    <i class="bi bi-x-lg"></i>
-                                                                </a>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                        <?php if(!empty($notif['message'])): ?>
-                                                            <div class="text-muted" style="font-size: 0.8rem;"><?php echo htmlspecialchars($notif['message']); ?></div>
-                                                        <?php endif; ?>
-                                                        <div class="text-muted mt-1" style="font-size: 0.75rem;">
-                                                            <i class="bi bi-clock me-1"></i><?php echo $time_str; ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                                
-                                <?php if(!empty($low_stock)): ?>
-                                    <li>
-                                        <a class="dropdown-item py-3" href="#" data-bs-toggle="modal" data-bs-target="#lowStockModal" style="white-space: normal;">
-                                            <div class="d-flex gap-2">
-                                                <div class="flex-shrink-0">
-                                                    <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <div class="fw-bold text-dark small mb-1">Low Stock Alert</div>
-                                                    <div class="text-muted" style="font-size: 0.8rem;"><?php echo count($low_stock); ?> products need restocking</div>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                <?php endif; ?>
-                                
-                                <?php if(empty($recent_notifications) && empty($low_stock)): ?>
-                                    <li class="text-center py-4">
-                                        <i class="bi bi-bell-slash text-muted fs-1 d-block mb-2"></i>
-                                        <span class="text-muted small">No notifications</span>
-                                    </li>
-                                <?php endif; ?>
-                                
-                                <?php if($unread_count > 0): ?>
-                                    <li class="border-top">
-                                        <a class="dropdown-item text-center text-primary small fw-bold py-2" href="?clear_notifs=1">
-                                            <i class="bi bi-trash me-1"></i>Clear all
-                                        </a>
-                                    </li>
-                                <?php endif; ?>
-                            </ul>
-                        </div>
-
-                        <!-- User Menu Dropdown -->
-                        <div class="dropdown">
-                            <button class="user-pill" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="User Menu">
-                                <div class="avatar-circle">
-                                    <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
-                                </div>
-                                <span class="fw-bold text-dark pe-1"><?php echo htmlentities($_SESSION['username']); ?></span>
-                                <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuBtn">
-                                <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person me-2"></i>My Profile</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-power me-2"></i>Sign Out</a></li>
-                            </ul>
-                        </div>
-
+            <div class="notification-list">
+              <?php if(!empty($recent_notifications)): ?>
+                <?php foreach($recent_notifications as $notif): 
+                  $is_unread = ($notif['is_read'] ?? 0) == 0;
+                  $type = $notif['type'] ?? 'info';
+                  $icon_class = 'info';
+                  $icon = 'bi-info-circle-fill';
+                  
+                  if($type == 'low_stock' || $type == 'warning') {
+                    $icon_class = 'warning';
+                    $icon = 'bi-exclamation-triangle-fill';
+                  } elseif($type == 'new_order' || $type == 'success') {
+                    $icon_class = 'success';
+                    $icon = 'bi-check-circle-fill';
+                  } elseif($type == 'error' || $type == 'urgent') {
+                    $icon_class = 'danger';
+                    $icon = 'bi-x-circle-fill';
+                  }
+                  
+                  $time_ago = '';
+                  if(!empty($notif['created_at'])) {
+                    $timestamp = strtotime($notif['created_at']);
+                    $diff = time() - $timestamp;
+                    if($diff < 60) $time_ago = 'Just now';
+                    elseif($diff < 3600) $time_ago = floor($diff / 60) . 'm ago';
+                    elseif($diff < 86400) $time_ago = floor($diff / 3600) . 'h ago';
+                    else $time_ago = floor($diff / 86400) . 'd ago';
+                  }
+                ?>
+                  <div class="notification-item <?php echo $is_unread ? 'unread' : ''; ?>" 
+                       onclick="window.location.href='?delete_notif=<?php echo urlencode($notif['id'] ?? ''); ?>'">
+                    <div class="d-flex gap-3">
+                      <div class="notification-icon <?php echo $icon_class; ?>">
+                        <i class="bi <?php echo $icon; ?>"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <p class="mb-1 fw-semibold" style="font-size: 0.9rem; color: var(--text-dark);">
+                          <?php echo htmlspecialchars($notif['title'] ?? 'Notification'); ?>
+                        </p>
+                        <p class="mb-1 text-muted" style="font-size: 0.85rem;">
+                          <?php echo htmlspecialchars($notif['message'] ?? ''); ?>
+                        </p>
+                        <p class="mb-0 text-muted" style="font-size: 0.75rem;">
+                          <i class="bi bi-clock me-1"></i><?php echo $time_ago; ?>
+                        </p>
+                      </div>
                     </div>
+                  </div>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <div class="notification-empty">
+                  <i class="bi bi-bell-slash" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                  <p class="mb-0 mt-2 fw-semibold">No notifications</p>
+                  <p class="mb-0 small">You're all caught up!</p>
                 </div>
+              <?php endif; ?>
             </div>
+            
+            <?php if(!empty($recent_notifications)): ?>
+              <div class="notification-footer">
+                <a href="notifications.php" class="btn btn-sm btn-link text-primary text-decoration-none p-0 w-100 text-center">
+                  View All Notifications
+                </a>
+              </div>
+            <?php endif; ?>
+          </div>
+        </div>
+
+        <!-- User Profile Dropdown -->
+        <div class="dropdown">
+          <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           <div class="avatar-circle">
+              <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
+           </div>
+           <span class="user-name-text d-none d-sm-inline-block"><?php echo htmlentities($_SESSION['username']); ?></span>
+           <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" style="background: linear-gradient(180deg, #f5f3ff 0%, #eef6ff 100%); border: 1px solid rgba(191,219,254,0.9); box-shadow: 0 14px 30px rgba(30, 64, 175, 0.12); border-radius: 12px; margin-top: 10px;">
+           <li><a class="dropdown-item" href="index.php"><i class="bi bi-graph-up-arrow me-2 text-success"></i> Dashboard</a></li>
+           <li><a class="dropdown-item" href="delivery_agents.php"><i class="bi bi-people me-2 text-info"></i> Team</a></li>
+           <li><hr class="dropdown-divider" style="border-color: rgba(191,219,254,0.7);"></li>
+           <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+        </ul>
+      </div>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<nav class="secondary-navbar">
+    <div class="container-fluid">
+        <div class="nav-container">
+            <a class="nav-link-item <?php echo ($current_page == 'products_card.php') ? 'active' : ''; ?>" href="products_card.php">
+                <i class="bi bi-grid-fill"></i> Products
+            </a>
+            <a class="nav-link-item <?php echo ($current_page == 'view_product.php') ? 'active' : ''; ?>" href="view_product.php">
+                <i class="bi bi-box-seam-fill"></i> Inventory
+            </a>
+            <a class="nav-link-item <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">
+                <i class="bi bi-graph-up-arrow"></i> Analytics
+            </a>
+            <a class="nav-link-item <?php echo ($current_page == 'orders_list.php') ? 'active' : ''; ?>" href="orders_list.php">
+                <i class="bi bi-bag-check-fill"></i> Orders
+            </a>
+            <a class="nav-link-item <?php echo ($current_page == 'service_requests.php') ? 'active' : ''; ?>" href="service_requests.php">
+                <i class="bi bi-wrench-adjustable"></i> Support
+            </a>
+            <a class="nav-link-item <?php echo ($current_page == 'builds.php') ? 'active' : ''; ?>" href="builds.php">
+                <i class="bi bi-cpu-fill"></i> Builds
+            </a>
+            <a class="nav-link-item <?php echo ($current_page == 'delivery_agents.php') ? 'active' : ''; ?>" href="delivery_agents.php">
+                <i class="bi bi-truck-front-fill"></i> Delivery
+            </a>
         </div>
     </div>
-</header>
+</nav>
 
 <?php if(!empty($low_stock)): ?>
 <!-- Professional Low Stock Alert Banner -->

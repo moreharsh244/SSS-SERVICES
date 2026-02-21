@@ -24,17 +24,21 @@ while($row=mysqli_fetch_assoc($result)){
 
 <style>
     body {
-        background-color: #f8f9fa;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
     }
     .form-card {
-        background: white;
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
         border-radius: 15px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: 1px solid #bfdbfe;
+        box-shadow: 0 10px 30px rgba(30, 64, 175, 0.12);
         overflow: hidden;
     }
     .form-header {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        background: linear-gradient(135deg, #7c3aed 0%, #0ea5e9 100%);
         padding: 25px;
         color: white;
         text-align: center;

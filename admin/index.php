@@ -96,23 +96,26 @@ while($row = mysqli_fetch_assoc($recent_orders_result)){
 
 <style>
     body {
-        background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
-        background-attachment: fixed;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
         padding-bottom: 50px;
     }
     .stats-card {
-        background: rgba(255, 255, 255, 0.95);
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
         backdrop-filter: blur(10px);
         border-radius: 20px;
         padding: 1.5rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 10px 30px rgba(30, 64, 175, 0.12);
+        border: 1px solid #bfdbfe;
         height: 100%;
         transition: all 0.3s ease;
     }
     .stats-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 15px 40px rgba(30, 64, 175, 0.18);
     }
     .stats-icon {
         width: 60px;
@@ -128,16 +131,16 @@ while($row = mysqli_fetch_assoc($recent_orders_result)){
         font-size: 2rem;
         font-weight: 800;
         margin: 0.5rem 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #7c3aed 0%, #0ea5e9 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     .chart-container {
-        background: rgba(255, 255, 255, 0.95);
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
         backdrop-filter: blur(10px);
         border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 30px rgba(30, 64, 175, 0.12);
         border: 1px solid rgba(255, 255, 255, 0.5);
         margin-bottom: 2rem;
     }
@@ -206,10 +209,10 @@ while($row = mysqli_fetch_assoc($recent_orders_result)){
     
     <!-- Page Header -->
     <div class="mb-4">
-        <h1 class="display-5 fw-bold text-white mb-2">
+        <h1 class="display-5 fw-bold text-dark mb-2">
             <i class="bi bi-graph-up-arrow me-2"></i>Sales Analytics Dashboard
         </h1>
-        <p class="text-white-50 mb-0">Monitor revenue, track performance, and analyze sales trends</p>
+        <p class="text-muted mb-0">Monitor revenue, track performance, and analyze sales trends</p>
     </div>
 
     <!-- Revenue Stats Cards -->

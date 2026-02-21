@@ -19,19 +19,29 @@ $result = mysqli_query($con, $sql);
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <style>
+    /* Body Background */
+    body {
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
+    }
+
     /* Modern Card Styling */
     .product-card {
-        border: none;
+        border: 1px solid #bfdbfe;
         border-radius: 16px;
-        background: #fff;
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        box-shadow: 0 10px 22px rgba(30, 64, 175, 0.12);
         overflow: hidden;
     }
 
     .product-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 20px 36px rgba(30, 64, 175, 0.18);
+        border-color: #93c5fd;
     }
 
     /* Image Wrapper for consistent height and zoom effect */
@@ -39,7 +49,7 @@ $result = mysqli_query($con, $sql);
         position: relative;
         height: 220px;
         overflow: hidden;
-        background-color: #f8f9fa;
+        background: linear-gradient(180deg, #f0f9ff 0%, #ecfeff 52%, #f0fdf4 100%);
         cursor: pointer;
     }
 
@@ -78,7 +88,7 @@ $result = mysqli_query($con, $sql);
         font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: #94a3b8;
+        color: #7c3aed;
         font-weight: 600;
         margin-bottom: 4px;
     }
@@ -86,7 +96,7 @@ $result = mysqli_query($con, $sql);
     .product-title {
         font-size: 1.1rem;
         font-weight: 700;
-        color: #1e293b;
+        color: #1f2a44;
         margin-bottom: 10px;
         white-space: nowrap;
         overflow: hidden;
@@ -108,11 +118,11 @@ $result = mysqli_query($con, $sql);
         transition: all 0.2s;
     }
     
-    .btn-view { background-color: #f1f5f9; color: #475569; border: none; }
-    .btn-view:hover { background-color: #e2e8f0; color: #1e293b; }
+    .btn-view { background-color: rgba(124, 58, 237, 0.1); color: #7c3aed; border: none; }
+    .btn-view:hover { background-color: rgba(124, 58, 237, 0.2); color: #6d28d9; }
     
-    .btn-edit { background-color: #eff6ff; color: #2563eb; border: none; }
-    .btn-edit:hover { background-color: #dbeafe; color: #1d4ed8; }
+    .btn-edit { background-color: rgba(14, 165, 233, 0.1); color: #0ea5e9; border: none; }
+    .btn-edit:hover { background-color: rgba(14, 165, 233, 0.2); color: #0284c7; }
 
 </style>
 

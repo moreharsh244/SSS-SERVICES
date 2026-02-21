@@ -71,6 +71,13 @@ if($view === 'history'){
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <style>
+    body {
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
+    }
     /* Fixed Table Layout to prevent scrolling */
     .table-fixed {
         table-layout: fixed;
@@ -78,11 +85,11 @@ if($view === 'history'){
     }
     
     /* Column Widths (Must add up to 100%) */
-    .col-product  { width: 35%; }
+    .col-product  { width: 32%; }
     .col-customer { width: 20%; }
     .col-status   { width: 15%; }
     .col-finance  { width: 15%; }
-    .col-action   { width: 15%; }
+    .col-action   { width: 18%; }
 
     /* Compact Cells */
     .table td {
@@ -148,6 +155,19 @@ if($view === 'history'){
 </style>
 
 <div class="container-fluid py-4 px-4">
+    <?php if(isset($_GET['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i><?php echo htmlspecialchars($_GET['success']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+    <?php if(isset($_GET['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo htmlspecialchars($_GET['error']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+    
     <div class="orders-shell">
         <div class="card shadow-sm border-0">
         <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
@@ -252,20 +272,28 @@ if($view === 'history'){
 
                         <td class="text-end">
                             <?php if($view !== 'history' && $d_status !== 'delivered' && $d_status !== 'cancelled'): ?>
-                                <form action="assign_delivery.php" method="post" class="compact-form d-flex justify-content-end gap-1">
-                                    <input type="hidden" name="order_id" value="<?php echo $pid; ?>">
-                                    <select name="assigned_agent" class="form-select form-select-sm" style="width: auto; max-width: 110px;">
-                                        <option value="" selected disabled>Agent..</option>
-                                        <?php foreach($agents as $ag): ?>
-                                            <option value="<?php echo htmlspecialchars($ag); ?>" <?php echo ($assigned == $ag)?'selected':''; ?>>
-                                                <?php echo htmlspecialchars($ag); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <button type="submit" class="btn btn-outline-primary btn-sm" title="Assign">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
-                                </form>
+                                <div class="d-flex justify-content-end gap-1 align-items-center">
+                                    <form action="assign_delivery.php" method="post" class="compact-form d-flex gap-1">
+                                        <input type="hidden" name="order_id" value="<?php echo $pid; ?>">
+                                        <select name="assigned_agent" class="form-select form-select-sm" style="width: auto; max-width: 110px;">
+                                            <option value="" selected disabled>Agent..</option>
+                                            <?php foreach($agents as $ag): ?>
+                                                <option value="<?php echo htmlspecialchars($ag); ?>" <?php echo ($assigned == $ag)?'selected':''; ?>>
+                                                    <?php echo htmlspecialchars($ag); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-primary btn-sm" title="Assign">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+                                    <form action="cancel_order.php" method="post" class="compact-form" onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.');">
+                                        <input type="hidden" name="order_id" value="<?php echo $pid; ?>">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Cancel Order">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             <?php else: ?>
                                 <span class="text-muted" style="font-size:0.8rem;">—</span>
                             <?php endif; ?>

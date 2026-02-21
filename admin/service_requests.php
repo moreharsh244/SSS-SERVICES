@@ -63,8 +63,8 @@ if($ares){
 
 <style>
     :root {
-        --primary-soft: #eef2ff;
-        --primary-strong: #4f46e5;
+        --primary-color: #7c3aed;
+        --primary-soft: #ede9fe;
         --success-soft: #dcfce7;
         --success-text: #166534;
         --warning-soft: #fef9c3;
@@ -76,14 +76,18 @@ if($ares){
     }
 
     body {
-        background-color: #f8f9fa;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
     }
 
     .dashboard-card {
-        border: none;
+        border: 1px solid #bfdbfe;
         border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        background: #fff;
+        box-shadow: 0 10px 22px rgba(30, 64, 175, 0.12);
+        background: linear-gradient(155deg, rgba(245, 243, 255, 0.9) 0%, rgba(238, 246, 255, 0.9) 55%, rgba(240, 253, 244, 0.9) 100%);
         overflow: hidden;
     }
 
