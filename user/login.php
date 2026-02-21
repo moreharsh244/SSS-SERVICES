@@ -21,15 +21,39 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Login</title>
      <link rel="stylesheet" href="../css/bootstrap.min.css">
+        <link rel="stylesheet" href="user.css">
         <link rel="stylesheet" href="../css/pc-theme.css">
     <script src="../js/bootstrap.min.js"></script>
         <style>
-            body{ background: linear-gradient(180deg,#f4f7fb,#ffffff); }
+            body{
+                background:
+                    radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+                    radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+                    radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.10) 0%, rgba(16, 185, 129, 0) 30%),
+                    linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
+            }
             .auth-wrapper{ min-height:80vh; display:flex; align-items:center; justify-content:center; }
-            .auth-card{ max-width:520px; width:100%; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(12,32,63,0.08); }
-            .brand{ font-weight:800; color:#0d6efd; text-decoration:none; }
-            .form-control{ border-radius:8px; }
-            .btn-primary{ border-radius:8px; }
+            .auth-card{
+                max-width:520px; width:100%; border-radius:14px; overflow:hidden;
+                background: linear-gradient(155deg, rgba(245,243,255,0.95) 0%, rgba(238,246,255,0.95) 55%, rgba(240,253,244,0.95) 100%);
+                border: 1px solid #bfdbfe;
+                box-shadow:0 18px 36px rgba(30,64,175,0.14);
+            }
+            .brand{ 
+                font-weight: 900; 
+                background: linear-gradient(to right, #4338ca, #be185d);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                text-decoration:none;
+                display: inline-block;
+                margin-bottom: 8px;
+            }
+            .form-control{ border-radius:10px; border-color:#bfdbfe; background:#f8fbff; }
+            .form-control:focus{ border-color:#93c5fd; box-shadow:0 0 0 .2rem rgba(59,130,246,.15); }
+            .btn-primary{ border-radius:10px; border:none; background:linear-gradient(135deg,#8b5cf6 0%,#7c3aed 100%); }
+            .btn-primary:hover{ background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%); }
+            .btn-outline-secondary{ border-radius:10px; border-color:#93c5fd; color:#0369a1; }
+            .btn-outline-secondary:hover{ background:#e0f2fe; color:#0c4a6e; border-color:#7dd3fc; }
         </style>
 </head>
 <body class="pc-theme">

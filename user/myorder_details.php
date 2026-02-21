@@ -91,15 +91,17 @@ $can_cancel = !$is_history && in_array($delivery_state, ['pending', 'order_confi
     .order-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 14px 34px rgba(30, 64, 175, 0.14);
+        border: 1px solid #bfdbfe;
         overflow: hidden;
         transition: transform 0.3s ease;
+        background: #f8fbff;
     }
     .order-card:hover {
         transform: translateY(-5px);
     }
     .order-header-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
         padding: 25px;
         border-bottom: none;
     }
@@ -120,8 +122,8 @@ $can_cancel = !$is_history && in_array($delivery_state, ['pending', 'order_confi
         align-items: center;
         justify-content: center;
         border-radius: 8px;
-        background-color: #f3f4f6;
-        color: #764ba2;
+        background-color: #e0f2fe;
+        color: #7c3aed;
         margin-right: 15px;
     }
     .detail-label {
@@ -136,11 +138,11 @@ $can_cancel = !$is_history && in_array($delivery_state, ['pending', 'order_confi
         text-align: right;
     }
     .total-box {
-        background: #f8f9fa;
+        background: #eef6ff;
         border-radius: 12px;
         padding: 20px;
         margin-top: 20px;
-        border-left: 5px solid #667eea;
+        border-left: 5px solid #7c3aed;
     }
 </style>
 

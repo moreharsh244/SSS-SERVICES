@@ -7,7 +7,7 @@ $is_history = ($view === 'history');
 $is_service = ($view === 'service');
 ?>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <style>
@@ -21,7 +21,6 @@ $is_service = ($view === 'service');
 
     body {
         background-color: var(--bg-surface);
-        font-family: 'Poppins', sans-serif;
         color: var(--text-dark);
     }
 
@@ -51,15 +50,18 @@ $is_service = ($view === 'service');
         gap: 5px;
     }
 
-    .nav-link-custom {
-        padding: 8px 20px;
-        border-radius: 50px;
-        color: #64748b;
+                --primary-grad: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
+                --bg-surface: #eef4ff;
+                --card-shadow: 0 12px 30px -5px rgba(30,64,175,0.12);
+                --text-dark: #1f2a44;
         font-weight: 600;
         font-size: 0.9rem;
         text-decoration: none;
         transition: all 0.3s ease;
-        border: 1px solid transparent;
+                background:
+                    radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+                    radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+                    linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
     }
 
     .nav-link-custom:hover {
@@ -67,10 +69,10 @@ $is_service = ($view === 'service');
         background: white;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-
+                background: linear-gradient(120deg, #f5f3ff 0%, #eef6ff 55%, #f0fdf4 100%);
     .nav-link-custom.active {
         background: var(--primary-grad);
-        color: white;
+                border-bottom: 1px solid #bfdbfe;
         box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
     }
 
@@ -85,7 +87,7 @@ $is_service = ($view === 'service');
 
     .custom-table thead th {
         background: #f8fafc;
-        color: #64748b;
+                background: linear-gradient(90deg, #f5f3ff 0%, #e0f2fe 100%);
         font-weight: 600;
         font-size: 0.85rem;
         text-transform: uppercase;
@@ -93,7 +95,10 @@ $is_service = ($view === 'service');
         padding: 15px 20px;
         border-bottom: 2px solid #e2e8f0;
     }
+            .btn-view:hover { background: #7c3aed; color: white; transform: translateY(-2px); }
 
+            .btn-outline-dark { border-color: #93c5fd; color: #0369a1; }
+            .btn-outline-dark:hover { background: #e0f2fe; border-color: #60a5fa; color: #0c4a6e; }
     .custom-table tbody td {
         padding: 20px;
         vertical-align: middle;

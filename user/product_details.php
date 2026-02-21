@@ -21,28 +21,33 @@ if($pid > 0){
 
 <style>
     :root {
-        --primary-color: #6366f1;
-        --primary-dark: #4f46e5;
-        --text-dark: #0f172a;
+        --primary-color: #7c3aed;
+        --primary-dark: #0284c7;
+        --text-dark: #1f2a44;
         --text-muted: #64748b;
     }
 
-    body { font-family: 'Poppins', sans-serif; }
+    body {
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
+    }
 
     .details-panel {
-        background: rgba(255, 255, 255, 0.95);
+        background: linear-gradient(150deg, rgba(243, 240, 255, 0.9) 0%, rgba(236, 247, 255, 0.9) 55%, rgba(241, 255, 250, 0.9) 100%);
         backdrop-filter: blur(15px);
         border-radius: 24px;
         padding: 28px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 20px 40px rgba(30,64,175,0.12);
         margin-top: 30px;
         margin-bottom: 50px;
-        border: 1px solid rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(186,230,253,0.9);
     }
 
     .product-image-wrap {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: #f8fbff;
+        border: 1px solid #dbeafe;
         border-radius: 20px;
         min-height: 360px;
         display: flex;
@@ -59,7 +64,7 @@ if($pid > 0){
 
     .brand-chip {
         display: inline-block;
-        background: #eef2ff;
+        background: #e0f2fe;
         color: var(--primary-dark);
         font-size: 0.78rem;
         text-transform: uppercase;
@@ -86,8 +91,8 @@ if($pid > 0){
     }
 
     .meta-box {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: #eef6ff;
+        border: 1px solid #bfdbfe;
         border-radius: 14px;
         padding: 12px 14px;
     }
@@ -109,8 +114,8 @@ if($pid > 0){
 
     .desc-box {
         margin-top: 18px;
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: #f8fbff;
+        border: 1px solid #dbeafe;
         border-radius: 14px;
         padding: 16px;
         color: #334155;
@@ -125,13 +130,18 @@ if($pid > 0){
     }
 
     .btn-add-build {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         color: #fff;
     }
-    .btn-add-build:hover { color: #fff; background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); }
+    .btn-add-build:hover { color: #fff; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
 
-    .btn-buy { background: #111827; color: #fff; }
-    .btn-buy:hover { background: #000; color: #fff; }
+    .btn-buy { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: #fff; }
+    .btn-buy:hover { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; }
+
+    .btn-outline-dark { border-color: #93c5fd; color: #0369a1; }
+    .btn-outline-dark:hover { background: #e0f2fe; border-color: #60a5fa; color: #0c4a6e; }
+
+    .text-bg-dark { background-color: #dbeafe !important; color: #1e3a8a !important; }
 </style>
 
 <div class="container">

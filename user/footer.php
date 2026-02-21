@@ -71,7 +71,8 @@
 
 #successModal .modal-content,
 #messageModal .modal-content {
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+	box-shadow: 0 18px 40px rgba(30,64,175,0.16);
+	border: 1px solid #bfdbfe;
 }
 </style>
 

@@ -49,375 +49,465 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shree Swami Samarth - Hardware</title>
+  
   <link rel="stylesheet" href="../css/bootstrap.min.css">
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/pc-theme.css">
-  <link rel="stylesheet" href="user.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" href="user.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="../js/bootstrap.bundle.min.js"></script>
   
   <style>
     :root {
-        --primary-grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-        --accent-grad: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
-        --glass-bg: rgba(255, 255, 255, 0.75);
-        --text-main: #1e293b;
+      --brand-dark: #1f2a44;
+      --brand-light: #eef6ff;
+      --accent-gold: #7c3aed;
+      --accent-glow: #a78bfa;
+      --text-white: #1f2a44;
+      --text-muted: #64748b;
+      --bg-body: #eef4ff;
+      --surface-1: #f5f3ff;
+      --surface-2: #e0f2fe;
+      --surface-3: #f0fdf4;
     }
 
     body {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: var(--text-main);
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        color: var(--text-white);
+      background:
+        radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+        radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+        radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.10) 0%, rgba(16, 185, 129, 0) 30%),
+        linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
         min-height: 100vh;
-        position: relative;
         overflow-x: hidden;
-        background: linear-gradient(120deg, #667eea 0%, #764ba2 100%); 
-        background-attachment: fixed;
     }
 
-    /* --- Glass Navbar --- */
-    .glass-header {
-        background: rgba(255, 255, 255, 0.95);
+    /* =========================================
+       TIER 1: Top Brand Header (Dark)
+       ========================================= */
+    .top-brand-header {
+        background: linear-gradient(90deg, rgba(245, 243, 255, 0.95) 0%, rgba(224, 242, 254, 0.95) 55%, rgba(240, 253, 244, 0.95) 100%);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(186, 230, 253, 0.5);
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.06);
         position: sticky;
         top: 0;
-        z-index: 1020; /* High z-index to stay on top */
-        padding: 0.8rem 0;
+        z-index: 1020;
+        padding: 1rem 0;
     }
 
-      /* --- BRAND TEXT --- */
-      .brand-text {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+    .brand-text {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Poppins', sans-serif;
         font-weight: 900;
         font-size: 2.25rem;
         letter-spacing: -0.03em;
         background: linear-gradient(to right, #4338ca, #be185d);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        text-decoration: none;
         white-space: nowrap;
         line-height: 1.2;
-      }
+    }
+    
+    .brand-text span {
+        background: linear-gradient(to right, #4338ca, #be185d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
-      @media (max-width: 1200px) {
+    @media (max-width: 1200px) {
         .brand-text { font-size: 1.8rem; }
-      }
-
-    /* --- Nav Pills --- */
-    .nav-pills-custom {
-        display: flex;
-        gap: 0.25rem;
-      padding: 0.4rem;
-        background: #f1f5f9;
-      border-radius: 14px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
     }
-    .nav-pills-custom::-webkit-scrollbar { display: none; }
-
-    .nav-link-custom {
-        display: inline-flex;
-        align-items: center;
-      padding: 0.6rem 1rem;
-        color: #64748b;
-        font-weight: 600;
-        font-size: 0.9rem;
-      border-radius: 10px;
-        text-decoration: none;
-        transition: all 0.2s ease;
-      white-space: nowrap;
+    
+    .brand-accent {
+        background: linear-gradient(to right, #be185d, #7c3aed);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    .nav-link-custom:hover {
-        color: #4f46e5;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .nav-link-custom.active {
-        background: var(--primary-grad);
-        color: white;
-        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-    }
-
-    /* --- User Profile Pill --- */
+    /* User Profile Pill */
     .user-pill {
         display: flex;
         align-items: center;
-      gap: 12px;
-      padding: 5px 14px 5px 5px;
-        background: white;
-        border: 1px solid #e2e8f0;
+        gap: 10px;
+        padding: 6px 16px 6px 6px;
+        background: rgba(255,255,255,0.8);
+        border: 1px solid rgba(191, 219, 254, 0.9);
         border-radius: 50px;
         cursor: pointer;
-        transition: 0.2s;
+        transition: all 0.2s ease;
         text-decoration: none;
-        max-width: 220px; /* Limit width */
+        color: var(--text-white);
     }
-    .user-pill:hover { border-color: #4f46e5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-    .user-name-truncate {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 150px; /* Truncate long emails */
-        display: inline-block;
-        vertical-align: middle;
+    
+    .user-pill:hover {
+      background: rgba(255,255,255,0.98);
+      border-color: #93c5fd;
+        color: var(--text-white);
     }
 
     .avatar-circle {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-        color: white;
+        width: 34px;
+        height: 34px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: #ffffff;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 700;
-      font-size: 0.95rem;
+        font-weight: 800;
+        font-size: 1rem;
         flex-shrink: 0;
-      box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);
     }
 
-    /* --- Sticky Search Bar --- */
-    .user-nav-sticky {
+    .user-name-text {
+        font-weight: 500;
+        font-size: 0.95rem;
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Dark Dropdown */
+    .dropdown-menu-dark-custom {
+      background: linear-gradient(180deg, #f5f3ff 0%, #eef6ff 100%);
+      border: 1px solid rgba(191,219,254,0.9);
+      box-shadow: 0 14px 30px rgba(30, 64, 175, 0.12);
+        border-radius: 12px;
+        margin-top: 10px !important;
+    }
+    .dropdown-menu-dark-custom .dropdown-item {
+      color: #334155;
+        font-weight: 500;
+        padding: 8px 20px;
+        transition: 0.2s;
+    }
+    .dropdown-menu-dark-custom .dropdown-item:hover {
+      background-color: rgba(191,219,254,0.3);
+      color: #1d4ed8;
+    }
+    .dropdown-menu-dark-custom .dropdown-divider {
+      border-color: rgba(191,219,254,0.7);
+    }
+
+
+    /* =========================================
+       TIER 2: Navigation Bar (Light/White)
+       ========================================= */
+    .secondary-navbar {
+      background: linear-gradient(90deg, rgba(245,243,255,0.92) 0%, rgba(238,246,255,0.92) 100%);
+        backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(186,230,253,0.9);
+      box-shadow: 0 6px 18px rgba(30, 64, 175, 0.08);
         position: sticky;
-        top: 80px; 
-        z-index: 3000;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        top: 0;
+        z-index: 1020;
+        padding: 0; /* Removing padding so links hit edges */
     }
-    .subnav-search-shell {
-        max-width: 600px;
-        background: transparent;
-        backdrop-filter: blur(8px);
-        border: none;
-        border-radius: 50px;
+
+    .nav-container {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Center the links */
+        overflow-x: auto;
+        scrollbar-width: none;
     }
-    .subnav-search-form input {
-        border-radius: 50px;
-        padding-left: 40px;
-        border: none;
-        background: rgba(255, 255, 255, 0.9);
-    }
-    .subnav-search-btn {
-        position: absolute;
-        right: 5px;
-        top: 5px;
-        bottom: 5px;
-        border-radius: 50px;
-        background: var(--primary-grad);
-        color: white;
-        border: none;
-        padding: 0 20px;
+    .nav-container::-webkit-scrollbar { display: none; }
+
+    .nav-link-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 16px 24px;
+        color: #334155;
         font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
     }
-    .subnav-search-icon {
+
+    .nav-link-item i {
+        font-size: 1.1rem;
+      color: #64748b;
+        transition: 0.3s;
+    }
+
+    .nav-link-item:hover {
+        color: var(--brand-dark);
+      background: #eef6ff;
+    }
+    
+    .nav-link-item:hover i {
+      color: #0284c7;
+    }
+
+    .nav-link-item.active {
+        color: var(--brand-dark);
+      border-bottom-color: #7c3aed;
+      background: #f5f3ff;
+    }
+    .nav-link-item.active i {
+      color: #7c3aed;
+    }
+
+
+    /* =========================================
+       TIER 3: Floating Search Bar
+       ========================================= */
+    .search-wrapper {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1010;
+    }
+
+    .search-form {
+        position: relative;
+        max-width: 700px;
+        margin: 0 auto;
+        box-shadow: 0 10px 25px rgba(30, 64, 175, 0.1);
+        border-radius: 50px;
+    }
+
+    .search-input {
+        width: 100%;
+        height: 55px;
+        border: 2px solid #dbeafe;
+        border-radius: 50px;
+        padding: 0 130px 0 50px;
+        font-size: 1rem;
+        color: var(--brand-dark);
+        background: #f8fbff;
+        transition: all 0.3s;
+    }
+    
+    .search-input:focus {
+        outline: none;
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.16);
+    }
+
+    .search-icon {
         position: absolute;
-        left: 15px;
+        left: 20px;
         top: 50%;
         transform: translateY(-50%);
-        color: #64748b;
+        color: #94a3b8;
+        font-size: 1.2rem;
     }
-    
-    .search-bar-hide {
-      display: none !important;
+
+    .search-btn {
+        position: absolute;
+        right: 6px;
+        top: 6px;
+        bottom: 6px;
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0 30px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: 0.2s;
     }
-    
-    /* Responsive Helpers */
-    @media (max-width: 991px) {
-      .glass-header { padding: 0.8rem 0; }
-        .nav-pills-custom { overflow-x: auto; width: 100%; justify-content: center; margin-top: 10px; }
-        .user-nav-sticky { top: 130px; }
+
+    .search-btn:hover {
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+      color: #ffffff;
+    }
+
+    .search-hide { display: none !important; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .brand-text { font-size: 1.5rem; }
+        .nav-link-item { padding: 12px 16px; font-size: 0.85rem; }
+        .search-wrapper { padding: 0 15px; }
     }
   </style>
 </head>
 <body>
 
-<header class="glass-header">
-  <div class="container-fluid px-4">
-    <div class="d-flex align-items-center justify-content-between w-100 flex-wrap flex-lg-nowrap">
+<header class="top-brand-header">
+  <div class="container-fluid px-lg-5 px-3">
+    <div class="d-flex align-items-center justify-content-between">
       
-      <a class="d-flex align-items-center gap-3 text-decoration-none me-lg-4" href="view_products.php">
-        <img src="../img/logo-mark.svg" alt="Logo" width="48" height="48" onerror="this.style.display='none'">
-        <span class="brand-text">Shree Swami Samarth</span>
+      <a href="view_products.php" class="brand-text">
+        <img src="../img/logo-mark.svg" alt="Logo" width="38" height="38" onerror="this.style.display='none'">
+        <span>Shree Swami <span class="brand-accent">Samarth</span></span>
       </a>
 
-      <button class="navbar-toggler d-lg-none border-0 p-2 bg-light rounded-circle shadow-sm ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
-         <i class="bi bi-list fs-4"></i>
-      </button>
-
-      <div class="collapse d-lg-flex w-100 align-items-center" id="navContent">
-          
-          <nav class="nav-pills-custom mx-lg-auto my-3 my-lg-0">
-             <a class="nav-link-custom <?php echo in_array($current_page, ['view_products.php', 'purchase.php', 'purchase_order.php']) ? 'active' : ''; ?>" href="view_products.php">
-                <i class="bi bi-grid-fill me-2" style="<?php echo in_array($current_page, ['view_products.php', 'purchase.php']) ? 'color:white;' : 'color:#6366f1;'; ?>"></i>Products
-             </a>
-             <a class="nav-link-custom <?php echo $current_page === 'build.php' ? 'active' : ''; ?>" href="build.php">
-                <i class="bi bi-pc-display me-2" style="<?php echo $current_page === 'build.php' ? 'color:white;' : 'color:#10b981;'; ?>"></i>PC Builder
-             </a>
-             <a class="nav-link-custom <?php echo $current_page === 'profile.php' ? 'active' : ''; ?>" href="profile.php">
-                <i class="bi bi-person-badge-fill me-2" style="<?php echo $current_page === 'profile.php' ? 'color:white;' : 'color:#f59e0b;'; ?>"></i>Profile
-             </a>
-             <a class="nav-link-custom <?php echo in_array($current_page, ['service.php', 'service_submit.php']) ? 'active' : ''; ?>" href="service.php">
-                <i class="bi bi-tools me-2" style="<?php echo in_array($current_page, ['service.php', 'service_submit.php']) ? 'color:white;' : 'color:#8b5cf6;'; ?>"></i>Support
-             </a>
-             <a class="nav-link-custom <?php echo in_array($current_page, ['myorder.php', 'myorder_details.php']) ? 'active' : ''; ?>" href="myorder.php">
-                <i class="bi bi-bag-check-fill me-2" style="<?php echo in_array($current_page, ['myorder.php']) ? 'color:white;' : 'color:#ec4899;'; ?>"></i>Orders
-             </a>
-          </nav>
-
-          <div class="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0 ms-lg-4">
-             <div class="dropdown">
-                <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                   <div class="avatar-circle">
-                      <?php echo htmlentities($avatar_initial); ?>
-                   </div>
-                   <span class="fw-bold text-dark pe-1 user-name-truncate"><?php echo htmlentities($display_name); ?></span>
-                   <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2">
-                   <li><a class="dropdown-item rounded-3 mb-1" href="profile.php"><i class="bi bi-person-circle me-2 text-primary"></i>My Profile</a></li>
-                   <li><a class="dropdown-item rounded-3 mb-1" href="myorder.php"><i class="bi bi-box-seam me-2 text-info"></i>My Orders</a></li>
-                   <li><hr class="dropdown-divider my-1"></li>
-                   <li><a class="dropdown-item rounded-3 text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-                </ul>
-             </div>
-          </div>
-
+      <div class="dropdown">
+        <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           <div class="avatar-circle">
+              <?php echo htmlentities($avatar_initial); ?>
+           </div>
+           <span class="user-name-text d-none d-sm-inline-block"><?php echo htmlentities($display_name); ?></span>
+           <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark-custom">
+           <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person-circle me-2 text-warning"></i> My Profile</a></li>
+           <li><a class="dropdown-item" href="myorder.php"><i class="bi bi-box-seam me-2 text-info"></i> My Orders</a></li>
+           <li><hr class="dropdown-divider"></li>
+           <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+        </ul>
       </div>
+
     </div>
   </div>
 </header>
 
-<div class="container-fluid">
-  <div class="row user-nav-sticky justify-content-center">
-    <div class="col-11 col-md-8 col-lg-6">
-      <div class="subnav-search-shell w-100 mx-auto <?php echo in_array($current_page, ['service.php', 'service_submit.php', 'build.php', 'myorder.php', 'myorder_details.php', 'orderstatus.php', 'profile.php', 'product_details.php']) ? 'search-bar-hide' : ''; ?>">
-        <form class="subnav-search-form position-relative" id="site-search-form" action="view_products.php" method="get" autocomplete="off">
-          <i class="bi bi-search subnav-search-icon"></i>
-          <input id="site-search-input" name="q" class="form-control" type="search" placeholder="Search products, brands, categories..." aria-label="Search products">
-          <button class="btn subnav-search-btn" type="submit">Search</button>
-          <div id="search-suggestions" class="list-group position-absolute shadow-sm rounded-4 overflow-hidden mt-2" style="z-index:1050; top:100%; left:0; right:0; display:none;"></div>
-        </form>
-      </div>
+<nav class="secondary-navbar">
+    <div class="container-fluid">
+        <div class="nav-container">
+            <a class="nav-link-item <?php echo in_array($current_page, ['view_products.php', 'purchase.php', 'purchase_order.php']) ? 'active' : ''; ?>" href="view_products.php">
+                <i class="bi bi-grid-fill"></i> Store
+            </a>
+            <a class="nav-link-item <?php echo $current_page === 'build.php' ? 'active' : ''; ?>" href="build.php">
+                <i class="bi bi-pc-display"></i> PC Builder
+            </a>
+            <a class="nav-link-item <?php echo $current_page === 'profile.php' ? 'active' : ''; ?>" href="profile.php">
+                <i class="bi bi-person-badge-fill"></i> Account
+            </a>
+            <a class="nav-link-item <?php echo in_array($current_page, ['service.php', 'service_submit.php']) ? 'active' : ''; ?>" href="service.php">
+                <i class="bi bi-tools"></i> Support
+            </a>
+            <a class="nav-link-item <?php echo in_array($current_page, ['myorder.php', 'myorder_details.php']) ? 'active' : ''; ?>" href="myorder.php">
+                <i class="bi bi-bag-check-fill"></i> Orders
+            </a>
+        </div>
     </div>
-  </div>
+</nav>
+
+<div class="container-fluid search-wrapper <?php echo in_array($current_page, ['service.php', 'service_submit.php', 'build.php', 'myorder.php', 'myorder_details.php', 'orderstatus.php', 'profile.php', 'product_details.php']) ? 'search-hide' : ''; ?>">
+    <form class="search-form" id="site-search-form" action="view_products.php" method="get" autocomplete="off">
+        <i class="bi bi-search search-icon"></i>
+        <input id="site-search-input" name="q" class="search-input" type="search" placeholder="Search for graphics cards, processors, cases...">
+        <button class="search-btn" type="submit">SEARCH</button>
+        
+        <div id="search-suggestions" class="list-group position-absolute w-100 shadow-lg rounded-4 overflow-hidden mt-2" style="z-index:1050; top:100%; left:0; display:none; border: none;"></div>
+    </form>
 </div>
 
-<div class="container mt-2">
-  <div class="row">
-    <main class="col-12" id="mainContentArea">
-      <script>
-      document.addEventListener('DOMContentLoaded', function(){
-        // Search suggestion logic
-        const input = document.getElementById('site-search-input');
-        const suggBox = document.getElementById('search-suggestions');
-        let timer = null;
+<main class="container mt-4" id="mainContentArea">
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      // Search suggestion logic
+      const input = document.getElementById('site-search-input');
+      const suggBox = document.getElementById('search-suggestions');
+      let timer = null;
 
-        function hideSuggestions(){ suggBox.style.display='none'; suggBox.innerHTML=''; }
+      function hideSuggestions(){ suggBox.style.display='none'; suggBox.innerHTML=''; }
 
-        function renderSuggestions(items){
-          if(!items.length){ hideSuggestions(); return; }
-          suggBox.innerHTML = items.map(it=>{
-            const img = it.pimg ? '<img src="../productimg/'+it.pimg+'" style="height:36px;width:36px;object-fit:cover;margin-right:8px;border-radius:4px;">' : '';
-            return `<a href="view_products.php?q=${encodeURIComponent(it.pname)}" class="list-group-item list-group-item-action d-flex align-items-center">
-                    <div class="d-flex align-items-center">${img}<div><div>${it.pname}</div><div class="small text-muted">${it.pcompany} • ₹${Number(it.pprice).toFixed(2)}</div></div></div>
-                  </a>`;
-          }).join('');
-          suggBox.style.display = 'block';
-        }
+      function renderSuggestions(items){
+        if(!items.length){ hideSuggestions(); return; }
+        suggBox.innerHTML = items.map(it=>{
+          const img = it.pimg ? `<img src="../productimg/${it.pimg}" style="height:40px;width:40px;object-fit:contain;background:#f8fafc;border-radius:8px;padding:2px;margin-right:12px;">` : '';
+          return `<a href="view_products.php?q=${encodeURIComponent(it.pname)}" class="list-group-item list-group-item-action d-flex align-items-center py-3" style="border-bottom: 1px solid #f1f5f9;">
+                  <div class="d-flex align-items-center w-100">${img}
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size:0.95rem;">${it.pname}</div>
+                        <div class="small text-muted">${it.pcompany} • <span class="fw-bold" style="color:var(--accent-gold);">₹${Number(it.pprice).toFixed(2)}</span></div>
+                    </div>
+                  </div>
+                </a>`;
+        }).join('');
+        suggBox.style.display = 'block';
+      }
 
-        if(input){
-            input.addEventListener('input', function(){
-              const v = this.value.trim();
-              clearTimeout(timer);
-              if(!v){ hideSuggestions(); return; }
-              timer = setTimeout(()=>{
-                fetch('search_suggest.php?q='+encodeURIComponent(v))
-                  .then(r=>r.json())
-                  .then(renderSuggestions)
-                  .catch(()=>hideSuggestions());
-              }, 220);
+      if(input){
+          input.addEventListener('input', function(){
+            const v = this.value.trim();
+            clearTimeout(timer);
+            if(!v){ hideSuggestions(); return; }
+            timer = setTimeout(()=>{
+              fetch('search_suggest.php?q='+encodeURIComponent(v))
+                .then(r=>r.json())
+                .then(renderSuggestions)
+                .catch(()=>hideSuggestions());
+            }, 220);
+          });
+      }
+
+      document.addEventListener('click', function(e){
+        if(document.getElementById('site-search-form') && !document.getElementById('site-search-form').contains(e.target)) hideSuggestions();
+      });
+
+      // PC Builder SPA logic
+      const main = document.querySelector('main#mainContentArea');
+      const enableBuildSpa = false;
+      const buildHref = 'build.php';
+      const buildFetchUrl = 'build.php?partial=1';
+
+      function loadBuildFragment(){
+        fetch(buildFetchUrl)
+          .then(r => r.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const frag = doc.getElementById('buildPageRoot');
+            const modal = doc.getElementById('productSelectorModal');
+            if(frag && main){
+              main.innerHTML = '';
+              main.appendChild(frag);
+            }
+            if(modal){
+              const existing = document.getElementById('productSelectorModal');
+              if(existing) existing.remove();
+              document.body.appendChild(modal);
+            }
+            const scripts = doc.querySelectorAll('script');
+            scripts.forEach(s => {
+              if(!s.src){
+                try{ eval(s.textContent); }catch(e){ console.error(e); }
+              } else if(!document.querySelector('script[src="'+s.src+'"]')){
+                const sc = document.createElement('script');
+                sc.src = s.src;
+                document.body.appendChild(sc);
+              }
             });
+          }).catch(console.error);
+      }
+
+      function pushBuildState(){
+        history.pushState({ page: 'build' }, '', buildHref);
+      }
+
+      if(enableBuildSpa){
+        if(!history.state){
+          history.replaceState({ page: 'page', url: location.href }, '', location.href);
         }
 
-        document.addEventListener('click', function(e){
-          if(document.getElementById('site-search-form') && !document.getElementById('site-search-form').contains(e.target)) hideSuggestions();
+        document.body.addEventListener('click', function(e){
+          const link = e.target.closest('a[href="build.php"]');
+          if(!link) return;
+          if(link.target && link.target !== '_self') return;
+          e.preventDefault();
+          pushBuildState();
+          loadBuildFragment();
         });
 
-        // PC Builder SPA logic
-        const main = document.querySelector('main.col-12');
-        const enableBuildSpa = false;
-        const buildHref = 'build.php';
-        const buildFetchUrl = 'build.php?partial=1';
-
-        function loadBuildFragment(){
-          fetch(buildFetchUrl)
-            .then(r => r.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(html, 'text/html');
-              const frag = doc.getElementById('buildPageRoot');
-              const modal = doc.getElementById('productSelectorModal');
-              if(frag && main){
-                main.innerHTML = '';
-                main.appendChild(frag);
-              }
-              if(modal){
-                const existing = document.getElementById('productSelectorModal');
-                if(existing) existing.remove();
-                document.body.appendChild(modal);
-              }
-              const scripts = doc.querySelectorAll('script');
-              scripts.forEach(s => {
-                if(!s.src){
-                  try{ eval(s.textContent); }catch(e){ console.error(e); }
-                } else if(!document.querySelector('script[src="'+s.src+'"]')){
-                  const sc = document.createElement('script');
-                  sc.src = s.src;
-                  document.body.appendChild(sc);
-                }
-              });
-            }).catch(console.error);
-        }
-
-        function pushBuildState(){
-          history.pushState({ page: 'build' }, '', buildHref);
-        }
-
-        if(enableBuildSpa){
-          if(!history.state){
-            history.replaceState({ page: 'page', url: location.href }, '', location.href);
-          }
-
-          document.body.addEventListener('click', function(e){
-            const link = e.target.closest('a[href="build.php"]');
-            if(!link) return;
-            if(link.target && link.target !== '_self') return;
-            e.preventDefault();
-            pushBuildState();
+        window.addEventListener('popstate', function(e){
+          if(e.state && e.state.page === 'build'){
             loadBuildFragment();
-          });
+          } else {
+            location.reload();
+          }
+        });
+      }
+    });
+    </script>
+</main>
 
-          window.addEventListener('popstate', function(e){
-            if(e.state && e.state.page === 'build'){
-              loadBuildFragment();
-            } else {
-              location.reload();
-            }
-          });
-        }
-      });
-      </script>
-    </main>
-  </div>
-</div>
 </body>
 </html>
