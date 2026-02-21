@@ -3,29 +3,31 @@ define('page','service');
 include('header.php');
 ?>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <style>
   :root {
-    --primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    --bg-surface: #f8fafc;
-    --card-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
-    --text-dark: #1e293b;
+    --primary-grad: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
+    --bg-surface: #eef4ff;
+    --card-shadow: 0 14px 34px -8px rgba(30,64,175,0.14);
+    --text-dark: #1f2a44;
   }
 
   body {
-    background-color: var(--bg-surface);
-    font-family: 'Poppins', sans-serif;
+    background:
+      radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+      radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+      linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
     color: var(--text-dark);
   }
 
   /* --- Hero Section --- */
   .service-hero {
-    background: white;
+    background: linear-gradient(120deg, #f5f3ff 0%, #eef6ff 55%, #f0fdf4 100%);
     padding: 60px 20px;
     text-align: center;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #bfdbfe;
     margin-bottom: 40px;
     position: relative;
     overflow: hidden;
@@ -58,7 +60,7 @@ include('header.php');
     margin-bottom: 10px;
     position: relative;
     z-index: 1;
-    background: -webkit-linear-gradient(45deg, #1e293b, #4f46e5);
+    background: -webkit-linear-gradient(45deg, #7c3aed, #0284c7);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -81,9 +83,9 @@ include('header.php');
   }
 
   .service-card {
-    background: white;
+    background: #f8fbff;
     border-radius: 20px;
-    border: 1px solid #f1f5f9;
+    border: 1px solid #dbeafe;
     box-shadow: var(--card-shadow);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
@@ -94,8 +96,8 @@ include('header.php');
 
   .service-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.2);
-    border-color: #c7d2fe;
+    box-shadow: 0 20px 40px -10px rgba(2, 132, 199, 0.2);
+    border-color: #93c5fd;
   }
 
   /* Card Header Colors */
@@ -171,8 +173,8 @@ include('header.php');
     overflow: hidden;
   }
   .modal-header {
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
+    background: #eef6ff;
+    border-bottom: 1px solid #bfdbfe;
     padding: 20px 30px;
   }
   .modal-title { font-weight: 700; color: #1e293b; }
@@ -181,13 +183,13 @@ include('header.php');
   .form-control, .form-select {
     border-radius: 12px;
     padding: 12px 15px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
+    border: 1px solid #bfdbfe;
+    background: #f8fbff;
   }
   .form-control:focus, .form-select:focus {
     background: white;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
   }
   .form-label { font-weight: 600; font-size: 0.9rem; color: #475569; margin-bottom: 8px; }
 

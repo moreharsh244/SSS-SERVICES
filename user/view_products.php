@@ -3,33 +3,38 @@ if(!defined('page')) define('page','view_products');
 if(!defined('HEADER_INCLUDED')) include('header.php');
 ?>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
     :root {
-        --primary-color: #6366f1; /* Indigo */
-        --primary-dark: #4f46e5;
-        --secondary-color: #10b981; /* Emerald */
-        --card-bg: #ffffff;
-        --text-dark: #0f172a;
+        --primary-color: #7c3aed;
+        --primary-dark: #6d28d9;
+        --secondary-color: #0ea5e9;
+        --card-bg: #f8fbff;
+        --text-dark: #1f2a44;
         --text-muted: #64748b;
+        --surface-soft: #eef6ff;
+        --surface-border: #dbeafe;
     }
 
     /* FIX: Ensure body background doesn't conflict, but allow header's gradient to show */
     body {
-        font-family: 'Poppins', sans-serif;
-        /* Background is handled by header.php (Gradient) */
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 30%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
     }
 
     /* FIX: Main Content Wrapper - Makes text visible */
     .glass-panel {
-        background: rgba(255, 255, 255, 0.95); /* White with slight transparency */
-        backdrop-filter: blur(15px);
-        border-radius: 24px;
-        padding: 30px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(150deg, rgba(243, 240, 255, 0.86) 0%, rgba(236, 247, 255, 0.86) 52%, rgba(241, 255, 250, 0.86) 100%);
+        backdrop-filter: blur(18px);
+        border-radius: 26px;
+        padding: 34px;
+        box-shadow: 0 22px 48px rgba(30, 64, 175, 0.13);
         margin-top: 30px;
         margin-bottom: 50px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(186, 230, 253, 0.9);
     }
 
     /* Horizontal Scroll Container Styling */
@@ -44,18 +49,18 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
 
     /* Custom Scrollbar */
     .products-scroll-container::-webkit-scrollbar { height: 8px; }
-    .products-scroll-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-    .products-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .products-scroll-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .products-scroll-container::-webkit-scrollbar-track { background: #dbeafe; border-radius: 10px; }
+    .products-scroll-container::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 10px; }
+    .products-scroll-container::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
 
     /* Product Card Styling */
     .modern-card {
         flex: 0 0 280px;
         min-width: 280px;
         background: var(--card-bg);
-        border: 1px solid #e2e8f0;
-        border-radius: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid #dbeafe;
+        border-radius: 22px;
+        box-shadow: 0 10px 22px rgba(14, 116, 144, 0.12);
         transition: all 0.3s ease;
         overflow: hidden;
         display: flex;
@@ -67,20 +72,20 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
 
     .modern-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        border-color: #c7d2fe;
+        box-shadow: 0 20px 36px rgba(2, 132, 199, 0.2);
+        border-color: #93c5fd;
     }
 
     .card-img-wrapper {
         position: relative;
         height: 200px;
         overflow: hidden;
-        background: #fff;
+        background: linear-gradient(180deg, #f0f9ff 0%, #ecfeff 52%, #f0fdf4 100%);
         padding: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid #dbeafe;
     }
 
     .card-img-top {
@@ -96,7 +101,7 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        background: #fff;
+        background: linear-gradient(180deg, #f8fbff 0%, #f7fffe 100%);
     }
 
     .product-brand {
@@ -126,6 +131,7 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
         font-weight: 800;
         color: var(--text-dark);
         margin-bottom: 15px;
+        letter-spacing: -0.3px;
     }
 
     .btn-action {
@@ -142,40 +148,44 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
     }
 
     .btn-add-build {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         color: white;
-        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        box-shadow: 0 10px 18px rgba(124, 58, 237, 0.28);
     }
-    .btn-add-build:hover { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); color: white; transform: translateY(-1px); }
+    .btn-add-build:hover { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: white; transform: translateY(-1px); }
 
-    .btn-buy { background: var(--text-dark); color: white; }
-    .btn-buy:hover { background: #000; color: white; transform: translateY(-1px); }
+    .btn-buy {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        color: white;
+        box-shadow: 0 10px 18px rgba(14, 165, 233, 0.25);
+    }
+    .btn-buy:hover { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; transform: translateY(-1px); }
 
     /* Filter Chips */
     .filter-chip {
         display: inline-flex;
         align-items: center;
-        background: #f1f5f9;
+        background: #e0f2fe;
         color: var(--primary-color);
         padding: 8px 16px;
         border-radius: 50px;
         font-size: 0.9rem;
         font-weight: 600;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #bae6fd;
     }
 
     /* Category Headers */
     .category-header-wrapper {
-        background: #fff;
+        background: linear-gradient(90deg, #f5f3ff 0%, #eef6ff 56%, #f0fdf4 100%);
         padding: 15px 20px;
         border-radius: 16px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 20px rgba(3, 105, 161, 0.1);
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-top: 40px;
         margin-bottom: 20px;
-        border: 1px solid #f1f5f9;
+        border: 1px solid #bfdbfe;
         border-left-width: 6px;
     }
 
@@ -184,10 +194,19 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
         width: 48px; height: 48px; border-radius: 12px;
         display: flex; align-items: center; justify-content: center;
         font-size: 1.4rem; color: white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 14px rgba(76, 29, 149, 0.18);
     }
     .category-name { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); margin: 0; }
-    .category-count { background: #f8fafc; color: var(--text-muted); padding: 5px 15px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; border: 1px solid #e2e8f0; }
+    .category-count { background: #dbeafe; color: var(--text-muted); padding: 5px 15px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; border: 1px solid #bfdbfe; }
+
+    .btn-dark.rounded-pill {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+        border: none;
+    }
+
+    .btn-dark.rounded-pill:hover {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    }
 
 </style>
 
@@ -245,24 +264,16 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
         $categoryTermsLower = array_map(function($val){ return strtolower($val); }, $categoryTerms);
         ?>
 
+        <?php if($from === 'build'): ?>
         <div class="row mb-5 align-items-end">
-            <div class="col-md-8">
-                <h6 class="text-primary fw-bold text-uppercase mb-2">
-                    <i class="bi bi-shop me-1"></i> <?php echo $from === 'build' ? 'PC Builder Mode' : 'Online Store'; ?>
-                </h6>
-                <h1 class="fw-extrabold text-dark mb-0" style="font-weight: 800; letter-spacing: -1px;">
-                    <?php echo $normalizedCategory ? htmlspecialchars($category) : 'Browse Products'; ?>
-                </h1>
-            </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <?php if($from === 'build'): ?>
-                    <a href="build.php" class="btn btn-dark rounded-pill px-4 shadow-sm fw-bold">
-                        <i class="bi bi-arrow-left me-2"></i>Back to Build 
-                        <span id="buildCountBadge" class="badge bg-white text-dark rounded-circle ms-2" style="display:none;"></span>
-                    </a>
-                <?php endif; ?>
+            <div class="col-12 text-end">
+                <a href="build.php" class="btn btn-dark rounded-pill px-4 shadow-sm fw-bold">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Build 
+                    <span id="buildCountBadge" class="badge bg-white text-dark rounded-circle ms-2" style="display:none;"></span>
+                </a>
             </div>
         </div>
+        <?php endif; ?>
 
         <?php if($from === 'build'): ?>
             <div id="buildAddNotice" class="alert alert-success shadow-sm border-0 rounded-4 d-none mb-4" role="alert">

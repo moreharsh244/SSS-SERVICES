@@ -11,22 +11,24 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Guest';
 $total = (float)$pprice * (int)$qty;
 ?>
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
     :root {
-        --primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        --primary-grad: linear-gradient(135deg, #8b5cf6 0%, #0ea5e9 100%);
         --accent-color: #f43f5e;
-        --bg-surface: #f8fafc;
-        --card-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
-        --border-color: #e2e8f0;
-        --text-dark: #0f172a;
+        --bg-surface: #eef4ff;
+        --card-shadow: 0 20px 40px -10px rgba(30,64,175,0.12);
+        --border-color: #bfdbfe;
+        --text-dark: #1f2a44;
     }
 
     body {
-        background-color: var(--bg-surface);
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        background:
+            radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+            radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+            linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
         color: var(--text-dark);
     }
 
@@ -41,18 +43,18 @@ $total = (float)$pprice * (int)$qty;
         font-weight: 800;
         font-size: 2rem;
         margin-bottom: 5px;
-        background: -webkit-linear-gradient(45deg, #1e293b, #4f46e5);
+        background: -webkit-linear-gradient(45deg, #7c3aed, #0284c7);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
     /* Left Section: Details & Payment */
     .details-card {
-        background: white;
+        background: #f8fbff;
         border-radius: 24px;
         padding: 30px;
         box-shadow: var(--card-shadow);
-        border: 1px solid white;
+        border: 1px solid #dbeafe;
         height: 100%;
     }
 
@@ -66,8 +68,8 @@ $total = (float)$pprice * (int)$qty;
     
     .section-icon {
         width: 40px; height: 40px;
-        background: #eef2ff;
-        color: #4f46e5;
+        background: #e0f2fe;
+        color: #0284c7;
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -91,7 +93,7 @@ $total = (float)$pprice * (int)$qty;
     }
 
     .info-box {
-        background: #f8fafc;
+        background: #eef6ff;
         padding: 15px;
         border-radius: 16px;
         border: 1px solid var(--border-color);
@@ -124,7 +126,7 @@ $total = (float)$pprice * (int)$qty;
 
     .payment-card {
         cursor: pointer;
-        background: white;
+        background: #f8fbff;
         border: 2px solid var(--border-color);
         border-radius: 16px;
         padding: 20px;
@@ -154,9 +156,9 @@ $total = (float)$pprice * (int)$qty;
 
     /* Checked State */
     .payment-option-input:checked + .payment-card {
-        border-color: #6366f1;
-        background: #eef2ff;
-        box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.2);
+        border-color: #93c5fd;
+        background: #eef6ff;
+        box-shadow: 0 10px 20px -5px rgba(59,130,246,0.2);
     }
     
     .payment-option-input:checked + .payment-card .payment-icon {
@@ -196,11 +198,11 @@ $total = (float)$pprice * (int)$qty;
 
     /* Right Section: Summary */
     .summary-card {
-        background: white;
+        background: #f8fbff;
         border-radius: 24px;
         padding: 30px;
         box-shadow: var(--card-shadow);
-        border: 1px solid white;
+        border: 1px solid #dbeafe;
         position: sticky;
         top: 20px;
     }

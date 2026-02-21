@@ -1,13 +1,18 @@
 :root{
-  --primary: #4f46e5;
-  --primary-2: #a855f7;
-  --accent: #f43f5e;
-  --muted: #6c757d;
-  --card-bg: #ffffff;
+  --primary: #7c3aed;
+  --primary-2: #0ea5e9;
+  --accent: #14b8a6;
+  --muted: #64748b;
+  --card-bg: #f8fbff;
 }
 body.user-area{
-  font-family: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: linear-gradient(120deg, #eef2ff 0%, #f5f3ff 45%, #ffe4e6 100%);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  background:
+    radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 36%),
+    radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+    radial-gradient(circle at 70% 85%, rgba(16, 185, 129, 0.10) 0%, rgba(16, 185, 129, 0) 30%),
+    linear-gradient(180deg, #eef4ff 0%, #f6fffb 48%, #fff8ef 100%);
   min-height: 100vh;
 }
 .user-glass-header{
@@ -29,7 +34,7 @@ body.user-area{
 .user-brand{
   font-weight: 800;
   letter-spacing: -0.02em;
-  background: linear-gradient(to right, #4338ca, #be185d);
+  background: linear-gradient(to right, #7c3aed, #0284c7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -46,7 +51,7 @@ body.user-area{
 .top-nav-links::-webkit-scrollbar{ display:none; }
 
 .top-nav-shell{
-  background: #f1f5f9;
+  background: linear-gradient(90deg, #f5f3ff 0%, #e0f2fe 100%);
   border-radius: 14px;
   padding: .34rem;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
@@ -66,15 +71,15 @@ body.user-area{
 }
 
 .top-nav-link:hover{
-  color: #4338ca;
-  background: rgba(99,102,241,0.08);
-  border-color: rgba(99,102,241,0.16);
+  color: #7c3aed;
+  background: rgba(167,139,250,0.18);
+  border-color: rgba(147,197,253,0.5);
 }
 
 .top-nav-link.active{
   color: #fff;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
-  box-shadow: 0 6px 14px rgba(79,70,229,0.24);
+  box-shadow: 0 8px 16px rgba(30,64,175,0.24);
 }
 
 .user-pill-link{
@@ -88,7 +93,7 @@ body.user-area{
 }
 
 .user-pill-link:hover{
-  border-color: #4f46e5;
+  border-color: #93c5fd;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
@@ -103,7 +108,7 @@ body.user-area{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   color: #fff;
   font-weight: 700;
   font-size: .95rem;
@@ -133,9 +138,9 @@ body.user-area{
 }
 
 .icon-btn:hover{
-  color: #4f46e5;
-  border-color: #4f46e5;
-  background: #f8fafc;
+  color: #7c3aed;
+  border-color: #93c5fd;
+  background: #eef6ff;
 }
 
 .notification-dot{
@@ -159,7 +164,7 @@ body.user-area{
   display: flex;
   gap: .25rem;
   padding: .4rem;
-  background: #f1f5f9;
+  background: linear-gradient(90deg, #f5f3ff 0%, #e0f2fe 100%);
   border-radius: 14px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -177,8 +182,8 @@ body.user-area{
   align-items: center;
   gap: .55rem;
   padding: .45rem .6rem;
-  background: rgba(255,255,255,0.82);
-  border: 1px solid rgba(226,232,240,0.9);
+  background: rgba(248,251,255,0.92);
+  border: 1px solid rgba(191,219,254,0.9);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-radius: 14px;
@@ -191,9 +196,9 @@ body.user-area{
 }
 
 .subnav-search-form .form-control{
-  border: 1px solid #e2e8f0;
+  border: 1px solid #bfdbfe;
   border-radius: 10px;
-  background: #fff;
+  background: #f8fbff;
   box-shadow: inset 0 1px 2px rgba(15,23,42,.04);
 }
 
@@ -225,8 +230,8 @@ body.user-area{
 }
 
 .nav-link-custom:hover{
-  color: #4f46e5;
-  background: #fff;
+  color: #7c3aed;
+  background: #eef6ff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
@@ -345,7 +350,7 @@ body.user-area{
 
 /* User area enhancements */
 .navbar-brand{
-  font-family: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: 'Poppins', sans-serif;
   letter-spacing: .2px;
   font-size: 1.05rem;
   color: #0b5ed7 !important;
