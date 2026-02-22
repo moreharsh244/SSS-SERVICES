@@ -111,7 +111,7 @@ include('header.php');
                             <span class="input-group-text bg-white"><i class="bi bi-tags"></i></span>
                             <select class="form-select" name="pcat" required>
                                 <option value="" selected disabled>Select category...</option>
-                                <option value="CPU">CPU</option>
+                                <option value="Processor">Processor</option>
                                 <option value="Motherboard">Motherboard</option>
                                 <option value="RAM">RAM</option>
                                 <option value="GPU">GPU</option>

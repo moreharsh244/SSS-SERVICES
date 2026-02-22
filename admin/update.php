@@ -19,6 +19,9 @@ $sqlq="select * from products where pid='$uid'";
 $result=mysqli_query($con,$sqlq);
 while($row=mysqli_fetch_assoc($result)){
     $currentCat = $row['pcat'] ?? '';
+    if (strcasecmp($currentCat, 'CPU') === 0) {
+        $currentCat = 'Processor';
+    }
 ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
@@ -127,7 +130,7 @@ while($row=mysqli_fetch_assoc($result)){
                             <span class="input-group-text bg-white"><i class="bi bi-tags"></i></span>
                             <select class="form-select" name="pcat" required>
                                 <option value="" <?php echo $currentCat === '' ? 'selected' : ''; ?>>Select category...</option>
-                                <option value="CPU" <?php echo $currentCat === 'CPU' ? 'selected' : ''; ?>>CPU</option>
+                                <option value="Processor" <?php echo $currentCat === 'Processor' ? 'selected' : ''; ?>>Processor</option>
                                 <option value="Motherboard" <?php echo $currentCat === 'Motherboard' ? 'selected' : ''; ?>>Motherboard</option>
                                 <option value="RAM" <?php echo $currentCat === 'RAM' ? 'selected' : ''; ?>>RAM</option>
                                 <option value="GPU" <?php echo $currentCat === 'GPU' ? 'selected' : ''; ?>>GPU</option>
