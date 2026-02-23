@@ -218,6 +218,7 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
         // -- Helper Function --
         function getCategoryStyle($cat) {
             $c = strtolower($cat);
+            if(strpos($c, 'processor')!==false) return ['bi-cpu', '#3b82f6', 'linear-gradient(135deg, #3b82f6, #2563eb)'];
             if(strpos($c, 'cpu')!==false) return ['bi-cpu', '#3b82f6', 'linear-gradient(135deg, #3b82f6, #2563eb)'];
             if(strpos($c, 'motherboard')!==false) return ['bi-motherboard', '#8b5cf6', 'linear-gradient(135deg, #8b5cf6, #7c3aed)'];
             if(strpos($c, 'gpu')!==false) return ['bi-gpu-card', '#ef4444', 'linear-gradient(135deg, #ef4444, #dc2626)'];
@@ -230,15 +231,100 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
             return ['bi-headphones', '#64748b', 'linear-gradient(135deg, #64748b, #475569)'];
         }
 
-        $q = isset($_GET['q']) ? mysqli_real_escape_string($con, $_GET['q']) : '';
+        $q = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $q_sql = mysqli_real_escape_string($con, $q);
         $company = isset($_GET['company']) ? mysqli_real_escape_string($con, $_GET['company']) : '';
         $sort = isset($_GET['sort']) ? $_GET['sort'] : '';
         $category = isset($_GET['category']) ? mysqli_real_escape_string($con, $_GET['category']) : '';
         $from = isset($_GET['from']) ? $_GET['from'] : '';
 
+        function normalizeSearchText($value){
+            $value = strtolower(trim((string)$value));
+            $value = preg_replace('/[^a-z0-9\s]+/i', ' ', $value);
+            $value = preg_replace('/\s+/', ' ', $value);
+            return trim($value);
+        }
+
+        function expandSearchText($value){
+            $base = normalizeSearchText($value);
+            if($base === '') return '';
+
+            $tokens = array_values(array_filter(explode(' ', $base)));
+            $expanded = $tokens;
+            $aliasMap = [
+                'cpu' => ['processor', 'cabinet', 'case'],
+                'processor' => ['cpu', 'cabinet', 'case'],
+                'cabinate' => ['cabinet', 'case'],
+                'cabinet' => ['case'],
+                'case' => ['cabinet']
+            ];
+
+            foreach($tokens as $token){
+                if(isset($aliasMap[$token])){
+                    $expanded = array_merge($expanded, $aliasMap[$token]);
+                }
+            }
+
+            $expanded = array_values(array_unique(array_filter($expanded)));
+            return implode(' ', $expanded);
+        }
+
+        function computeSearchScore($query, $name, $company, $category = ''){
+            $qNorm = expandSearchText($query);
+            $nameNorm = normalizeSearchText($name);
+            $companyNorm = normalizeSearchText($company);
+            $categoryNorm = normalizeSearchText($category);
+
+            if($qNorm === '' || $nameNorm === '') return 0;
+
+            $score = 0;
+
+            if($nameNorm === $qNorm) $score += 160;
+            if(strpos($nameNorm, $qNorm) !== false) $score += 120;
+            if($companyNorm !== '' && strpos($companyNorm, $qNorm) !== false) $score += 40;
+            if($categoryNorm !== '' && strpos($categoryNorm, $qNorm) !== false) $score += 60;
+
+            $qTokens = array_values(array_filter(explode(' ', $qNorm), function($t){ return strlen($t) >= 2; }));
+            foreach($qTokens as $token){
+                if(strpos($nameNorm, $token) !== false) $score += 22;
+                else if($companyNorm !== '' && strpos($companyNorm, $token) !== false) $score += 10;
+                else if($categoryNorm !== '' && strpos($categoryNorm, $token) !== false) $score += 18;
+            }
+
+            if(($qNorm === 'cpu' || strpos($qNorm, 'cpu ') !== false || strpos($qNorm, ' processor') !== false || strpos($qNorm, 'processor ') !== false)
+                && ($categoryNorm === 'case' || $categoryNorm === 'cabinet' || strpos($categoryNorm, 'case') !== false || strpos($categoryNorm, 'cabinet') !== false)){
+                $score += 80;
+            }
+
+            $nameComp = str_replace(' ', '', $nameNorm);
+            $qComp = str_replace(' ', '', $qNorm);
+            $maxLen = max(strlen($nameComp), strlen($qComp));
+            if($maxLen > 0){
+                $distance = levenshtein($qComp, $nameComp);
+                $similarity = 1 - ($distance / $maxLen);
+                if($similarity > 0.45) $score += (int)round($similarity * 90);
+            }
+
+            $nameWords = array_values(array_filter(explode(' ', $nameNorm)));
+            $qWords = array_values(array_filter(explode(' ', $qNorm)));
+            foreach($qWords as $qWord){
+                if(strlen($qWord) < 3) continue;
+                $qSound = soundex($qWord);
+                foreach($nameWords as $nWord){
+                    if(strlen($nWord) < 3) continue;
+                    if(soundex($nWord) === $qSound){
+                        $score += 8;
+                        break;
+                    }
+                }
+            }
+
+            return $score;
+        }
+
         // [PHP Logic maintained]
         $categoryMapping = [
-            'CPU' => 'CPU', 'Motherboard' => 'Motherboard', 'Graphics Card' => 'GPU', 'GPU' => 'GPU',
+            'CPU' => 'Processor', 'Processor' => 'Processor', 'Motherboard' => 'Motherboard', 'Graphics Card' => 'GPU', 'GPU' => 'GPU',
             'RAM Memory' => 'RAM', 'RAM' => 'RAM', 'Storage Drive' => 'Storage', 'Storage' => 'Storage',
             'Power Supply' => 'PSU', 'PSU' => 'PSU', 'Cabinet' => 'Case', 'Case' => 'Case',
             'CPU Cooler' => 'Cooler', 'Cooler' => 'Cooler', 'Monitor' => 'Monitor',
@@ -307,7 +393,23 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
 
         <?php
         $where = [];
-        if($q) $where[] = "(pname LIKE '%$q%' OR pcompany LIKE '%$q%')";
+        if($q) {
+            $qLoose = expandSearchText($q_sql);
+            $qWords = array_values(array_filter(explode(' ', $qLoose), function($t){ return strlen($t) >= 2; }));
+            $qLikeParts = [];
+            if($qLoose !== ''){
+                $qLikeParts[] = "LOWER(pname) LIKE '%$qLoose%'";
+                $qLikeParts[] = "LOWER(pcompany) LIKE '%$qLoose%'";
+                $qLikeParts[] = "LOWER(pcat) LIKE '%$qLoose%'";
+            }
+            foreach($qWords as $w){
+                $wEsc = mysqli_real_escape_string($con, $w);
+                $qLikeParts[] = "LOWER(pname) LIKE '%$wEsc%'";
+                $qLikeParts[] = "LOWER(pcompany) LIKE '%$wEsc%'";
+                $qLikeParts[] = "LOWER(pcat) LIKE '%$wEsc%'";
+            }
+            if(!empty($qLikeParts)) $where[] = '(' . implode(' OR ', $qLikeParts) . ')';
+        }
         if($company) $where[] = "pcompany = '$company'";
         if(!empty($categoryTermsLower)){
             $categoryTermsEsc = array_map(function($val) use ($con){ return mysqli_real_escape_string($con, $val); }, $categoryTermsLower);
@@ -325,8 +427,39 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
         else $sql .= " ORDER BY pcat ASC, pid DESC";
 
         $result = mysqli_query($con, $sql);
+        $matchedRows = [];
+        if($result){
+            while($row = mysqli_fetch_assoc($result)){
+                if($q){
+                    $searchScore = computeSearchScore($q, $row['pname'] ?? '', $row['pcompany'] ?? '', $row['pcat'] ?? '');
+                    if($searchScore < 32) continue;
+                    $row['_search_score'] = $searchScore;
+                }
+                $matchedRows[] = $row;
+            }
+        }
+
+        if($q){
+            usort($matchedRows, function($a, $b) use ($sort){
+                $scoreA = (int)($a['_search_score'] ?? 0);
+                $scoreB = (int)($b['_search_score'] ?? 0);
+                if($scoreA !== $scoreB) return $scoreB <=> $scoreA;
+
+                $catA = strtolower((string)($a['pcat'] ?? ''));
+                $catB = strtolower((string)($b['pcat'] ?? ''));
+                if($catA !== $catB) return $catA <=> $catB;
+
+                $priceA = (float)($a['pprice'] ?? 0);
+                $priceB = (float)($b['pprice'] ?? 0);
+                if($sort === 'price_asc' && $priceA !== $priceB) return $priceA <=> $priceB;
+                if($sort === 'price_desc' && $priceA !== $priceB) return $priceB <=> $priceA;
+
+                return ((int)($b['pid'] ?? 0)) <=> ((int)($a['pid'] ?? 0));
+            });
+        }
+
         $productsByCategory = [];
-        while($row = mysqli_fetch_assoc($result)){
+        foreach($matchedRows as $row){
             $cat_raw = $row['pcat'] ?? '';
             $cat_norm = $categoryMapping[$cat_raw] ?? $cat_raw;
             $cat_raw_lower = strtolower($cat_raw);

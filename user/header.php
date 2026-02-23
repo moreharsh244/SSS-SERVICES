@@ -198,6 +198,30 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
       border-color: rgba(191,219,254,0.7);
     }
 
+    /* Ensure dropdown appears above navbar */
+    .dropdown-menu-dark-custom {
+      z-index: 99999 !important;
+      position: absolute !important;
+    }
+
+    /* Ensure dropdown menu always appears above everything when open */
+    .dropdown-menu.show {
+      z-index: 99999 !important;
+      position: absolute !important;
+      margin-top: 12px !important;
+    }
+
+    /* Prevent parent containers from clipping the dropdown */
+    header, .top-brand-header, .secondary-navbar, .nav-container {
+      overflow: visible !important;
+    }
+
+    /* Ensure parent .dropdown has high z-index stacking context */
+    .dropdown {
+      position: relative;
+      z-index: 9998;
+    }
+
 
     /* =========================================
        TIER 2: Navigation Bar (Light/White)

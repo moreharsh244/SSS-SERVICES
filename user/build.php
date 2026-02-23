@@ -22,9 +22,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         exit;
     }
 
-    $required_components = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
+    $required_components = ['Processor','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
     $category_map = [
-        'CPU' => 'CPU', 'Motherboard' => 'Motherboard',
+        'CPU' => 'Processor', 'Processor' => 'Processor', 'Motherboard' => 'Motherboard',
         'Graphics Card' => 'GPU', 'GPU' => 'GPU',
         'RAM Memory' => 'RAM', 'RAM' => 'RAM',
         'Storage Drive' => 'Storage', 'Storage' => 'Storage',
@@ -329,6 +329,92 @@ if(!$is_partial){
         transform: translateY(-3px);
     }
 
+    .build-opinion-card {
+        background: linear-gradient(120deg, rgba(245,243,255,0.95) 0%, rgba(238,246,255,0.95) 55%, rgba(240,253,244,0.95) 100%);
+        border: 1px solid rgba(191,219,254,0.9);
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(30,64,175,0.10);
+        padding: 16px 18px;
+    }
+
+    .build-opinion-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1f2a44;
+        margin-bottom: 6px;
+    }
+
+    .build-score-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 6px 12px;
+        margin-bottom: 10px;
+        border: 1px solid transparent;
+    }
+
+    .build-score-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .score-green {
+        background: #ecfdf5;
+        color: #065f46;
+        border-color: #a7f3d0;
+    }
+    .score-green .build-score-dot { background: #10b981; }
+
+    .score-yellow {
+        background: #fffbeb;
+        color: #92400e;
+        border-color: #fde68a;
+    }
+    .score-yellow .build-score-dot { background: #f59e0b; }
+
+    .score-red {
+        background: #fef2f2;
+        color: #991b1b;
+        border-color: #fecaca;
+    }
+    .score-red .build-score-dot { background: #ef4444; }
+
+    .build-opinion-summary {
+        font-size: 0.9rem;
+        color: #334155;
+        margin-bottom: 10px;
+    }
+
+    .opinion-points {
+        margin: 0;
+        padding-left: 18px;
+        color: #475569;
+        font-size: 0.86rem;
+    }
+
+    .opinion-points li { margin-bottom: 4px; }
+
+    .opinion-alt-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #334155;
+        margin: 12px 0 6px;
+    }
+
+    .opinion-alt-list {
+        margin: 0;
+        padding-left: 18px;
+        color: #475569;
+        font-size: 0.84rem;
+    }
+
+    .opinion-alt-list li { margin-bottom: 4px; }
+
     .product-brand {
         font-size: 0.78rem;
         color: #64748b;
@@ -369,6 +455,8 @@ if(!$is_partial){
                 <i class="bi bi-pc-display text-primary" style="font-size: 3rem; opacity: 0.2;"></i>
             </div>
         </div>
+
+        <div id="buildOpinionPanel" class="build-opinion-card mb-4 d-none"></div>
 
         <div class="row g-4" id="buildGrid">
             </div>
@@ -425,8 +513,8 @@ if(!$is_partial){
 
     // Categories Configuration (Colors & Icons)
     const SLOTS = [
-        { key: 'CPU', label: 'Processor', icon: 'bi-cpu', color: '#3b82f6', bg: '#eff6ff' },
         { key: 'Motherboard', label: 'Motherboard', icon: 'bi-motherboard', color: '#8b5cf6', bg: '#f5f3ff' },
+        { key: 'Processor', label: 'Processor', icon: 'bi-cpu', color: '#3b82f6', bg: '#eff6ff' },
         { key: 'GPU', label: 'Graphics Card', icon: 'bi-gpu-card', color: '#ef4444', bg: '#fef2f2' },
         { key: 'RAM', label: 'Memory (RAM)', icon: 'bi-memory', color: '#10b981', bg: '#ecfdf5' },
         { key: 'Storage', label: 'Storage (SSD/HDD)', icon: 'bi-device-hdd', color: '#f59e0b', bg: '#fffbeb' },
@@ -443,7 +531,7 @@ if(!$is_partial){
         'power supply':'PSU', 'psu':'PSU',
         'cabinet':'Case', 'case':'Case',
         'cpu cooler':'Cooler', 'cooler':'Cooler',
-        'cpu':'CPU', 'processor':'CPU',
+        'cpu':'Processor', 'processor':'Processor',
         'monitor':'Monitor'
     };
 
@@ -452,7 +540,7 @@ if(!$is_partial){
     function getCanon(c) {
         const key = normalizeCat(c);
         if (CAT_MAP[key]) return CAT_MAP[key];
-        if (key.includes('cpu') || key.includes('processor')) return 'CPU';
+        if (key.includes('cpu') || key.includes('processor')) return 'Processor';
         if (key.includes('mother')) return 'Motherboard';
         if (key.includes('graphic') || key.includes('gpu')) return 'GPU';
         if (key.includes('ram')) return 'RAM';
@@ -468,6 +556,358 @@ if(!$is_partial){
         const cleaned = String(value || '').replace(/[^0-9.]/g, '');
         const parsed = parseFloat(cleaned);
         return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function formatMoney(value) {
+        return `₹${parsePrice(value).toFixed(0)}`;
+    }
+
+    function getCategoryProducts(catKey) {
+        return productsData.filter(p => getCanon(p.pcat) === catKey);
+    }
+
+    function combinedText(product) {
+        return `${product?.pname || ''} ${product?.pdisc || ''} ${product?.pcompany || ''}`.toLowerCase();
+    }
+
+    function extractSocket(text) {
+        const t = String(text || '').toLowerCase();
+        const patterns = [
+            /\blga\s*1700\b/, /\blga\s*1200\b/, /\blga\s*1151\b/, /\blga\s*1150\b/, /\blga\s*1155\b/, /\blga\s*2066\b/,
+            /\bam4\b/, /\bam5\b/, /\btr4\b/, /\bs?trx4\b/
+        ];
+        for (const p of patterns) {
+            const m = t.match(p);
+            if (m && m[0]) return m[0].replace(/\s+/g, '');
+        }
+        return null;
+    }
+
+    function extractRamType(text) {
+        const t = String(text || '').toLowerCase();
+        if (/\bddr5\b/.test(t)) return 'ddr5';
+        if (/\bddr4\b/.test(t)) return 'ddr4';
+        if (/\bddr3\b/.test(t)) return 'ddr3';
+        return null;
+    }
+
+    function extractFormFactor(text) {
+        const t = String(text || '').toLowerCase();
+        if (/\bmini[-\s]?itx\b/.test(t)) return 'mini-itx';
+        if (/\bmicro[-\s]?atx\b|\bm[-\s]?atx\b/.test(t)) return 'micro-atx';
+        if (/\beatx\b/.test(t)) return 'atx';
+        if (/\be[-\s]?atx\b/.test(t)) return 'e-atx';
+        return null;
+    }
+
+    function extractMotherboardProfile(boardProduct) {
+        const text = combinedText(boardProduct);
+        return {
+            socket: extractSocket(text),
+            ram: extractRamType(text),
+            formFactor: extractFormFactor(text),
+            text
+        };
+    }
+
+    function findMotherboardItem() {
+        return items.find(i => getCanon(i.category) === 'Motherboard') || null;
+    }
+
+    function findProductByPid(pid) {
+        const id = String(pid || '');
+        return productsData.find(p => String(p.pid) === id) || null;
+    }
+
+    function isProductCompatibleWithMotherboard(slotKey, product, boardProfile) {
+        const productText = combinedText(product);
+
+        if (slotKey === 'Processor') {
+            if (!boardProfile.socket) return false;
+            const cpuSocket = extractSocket(productText);
+            return cpuSocket ? cpuSocket === boardProfile.socket : false;
+        }
+
+        if (slotKey === 'RAM') {
+            if (!boardProfile.ram) return false;
+            const ramType = extractRamType(productText);
+            return ramType ? ramType === boardProfile.ram : false;
+        }
+
+        if (slotKey === 'Case') {
+            if (!boardProfile.formFactor) return false;
+            if (boardProfile.formFactor === 'mini-itx') return /mini[-\s]?itx|itx/.test(productText);
+            if (boardProfile.formFactor === 'micro-atx') return /micro[-\s]?atx|m[-\s]?atx|atx/.test(productText);
+            if (boardProfile.formFactor === 'atx') return /\batx\b|e[-\s]?atx/.test(productText);
+            if (boardProfile.formFactor === 'e-atx') return /e[-\s]?atx/.test(productText);
+            return false;
+        }
+
+        if (slotKey === 'Storage') {
+            const boardHasM2 = /\bm\.2\b|\bnvme\b/.test(boardProfile.text);
+            const boardHasSata = /\bsata\b/.test(boardProfile.text);
+            const driveIsNvme = /\bm\.2\b|\bnvme\b/.test(productText);
+            const driveIsSata = /\bsata\b/.test(productText);
+            if (driveIsNvme) return boardHasM2;
+            if (driveIsSata) return boardHasSata || boardHasM2;
+            return boardHasM2 || boardHasSata;
+        }
+
+        if (slotKey === 'GPU') {
+            return /\bpcie\b|\bgraphics\b|\bgpu\b/.test(productText);
+        }
+
+        if (slotKey === 'PSU') {
+            return /\bw\b|\bwatt\b|\bpsu\b|\bpower supply\b/.test(productText);
+        }
+
+        if (slotKey === 'Cooler') {
+            if (!boardProfile.socket) return true;
+            const coolerSocket = extractSocket(productText);
+            return coolerSocket ? coolerSocket === boardProfile.socket : true;
+        }
+
+        return true;
+    }
+
+    function getMotherboardCompatibleProducts(slotKey) {
+        const boardItem = findMotherboardItem();
+        if (!boardItem) return [];
+
+        const boardProduct = findProductByPid(boardItem.pid);
+        if (!boardProduct) return [];
+
+        const boardProfile = extractMotherboardProfile(boardProduct);
+        const base = productsData.filter(p => getCanon(p.pcat) === slotKey);
+
+        if (slotKey === 'Motherboard') return base;
+        return base.filter(p => isProductCompatibleWithMotherboard(slotKey, p, boardProfile));
+    }
+
+    function removeIncompatibleSelectedItems() {
+        const boardItem = findMotherboardItem();
+        if (!boardItem) return;
+
+        const beforeCount = items.length;
+        items = items.filter(item => {
+            const key = getCanon(item.category);
+            if (key === 'Motherboard') return true;
+            const sourceProduct = findProductByPid(item.pid);
+            if (!sourceProduct) return false;
+            const compatible = getMotherboardCompatibleProducts(key).some(p => String(p.pid) === String(item.pid));
+            return compatible;
+        });
+
+        if (items.length !== beforeCount) {
+            alert('Some selected components were removed because they do not match the selected motherboard.');
+            saveItems();
+            renderGrid();
+        }
+    }
+
+    function compareWithinCategory(item) {
+        const cat = getCanon(item.category);
+        const candidates = getCategoryProducts(cat)
+            .map(p => ({
+                pid: String(p.pid),
+                name: String(p.pname || ''),
+                price: parsePrice(p.pprice)
+            }))
+            .filter(p => p.price > 0)
+            .sort((a, b) => a.price - b.price);
+
+        if(candidates.length < 2) return null;
+
+        const selectedPrice = parsePrice(item.price);
+        const avg = candidates.reduce((sum, p) => sum + p.price, 0) / candidates.length;
+        const cheapest = candidates[0];
+        const expensive = candidates[candidates.length - 1];
+
+        let position = 'balanced';
+        if(selectedPrice <= avg * 0.85) position = 'value';
+        else if(selectedPrice >= avg * 1.15) position = 'premium';
+
+        return {
+            cat,
+            avg,
+            cheapest,
+            expensive,
+            selectedPrice,
+            position
+        };
+    }
+
+    function buildOpinionData() {
+        const required = ['Processor','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler'];
+        const selectedCats = items.map(i => getCanon(i.category));
+        const missing = required.filter(c => !selectedCats.includes(c));
+        const total = items.reduce((s, i) => s + parsePrice(i.price), 0);
+
+        let tier = 'Basic Budget Build';
+        if(total >= 120000) tier = 'High Performance Build';
+        else if(total >= 80000) tier = 'Strong Gaming Build';
+        else if(total >= 50000) tier = 'Balanced Everyday Build';
+
+        const cpu = items.find(i => getCanon(i.category) === 'Processor');
+        const gpu = items.find(i => getCanon(i.category) === 'GPU');
+        const psu = items.find(i => getCanon(i.category) === 'PSU');
+
+        const points = [];
+
+        if(missing.length > 0) {
+            points.push(`Needs attention: Please add these parts to complete your PC: ${missing.join(', ')}.`);
+        } else {
+            points.push('Good: All important parts are selected. Your build is complete.');
+        }
+
+        if(cpu && gpu) {
+            const cpuPrice = parsePrice(cpu.price);
+            const gpuPrice = parsePrice(gpu.price);
+            if(cpuPrice > gpuPrice * 2) {
+                points.push('Tip: You spent much more on Processor than Graphics Card. For gaming, consider a better Graphics Card.');
+            } else if(gpuPrice > cpuPrice * 2.2) {
+                points.push('Tip: You spent much more on Graphics Card than Processor. Consider a better Processor for smoother balance.');
+            } else {
+                points.push('Good: Processor and Graphics Card look well balanced.');
+            }
+        }
+
+        if(gpu && !psu) {
+            points.push('Important: You selected Graphics Card but not Power Supply yet. Please add a Power Supply.');
+        }
+
+        items.forEach(item => {
+            const cmp = compareWithinCategory(item);
+            if(!cmp) return;
+            const slotInfo = SLOTS.find(s => s.key === cmp.cat);
+            const catLabel = slotInfo ? slotInfo.label : cmp.cat;
+            if(cmp.position === 'value') {
+                points.push(`${catLabel}: Good value choice. Price is lower than average (${formatMoney(cmp.avg)}).`);
+            } else if(cmp.position === 'premium') {
+                points.push(`${catLabel}: Premium choice. Price is higher than average (${formatMoney(cmp.avg)}).`);
+            }
+        });
+
+        let summary = `${tier}. Current total: ₹${total.toFixed(2)}.`;
+        if(missing.length > 0) {
+            summary += ` Add missing parts to get better suggestions.`;
+        }
+
+        return {
+            summary,
+            points,
+            alternatives: getAlternativeSuggestions(),
+            score: getBuildHealthScore({ missing, cpu, gpu, psu })
+        };
+    }
+
+    function getBuildHealthScore(ctx) {
+        let score = 100;
+        const missingCount = (ctx.missing || []).length;
+        score -= missingCount * 12;
+
+        if(ctx.gpu && !ctx.psu) score -= 15;
+
+        if(ctx.cpu && ctx.gpu) {
+            const cpuPrice = parsePrice(ctx.cpu.price);
+            const gpuPrice = parsePrice(ctx.gpu.price);
+            if(cpuPrice > gpuPrice * 2 || gpuPrice > cpuPrice * 2.2) {
+                score -= 12;
+            }
+        }
+
+        if(score < 0) score = 0;
+
+        if(score >= 75) {
+            return {
+                label: 'Green: Good Build Health',
+                className: 'score-green'
+            };
+        }
+        if(score >= 45) {
+            return {
+                label: 'Yellow: Needs Small Fixes',
+                className: 'score-yellow'
+            };
+        }
+        return {
+            label: 'Red: Needs Attention',
+            className: 'score-red'
+        };
+    }
+
+    function getAlternativeSuggestions() {
+        const altPoints = [];
+
+        items.forEach(item => {
+            const cat = getCanon(item.category);
+            const slotInfo = SLOTS.find(s => s.key === cat);
+            const catLabel = slotInfo ? slotInfo.label : cat;
+            const selectedPrice = parsePrice(item.price);
+            const selectedPid = String(item.pid || '');
+
+            const candidates = getCategoryProducts(cat)
+                .map(p => ({
+                    pid: String(p.pid || ''),
+                    name: String(p.pname || ''),
+                    price: parsePrice(p.pprice)
+                }))
+                .filter(p => p.price > 0 && p.pid !== selectedPid)
+                .sort((a, b) => a.price - b.price);
+
+            if(candidates.length === 0) return;
+
+            const cheaper = candidates
+                .filter(p => p.price < selectedPrice)
+                .sort((a, b) => b.price - a.price)[0] || null;
+
+            const upgrade = candidates
+                .filter(p => p.price > selectedPrice)
+                .sort((a, b) => a.price - b.price)[0] || null;
+
+            if(cheaper) {
+                const save = Math.max(0, selectedPrice - cheaper.price);
+                altPoints.push(`${catLabel}: Save money with ${cheaper.name} (${formatMoney(cheaper.price)}). You can save about ${formatMoney(save)}.`);
+            }
+
+            if(upgrade) {
+                const extra = Math.max(0, upgrade.price - selectedPrice);
+                altPoints.push(`${catLabel}: Better upgrade is ${upgrade.name} (${formatMoney(upgrade.price)}). Extra cost about ${formatMoney(extra)}.`);
+            }
+        });
+
+        return altPoints;
+    }
+
+    function renderBuildOpinion() {
+        const panel = document.getElementById('buildOpinionPanel');
+        if(!panel) return;
+
+        if(items.length === 0) {
+            panel.classList.add('d-none');
+            panel.innerHTML = '';
+            return;
+        }
+
+        const opinion = buildOpinionData();
+        panel.classList.remove('d-none');
+        panel.innerHTML = `
+            <div class="build-opinion-title"><i class="bi bi-clipboard2-pulse me-2"></i>Build Comparison & Opinion</div>
+            <div class="build-score-badge ${opinion.score.className}">
+                <span class="build-score-dot"></span>
+                ${escapeHtml(opinion.score.label)}
+            </div>
+            <div class="build-opinion-summary">${escapeHtml(opinion.summary)}</div>
+            <ul class="opinion-points">
+                ${opinion.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+            </ul>
+            ${opinion.alternatives && opinion.alternatives.length ? `
+                <div class="opinion-alt-title"><i class="bi bi-shuffle me-1"></i>Best Alternatives</div>
+                <ul class="opinion-alt-list">
+                    ${opinion.alternatives.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+                </ul>
+            ` : ''}
+        `;
     }
 
     function previewText(value, max = 90) {
@@ -512,7 +952,7 @@ if(!$is_partial){
                 e.preventDefault();
                 if(items.length === 0) { alert('Build is empty!'); return; }
                 
-                const required = ['CPU','Motherboard','GPU','RAM','Storage','PSU','Case'];
+                const required = ['Processor','Motherboard','GPU','RAM','Storage','PSU','Case'];
                 const currentCats = items.map(i => getCanon(i.category));
                 const missing = required.filter(c => !currentCats.includes(c));
                 
@@ -545,13 +985,17 @@ if(!$is_partial){
     function addItem(p) {
         const cat = getCanon(p.category);
         // Replace existing item in same category (except multi-slot logic which we simplify here for UI)
-        if(['CPU','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler','Monitor'].includes(cat)){
+        if(['Processor','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler','Monitor'].includes(cat)){
             items = items.filter(i => getCanon(i.category) !== cat);
         }
         items.push({
             pid: p.pid, name: p.name, price: parsePrice(p.price),
             category: p.category, img: p.img, qty: 1
         });
+
+        if(cat === 'Motherboard') {
+            removeIncompatibleSelectedItems();
+        }
     }
 
     function renderGrid() {
@@ -602,18 +1046,30 @@ if(!$is_partial){
         });
 
         document.getElementById('totalPrice').innerText = '₹' + total.toFixed(2);
+        renderBuildOpinion();
     }
 
     function openSelector(key) {
-        const filtered = productsData.filter(p => getCanon(p.pcat) === key);
+        const boardItem = findMotherboardItem();
+        let filtered = [];
+
+        if (key === 'Motherboard') {
+            filtered = productsData.filter(p => getCanon(p.pcat) === key);
+        } else if (!boardItem) {
+            filtered = [];
+        } else {
+            filtered = getMotherboardCompatibleProducts(key);
+        }
+
         const body = document.getElementById('productSelectorBody');
         document.getElementById('productSelectorTitle').innerText = 'Select ' + key;
 
         if(filtered.length === 0) {
+            const noBoard = key !== 'Motherboard' && !boardItem;
             body.innerHTML = `
             <div class="col-12 text-center py-5">
                 <i class="bi bi-box-seam display-4 text-muted"></i>
-                <p class="mt-3 text-muted">No ${key} available currently.</p>
+                <p class="mt-3 text-muted">${noBoard ? 'Select Motherboard first to see compatible parts.' : `No compatible ${key} available for selected motherboard.`}</p>
                 <a href="view_products.php" class="btn btn-outline-primary mt-2">Browse All Products</a>
             </div>`;
         } else {

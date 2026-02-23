@@ -138,14 +138,8 @@ if (session_status() === PHP_SESSION_NONE) {
                             mysqli_query($con, "UPDATE cust_reg SET remember_token='$tok_esc', remember_expiry='$expiry' WHERE c_email='".mysqli_real_escape_string($con,$username)."' LIMIT 1");
                             setcookie('remember', $token, time()+30*24*3600, '/', '', false, true);
                         }
-                        // if a return URL was provided, redirect there, otherwise go to index
-                        $safeRet = '';
-                        if(!empty($return_url)){
-                            // return_url comes from REQUEST_URI encoded by header; decode and use
-                            $safeRet = rawurldecode($return_url);
-                        }
-                        $dest = $safeRet ? htmlspecialchars($safeRet, ENT_QUOTES) : 'profile.php';
-                        echo "<script>alert('Login successful! Welcome back.'); window.location.href='".$dest."';</script>"; exit;
+                        // Always redirect to view_products.php after login
+                        echo "<script>alert('Login successful! Welcome back.'); window.location.href='view_products.php';</script>"; exit;
                     } else {
                         echo "<script>alert('Incorrect password. Please try again.');</script>";
                     }

@@ -166,11 +166,12 @@ if($pid > 0){
             $qty = (int)$product['pqty'];
             $description = trim((string)($product['pdisc'] ?? ''));
             $category = trim((string)($product['pcat'] ?? ''));
+            $buildCategory = (strcasecmp($category, 'CPU') === 0) ? 'Processor' : $category;
             $stockText = $qty > 0 ? ($qty . ' in stock') : 'Out of stock';
             $imgPath = '../productimg/' . rawurlencode((string)$product['pimg']);
             $detailName = htmlspecialchars((string)$product['pname']);
             $detailBrand = htmlspecialchars((string)$product['pcompany']);
-            $detailCategory = htmlspecialchars($category !== '' ? $category : 'N/A');
+            $detailCategory = htmlspecialchars($buildCategory !== '' ? $buildCategory : 'N/A');
         ?>
             <div class="row g-4">
                 <div class="col-lg-5">
@@ -204,7 +205,7 @@ if($pid > 0){
 
                     <div class="mt-4">
                         <?php if($from === 'build'): ?>
-                            <button class="btn btn-main btn-add-build w-100" onclick="addToBuild('<?php echo $product['pid']; ?>', '<?php echo htmlspecialchars(addslashes($product['pname'])); ?>', '<?php echo $product['pprice']; ?>', '<?php echo htmlspecialchars($product['pcat']); ?>', '../productimg/<?php echo htmlspecialchars($product['pimg']); ?>')">
+                            <button class="btn btn-main btn-add-build w-100" onclick="addToBuild('<?php echo $product['pid']; ?>', '<?php echo htmlspecialchars(addslashes($product['pname'])); ?>', '<?php echo $product['pprice']; ?>', '<?php echo htmlspecialchars($buildCategory); ?>', '../productimg/<?php echo htmlspecialchars($product['pimg']); ?>')">
                                 <i class="bi bi-plus-circle-fill me-2"></i>Add to Build
                             </button>
                         <?php else: ?>
