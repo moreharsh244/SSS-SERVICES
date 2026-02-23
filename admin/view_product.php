@@ -150,6 +150,7 @@ include('header.php');
                                 if($qty == 0) { $stockClass = 'badge-soft-danger'; $stockText = 'Out of Stock'; }
                                 elseif($qty < 5) { $stockClass = 'badge-soft-warning'; $stockText = 'Low Stock (' . $qty . ')'; }
                                 else { $stockText = $qty . ' Units'; }
+                                $displayCategory = (strcasecmp((string)($row['pcat'] ?? ''), 'CPU') === 0) ? 'Processor' : (string)($row['pcat'] ?? '');
                         ?>
                         <tr>
                             <td><?php echo $i++; ?></td>
@@ -164,7 +165,7 @@ include('header.php');
                             </td>
                             <td>
                                 <span class="badge badge-soft-primary">
-                                    <?php echo htmlspecialchars($row['pcat']); ?>
+                                    <?php echo htmlspecialchars($displayCategory); ?>
                                 </span>
                             </td>
                             <td class="fw-bold text-dark">₹<?php echo number_format($row['pprice']); ?></td>
