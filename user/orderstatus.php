@@ -47,5 +47,5 @@ include('header.php');
 </div>
 
 <?php
-include('footer.php');
+include(__DIR__ . '/../footer.php');
 ?>

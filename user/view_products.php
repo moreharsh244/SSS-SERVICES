@@ -630,4 +630,4 @@ if(!defined('HEADER_INCLUDED')) include('header.php');
     window.addEventListener('load', updateBuildBadge);
 </script>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>

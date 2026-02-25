@@ -50,7 +50,7 @@ if ($order_id > 0) {
 // If order not found
 if (!$row) {
     echo '<div class="container mt-5"><div class="alert alert-warning shadow-sm border-0"><i class="fas fa-exclamation-triangle"></i> Order not found.</div></div>';
-    include('footer.php');
+    include(__DIR__ . '/../footer.php');
     exit;
 }
 
@@ -242,4 +242,4 @@ $can_cancel = !$is_history && in_array($delivery_state, ['pending', 'order_confi
     </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>
