@@ -306,6 +306,8 @@ include('header.php');
             </div>
         </div>
 
+
+        <!-- Active Purchase Assignments -->
         <div class="modern-panel">
             <div class="panel-header">
                 <h5 class="panel-title"><i class="bi bi-truck me-2 text-primary"></i> Active Assignments</h5>
@@ -338,15 +340,12 @@ include('header.php');
                             $qty = (int)($row['qty'] ?? 0);
                             $total = number_format(((float)($row['pprice'] ?? 0) * $qty), 2);
                             $dstatus = strtolower(trim($row['delivery_status'] ?? 'order_confirmed'));
-                            
                             if($dstatus === 'pending') $dstatus = 'order_confirmed';
                             if($dstatus === 'shipped') $dstatus = 'out_for_delivery';
-                            
                             $badge = 'bg-soft-warning';
                             if($dstatus === 'out_for_delivery') $badge = 'bg-soft-primary';
                             if($dstatus === 'delivered') $badge = 'bg-soft-success';
                             if($dstatus === 'cancelled') $badge = 'bg-soft-danger';
-                            
                             $status_label = ucwords(str_replace('_', ' ', $dstatus));
                     ?>
                         <tr>
@@ -374,6 +373,68 @@ include('header.php');
                         }
                     } else {
                         echo "<tr><td colspan='7' class='text-center py-5'><div class='opacity-50'><i class='bi bi-inbox fs-1 d-block mb-2'></i>No active orders assigned</div></td></tr>";
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Assigned Builds Section -->
+        <div class="modern-panel mt-4">
+            <div class="panel-header">
+                <h5 class="panel-title"><i class="bi bi-cpu me-2 text-danger"></i> Assigned Custom PC Builds</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Build ID</th>
+                            <th>Build Name</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    $builds_res = mysqli_query($con, "SELECT * FROM builds WHERE assigned_agent='$agent' AND (status IS NULL OR status NOT IN ('delivered','cancelled')) ORDER BY created_at DESC");
+                    if($builds_res && mysqli_num_rows($builds_res) > 0){
+                        while($build = mysqli_fetch_assoc($builds_res)){
+                            $bid = (int)$build['id'];
+                            $bname = htmlspecialchars($build['name'] ?? '');
+                            $buser = htmlspecialchars($build['user_name'] ?? 'User#'.$build['user_id']);
+                            $btotal = number_format((float)($build['total'] ?? 0), 2);
+                            $bstatus = strtolower($build['status'] ?? 'pending');
+                            $bbadge = 'bg-soft-warning';
+                            if($bstatus === 'out_for_delivery') $bbadge = 'bg-soft-primary';
+                            if($bstatus === 'delivered') $bbadge = 'bg-soft-success';
+                            if($bstatus === 'cancelled') $bbadge = 'bg-soft-danger';
+                            $bstatus_label = ucwords(str_replace('_', ' ', $bstatus));
+                    ?>
+                        <tr>
+                            <td class="text-muted">#<?php echo str_pad($bid, 5, "0", STR_PAD_LEFT); ?></td>
+                            <td><?php echo $bname; ?></td>
+                            <td><?php echo $buser; ?></td>
+                            <td style="color: var(--accent-green);">₹<?php echo $btotal; ?></td>
+                            <td><span class="badge-glow <?php echo $bbadge; ?>"><?php echo $bstatus_label; ?></span></td>
+                            <td class="text-muted"><?php echo htmlspecialchars($build['created_at']); ?></td>
+                            <td>
+                                <form action="update_build_status.php" method="post" class="d-flex align-items-center gap-2 m-0">
+                                    <input type="hidden" name="build_id" value="<?php echo $bid; ?>">
+                                    <select name="build_status" class="custom-select" style="width: 130px;">
+                                        <option value="delivered">Delivered</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                    <button type="submit" class="btn-rounded">Save</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php
+                        }
+                    } else {
+                        echo "<tr><td colspan='7' class='text-center py-5'><div class='opacity-50'><i class='bi bi-inbox fs-1 d-block mb-2'></i>No builds assigned</div></td></tr>";
                     }
                     ?>
                     </tbody>
