@@ -22,6 +22,7 @@
         --accent-main: #7c3aed;
         --accent-blue: #0ea5e9;
       }
+      /* ...existing code... */
 
       body.pc-theme {
         font-family: 'Poppins', sans-serif;
@@ -197,7 +198,7 @@
             <img src="https://images.unsplash.com/photo-1591799265444-d66432b91588?w=600&h=400&fit=crop" alt="Custom PC Build" class="img-fluid">
           </div>
           <div class="hero-card tall">
-            <img src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400&h=600&fit=crop" alt="PC Components" class="img-fluid">
+            <img src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=650&h=400&fit=crop" alt="PC Components" class="img-fluid">
           </div>
         </div>
       </div>

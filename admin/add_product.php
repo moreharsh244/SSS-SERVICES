@@ -256,5 +256,5 @@ if(isset($_POST['add_product'])){
 ?>
 
 <?php
-include('footer.php');  
+include(__DIR__ . '/../footer.php');  
 ?>
