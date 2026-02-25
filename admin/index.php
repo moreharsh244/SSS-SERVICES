@@ -1,5 +1,6 @@
 <?php
 include('header.php');
+echo '<div class="admin-page-wrapper" style="display:flex;flex-direction:column;min-height:100vh;">';
 
 // Get current date info
 $today = date('Y-m-d');
@@ -563,4 +564,5 @@ new Chart(pieCtx, {
 });
 </script>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>
+</div>

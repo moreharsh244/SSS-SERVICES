@@ -224,6 +224,6 @@ while($row=mysqli_fetch_assoc($result)){
 ?>
 <?php
 if ($include_header) {
-    include('footer.php');
+    include(__DIR__ . '/../footer.php');
 }
 ?>

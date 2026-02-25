@@ -225,6 +225,6 @@ $result = mysqli_query($con, $sql);
 
 <?php
 if ($included_header) {
-    include('footer.php');
+    include(__DIR__ . '/../footer.php');
 }
 ?>
