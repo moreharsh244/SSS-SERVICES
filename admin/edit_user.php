@@ -23,7 +23,7 @@ $sql = "SELECT username, password FROM user_login WHERE username='$orig' LIMIT 1
 $res = mysqli_query($con, $sql);
 if(!$res || mysqli_num_rows($res) === 0){
   echo '<div class="col-12"><div class="admin-card"><p class="small-muted">User not found.</p></div></div>';
-  include('footer.php');
+  include(__DIR__ . '/../footer.php');
   exit;
 }
 $row = mysqli_fetch_assoc($res);
@@ -48,4 +48,4 @@ $row = mysqli_fetch_assoc($res);
   </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>

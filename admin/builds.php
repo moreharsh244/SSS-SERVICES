@@ -18,6 +18,7 @@ ensure_builds_history_table($con);
 // Ensure assigned_agent column exists in builds table
 $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='builds' AND COLUMN_NAME='assigned_agent' LIMIT 1";
 $col_res = mysqli_query($con, $col_check);
+echo '<div style="display:flex;flex-direction:column;min-height:100vh;">';
 if(!$col_res || mysqli_num_rows($col_res)===0){
     @mysqli_query($con, "ALTER TABLE builds ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL");
 }
@@ -445,4 +446,5 @@ if($view === 'history'){
     </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>
+</div>

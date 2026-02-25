@@ -6,7 +6,7 @@ include('../delivery/helpers.php');
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if($id<=0){
   echo "<div class='col-12 col-lg-10 mx-auto'><div class='alert alert-warning'>Invalid build id</div></div>";
-  include('footer.php');
+  include(__DIR__ . '/../footer.php');
   exit;
 }
 
@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_agent'])){
 $bq = mysqli_query($con, "SELECT * FROM builds WHERE id='$id' LIMIT 1");
 if(!$bq || mysqli_num_rows($bq)===0){
   echo "<div class='col-12 col-lg-10 mx-auto'><div class='alert alert-warning'>Build not found</div></div>";
-  include('footer.php');
+  include(__DIR__ . '/../footer.php');
   exit;
 }
 $build = mysqli_fetch_assoc($bq);
@@ -148,6 +148,6 @@ if($items_r && mysqli_num_rows($items_r)>0){
 
 
 
-<?php include('footer.php');
+<?php include(__DIR__ . '/../footer.php');
 
 ?>

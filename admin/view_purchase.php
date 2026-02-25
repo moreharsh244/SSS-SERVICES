@@ -3,11 +3,11 @@ include('header.php');
 include('conn.php');
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-if($id<=0){ echo "<div class='col-12 col-lg-10 mx-auto'><div class='alert alert-warning'>Invalid order id</div></div>"; include('footer.php'); exit; }
+if($id<=0){ echo "<div class='col-12 col-lg-10 mx-auto'><div class='alert alert-warning'>Invalid order id</div></div>"; include(__DIR__ . '/../footer.php'); exit; }
 
 $q = "SELECT purchase.*, products.* FROM purchase LEFT JOIN products ON purchase.prod_id = products.pid WHERE purchase.pid='$id' LIMIT 1";
 $res = mysqli_query($con, $q);
-if(!$res || mysqli_num_rows($res)===0){ echo "<div class='col-12 col-lg-10 mx-auto'><div class='alert alert-warning'>Order not found</div></div>"; include('footer.php'); exit; }
+if(!$res || mysqli_num_rows($res)===0){ echo "<div class='col-12 col-lg-10 mx-auto'><div class='alert alert-warning'>Order not found</div></div>"; include(__DIR__ . '/../footer.php'); exit; }
 $row = mysqli_fetch_assoc($res);
 
 ?>
@@ -45,4 +45,4 @@ $row = mysqli_fetch_assoc($res);
   </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>

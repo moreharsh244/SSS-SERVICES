@@ -196,4 +196,4 @@ $res = mysqli_query($con, "SELECT * FROM delivery_audit_logs WHERE agent_usernam
     </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>
