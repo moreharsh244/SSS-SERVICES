@@ -202,6 +202,32 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
     .dropdown-menu-dark-custom {
       z-index: 99999 !important;
       position: absolute !important;
+      bottom: 100%;
+      top: auto !important;
+      margin-bottom: 10px !important;
+      margin-top: 0 !important;
+      left: 0 !important;
+      right: auto !important;
+      min-width: 220px;
+      /* Make sure it is not clipped by parent */
+      transform: translateY(-10px);
+      box-shadow: 0 18px 40px rgba(30, 64, 175, 0.18);
+    }
+
+    /* Also target .dropdown-menu.show for extra reliability */
+    .dropdown-menu.show.dropdown-menu-dark-custom {
+      z-index: 99999 !important;
+      position: absolute !important;
+      bottom: 100%;
+      top: auto !important;
+      margin-bottom: 10px !important;
+      margin-top: 0 !important;
+      left: 0 !important;
+      right: auto !important;
+      min-width: 220px;
+      transform: translateY(-10px);
+      box-shadow: 0 18px 40px rgba(30, 64, 175, 0.18);
+    }
     }
 
     /* Ensure dropdown menu always appears above everything when open */
@@ -228,13 +254,13 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
        ========================================= */
     .secondary-navbar {
       background: linear-gradient(90deg, rgba(245,243,255,0.92) 0%, rgba(238,246,255,0.92) 100%);
-        backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(186,230,253,0.9);
       box-shadow: 0 6px 18px rgba(30, 64, 175, 0.08);
-        position: sticky;
-        top: 0;
-        z-index: 1020;
-        padding: 0; /* Removing padding so links hit edges */
+      position: sticky;
+      top: 0;
+      z-index: 1019;
+      padding: 0; /* Removing padding so links hit edges */
     }
 
     .nav-container {
@@ -371,21 +397,20 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
         <span>Shree Swami <span class="brand-accent">Samarth</span></span>
       </a>
 
-      <div class="dropdown">
-        <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-           <div class="avatar-circle">
+      <div class="dropup">
+          <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="avatar-circle">
               <?php echo htmlentities($avatar_initial); ?>
-           </div>
-           <span class="user-name-text d-none d-sm-inline-block"><?php echo htmlentities($display_name); ?></span>
-           <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark-custom">
-           <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person-circle me-2 text-warning"></i> My Profile</a></li>
-           <li><a class="dropdown-item" href="myorder.php"><i class="bi bi-box-seam me-2 text-info"></i> My Orders</a></li>
-           <li><hr class="dropdown-divider"></li>
-           <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
-        </ul>
-      </div>
+            </div>
+            <span class="user-name-text d-none d-sm-inline-block"><?php echo htmlentities($display_name); ?></span>
+            <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark-custom" style="background: linear-gradient(180deg, #f5f3ff 0%, #eef6ff 100%); border: 1px solid rgba(191,219,254,0.9); box-shadow: 0 14px 30px rgba(30, 64, 175, 0.12); border-radius: 12px; margin-top: 10px;">
+            <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person-circle me-2 text-warning"></i> My Profile</a></li>
+            <li><a class="dropdown-item" href="myorder.php"><i class="bi bi-box-seam me-2 text-info"></i> My Orders</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+          </ul>
 
     </div>
   </div>

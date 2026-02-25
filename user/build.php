@@ -72,7 +72,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $pimg = mysqli_real_escape_string($con, $it['img'] ?? '');
             mysqli_query($con, "INSERT INTO build_items (build_id, product_id, category, product_name, product_img, price, qty) VALUES ('$build_id', '$pid', '$cat', '$pname', '$pimg', '$price', '$qty')");
         }
-        echo '<script>sessionStorage.removeItem("buildItemsCurrent"); alert("Build Saved!"); window.location.href="cart.php";</script>';
+        echo '<script>sessionStorage.removeItem("buildItemsCurrent"); alert("Build Saved! Your request has been sent to admin."); window.location.href="build.php";</script>';
         exit;
     }
 }
