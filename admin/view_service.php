@@ -257,4 +257,4 @@ $display_status = ucwords(str_replace('_', ' ', $r['status']));
     </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>

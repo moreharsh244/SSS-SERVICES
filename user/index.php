@@ -6,5 +6,5 @@ include('header.php');
 	<?php include('view_products.php'); ?>
 
 <?php
-include('footer.php');
+include(__DIR__ . '/../footer.php');
 ?>

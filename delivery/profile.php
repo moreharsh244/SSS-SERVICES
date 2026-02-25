@@ -412,5 +412,5 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
 </div>
 
 <?php
-include('footer.php');
+include(__DIR__ . '/../footer.php');
 ?>

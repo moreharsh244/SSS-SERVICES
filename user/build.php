@@ -1164,4 +1164,4 @@ if(!$is_partial){
     function escapeAttr(text){ return String(text || '').replace(/"/g, "&quot;"); }
 
 </script>
-<?php if(!$is_partial){ include('footer.php'); } ?>
+<?php if(!$is_partial){ include(__DIR__ . '/../footer.php'); } ?>

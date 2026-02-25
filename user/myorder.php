@@ -387,4 +387,4 @@ $is_service = ($view === 'service');
     </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include(__DIR__ . '/../footer.php'); ?>
