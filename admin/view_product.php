@@ -187,7 +187,7 @@ include('header.php');
                                     </button>
                                 </form>
 
-                                <form action="delete.php" method="post" class="action-form" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                <form action="delete.php" method="post" class="action-form">
                                     <input type="hidden" name="did" value="<?php echo $row['pid'];?>">
                                     <button type="submit" class="action-btn btn-delete" title="Delete">
                                         <i class="bi bi-trash-fill"></i>
@@ -216,5 +216,5 @@ include('header.php');
 </div>
 
 <?php
-include(__DIR__ . '/../footer.php');  
+include(__DIR__ . '/footer.php');  
 ?>

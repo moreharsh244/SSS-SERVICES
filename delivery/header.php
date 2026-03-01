@@ -270,12 +270,24 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery'){
   </div>
 </header>
 
+
+<?php
+$pending_builds = 0;
+$pending_services = 0;
+include_once '../admin/conn.php';
+$agent = mysqli_real_escape_string($con, $_SESSION['username'] ?? '');
+$pending_builds_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM builds WHERE assigned_agent='$agent' AND (status IS NULL OR status IN ('pending','out_for_delivery'))");
+if($pending_builds_res && mysqli_num_rows($pending_builds_res)>0){ $pending_builds = (int)mysqli_fetch_assoc($pending_builds_res)['cnt']; }
+$pending_services_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM service_requests WHERE assigned_agent='$agent' AND status IN ('pending','in_progress')");
+if($pending_services_res && mysqli_num_rows($pending_services_res)>0){ $pending_services = (int)mysqli_fetch_assoc($pending_services_res)['cnt']; }
+$pending_total = $pending_builds + $pending_services;
+?>
 <nav class="secondary-navbar">
     <div class="container-fluid">
         <div class="nav-container">
-            <a class="nav-link-item <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''; ?>" href="index.php">
-                <i class="bi bi-truck-front-fill"></i> Deliveries
-            </a>
+                        <a class="nav-link-item <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''; ?>" href="index.php">
+                                <i class="bi bi-truck-front-fill"></i> Deliveries
+                        </a>
             <a class="nav-link-item <?php echo basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : ''; ?>" href="profile.php">
                 <i class="bi bi-person-badge-fill"></i> Profile
             </a>
