@@ -1,5 +1,6 @@
-
-
+<?php
+$toast = isset($_GET['toast']) ? trim((string)$_GET['toast']) : '';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,6 +45,11 @@
         </style>
 </head>
 <body>
+        <?php if($toast !== ''): ?>
+            <div class="container mt-3">
+                <div class="alert alert-info py-2"><?php echo htmlspecialchars($toast); ?></div>
+            </div>
+        <?php endif; ?>
         <div class="auth-wrapper">
             <div class="auth-card bg-white">
                 <div class="p-3 text-center border-bottom">
@@ -115,7 +121,7 @@ if(isset($_POST['register'])){
     $password2 = $_POST['password2'] ?? '';
 
     if($password !== $password2){
-        echo "<script>alert('Passwords do not match. Please try again.'); window.history.back();</script>"; exit;
+        echo "<script>window.location.href='register.php?toast=" . rawurlencode('Passwords do not match. Please try again.') . "';</script>"; exit;
     }
 
     // server-side required fields validation
@@ -131,11 +137,11 @@ if(isset($_POST['register'])){
     ];
     foreach($required as $label => $val){
         if(strlen(trim($val)) === 0){
-            echo "<script>alert('Please fill in the required field: $label'); window.history.back();</script>"; exit;
+            echo "<script>window.location.href='register.php?toast=" . rawurlencode('Please fill in the required field: '.$label) . "';</script>"; exit;
         }
     }
     if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-        echo "<script>alert('Please enter a valid email address.'); window.history.back();</script>"; exit;
+        echo "<script>window.location.href='register.php?toast=" . rawurlencode('Please enter a valid email address.') . "';</script>"; exit;
     }
 
     include('../admin/conn.php');
@@ -177,7 +183,7 @@ if(isset($_POST['register'])){
     $sqlq = "SELECT * FROM cust_reg WHERE c_email='$email_esc' LIMIT 1";
     $result = mysqli_query($con, $sqlq);
     if($result && mysqli_num_rows($result) > 0){
-        echo "<script>alert('This email address is already registered. Please login instead.'); window.location.href='register.php';</script>"; exit;
+        echo "<script>window.location.href='register.php?toast=" . rawurlencode('This email address is already registered. Please login instead.') . "';</script>"; exit;
     }
 
     $name_esc = mysqli_real_escape_string($con, $name);
@@ -189,9 +195,9 @@ if(isset($_POST['register'])){
     $password_plain = mysqli_real_escape_string($con, $password);
     $ins = "INSERT INTO cust_reg (c_name, c_email, c_contact, c_password, c_address, c_city, c_state, c_pincode) VALUES ('$name_esc', '$email_esc', '$contact_esc', '$password_plain', '$address_esc', '$city_esc', '$state_esc', '$pin_esc')";
     if(mysqli_query($con, $ins)){
-        echo "<script>alert('Registration completed successfully! Please login to continue.'); window.location.href='login.php';</script>"; exit;
+        echo "<script>window.location.href='login.php?toast=" . rawurlencode('Registration completed successfully! Please login to continue.') . "';</script>"; exit;
     } else {
-        echo "<script>alert('Unable to complete registration. Please try again.'); window.location.href='register.php';</script>"; exit;
+        echo "<script>window.location.href='register.php?toast=" . rawurlencode('Unable to complete registration. Please try again.') . "';</script>"; exit;
     }
 
     mysqli_close($con);
@@ -214,9 +220,10 @@ document.addEventListener('DOMContentLoaded', function(){
         if(pw.value !== pw2.value){
             e.preventDefault(); e.stopPropagation();
             pw2.classList.add('is-invalid');
-            alert('Passwords do not match. Please try again.');
+            pw2.setCustomValidity('Passwords do not match. Please try again.');
             return;
         }
+        pw2.setCustomValidity('');
     });
 });
 </script>

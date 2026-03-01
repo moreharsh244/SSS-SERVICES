@@ -1,5 +1,7 @@
+
 <?php
     include('../admin/conn.php');
+    include_once('../admin/notifications.php');
     
     $pid = isset($_POST['pid']) ? intval($_POST['pid']) : 0;
     $pname = mysqli_real_escape_string($con, $_POST['pname'] ?? '');
@@ -53,25 +55,26 @@
     }
 
     $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`payment_method`,`payment_ref`,`payment_status`,`status`,`delivery_status`) VALUES ('$pname','$username','$pprice','$qty',$prod_id_value,'$payment_method','$payment_ref','$payment_status','order_confirmed','order_confirmed')";
-    if(mysqli_query($con,$sql)){
-        // Create admin notification for new order
-        $order_total = $pprice * $qty;
-        $notif_title = "New Order: $pname";
-        $notif_msg = "Customer: $username | Qty: $qty | Total: ₹" . number_format($order_total, 2);
-        add_admin_notification('order', $notif_title, $notif_msg, 'orders_list.php');
-        
-        // award loyalty points: 1 point per 10 currency units
-        $points = floor(($pprice * $qty) / 10);
-        if($points > 0 && !empty($username)){
-            // ensure column exists
-            $colQ = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='loyalty_points'";
-            $colR = mysqli_query($con,$colQ);
-            if(!$colR || mysqli_num_rows($colR)===0){ @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN loyalty_points INT DEFAULT 0"); }
-            mysqli_query($con, "UPDATE cust_reg SET loyalty_points = COALESCE(loyalty_points,0) + $points WHERE c_email='".mysqli_real_escape_string($con,$username)."' LIMIT 1");
+        if(mysqli_query($con,$sql)){
+            // Create admin notification for new order
+            $order_total = $pprice * $qty;
+            $notif_title = "New Order: $pname";
+            $notif_msg = "Customer: $username | Qty: $qty | Total: ₹" . number_format($order_total, 2);
+            add_admin_notification('order', $notif_title, $notif_msg, 'orders_list.php');
+            // award loyalty points: 1 point per 10 currency units
+            $points = floor(($pprice * $qty) / 10);
+            if($points > 0 && !empty($username)){
+                // ensure column exists
+                $colQ = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='cust_reg' AND COLUMN_NAME='loyalty_points'";
+                $colR = mysqli_query($con,$colQ);
+                if(!$colR || mysqli_num_rows($colR)===0){ @mysqli_query($con, "ALTER TABLE cust_reg ADD COLUMN loyalty_points INT DEFAULT 0"); }
+                mysqli_query($con, "UPDATE cust_reg SET loyalty_points = COALESCE(loyalty_points,0) + $points WHERE c_email='".mysqli_real_escape_string($con,$username)."' LIMIT 1");
+            }
+            header('Location: view_products.php?toast='.rawurlencode('Purchase successful'));
+            exit;
+        }else{
+            header('Location: view_products.php?toast='.rawurlencode('Purchase transaction failed. Please try again.'));
+            exit;
         }
-        echo '<script>window.location.href="view_products.php?toast='.rawurlencode('Purchase successful').'";</script>';
-    }else{
-        echo '<script>window.location.href="view_products.php?toast='.rawurlencode('Purchase transaction failed. Please try again.').'.";</script>';
-    }
         
 ?>

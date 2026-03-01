@@ -92,7 +92,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])){
     $upd = "UPDATE cust_reg SET " . implode(', ', $parts) . " WHERE c_email='".mysqli_real_escape_string($con,$email)."' LIMIT 1";
     
     if(mysqli_query($con, $upd)){
-      echo "<script>alert('Your profile has been updated successfully.'); window.location='profile.php';</script>";
+      header('Location: profile.php?toast=' . rawurlencode('Your profile has been updated successfully.') . '&toast_type=success');
       exit;
     } else {
       $err = mysqli_error($con);

@@ -3,6 +3,13 @@ if(!defined('page')) define('page','view_products');
 if(!defined('HEADER_INCLUDED')) include('header.php');
 ?>
 
+<?php
+if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== false) {
+    echo '<div style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:16px 32px;border-radius:12px;z-index:9999;font-size:1.3rem;font-weight:700;box-shadow:0 8px 24px rgba(16,185,129,0.18);">Purchase successful!</div>';
+    echo "<script>setTimeout(function(){ var el=document.querySelector('div[style*=\"background:#10b981\"]'); if(el) el.remove(); }, 3500);</script>";
+}
+?>
+
 
 <style>
     :root {

@@ -244,7 +244,7 @@ if($pid > 0){
         queue.push(productData);
         try { localStorage.setItem('buildItems', JSON.stringify(queue)); }
         catch(e){ sessionStorage.setItem('buildItems', JSON.stringify(queue)); }
-        alert('Product added to build.');
+        if(typeof window.showPortalToast === 'function') window.showPortalToast('Product added to build.', 'success');
     }
 </script>
 
