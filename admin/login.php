@@ -1,16 +1,6 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
     session_name('SSS_ADMIN_SESS');
-    ini_set('session.gc_maxlifetime', '86400');
-    ini_set('session.cookie_lifetime', '0');
-    ini_set('session.gc_probability', '1');
-    ini_set('session.gc_divisor', '100');
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path' => '/',
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
     session_start();
 }
 ?>
@@ -56,6 +46,10 @@ if (session_status() === PHP_SESSION_NONE) {
 <body class="pc-theme">
     <?php
     include 'conn.php';
+    $login_error = '';
+    if(isset($_GET['toast']) && trim((string)$_GET['toast']) !== ''){
+        $login_error = trim((string)$_GET['toast']);
+    }
     // ensure password column exists and can store hashes
     $colInfoQ = "SELECT CHARACTER_MAXIMUM_LENGTH, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='user_login' AND COLUMN_NAME='password' LIMIT 1";
     $colRes = mysqli_query($con, $colInfoQ);
@@ -84,11 +78,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 $_SESSION['is_login'] = true;
                 $_SESSION['username'] = $username;
                 $_SESSION['role'] = 'admin';
-                // redirect to admin index which shows all products (product cards)
+                // redirect to products page after successful admin login
                 header('Location: products_card.php'); exit;
             }
         }
-        echo "<script>alert('login Failed');</script>";
+        $login_error = 'Login failed. Please check username and password.';
     }
 
 
@@ -100,6 +94,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="small text-muted">Sign in to manage the store</div>
         </div>
         <div class="p-4">
+            <?php if(!empty($login_error)): ?>
+                <div class="alert alert-danger py-2"><?php echo htmlspecialchars($login_error); ?></div>
+            <?php endif; ?>
             <form action="login.php" method="post" class="needs-validation" novalidate>
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>

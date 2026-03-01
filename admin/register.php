@@ -3,6 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_name('SSS_ADMIN_SESS');
     session_start();
 }
+$toast = isset($_GET['toast']) ? trim((string)$_GET['toast']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,6 +16,9 @@ if (session_status() === PHP_SESSION_NONE) {
 </head>
 <body>
     <div class="container mt-4">
+        <?php if($toast !== ''): ?>
+            <div class="alert alert-info py-2"><?php echo htmlspecialchars($toast); ?></div>
+        <?php endif; ?>
         <h2 class="text-center">Admin Registration</h2>
         <form method="POST">
             <div class="mb-3">
@@ -62,7 +66,7 @@ if(isset($_POST['register'])){
     $u_esc = mysqli_real_escape_string($con, $username);
     $check = mysqli_query($con, "SELECT * FROM user_login WHERE username='$u_esc' LIMIT 1");
     if($check && mysqli_num_rows($check)>0){
-        echo "<script>alert('Username already exists');</script>"; exit;
+        echo "<script>window.location.href='register.php?toast=" . rawurlencode('Username already exists') . "';</script>"; exit;
     }
     $pass_plain = mysqli_real_escape_string($con, $password);
     $ins = "INSERT INTO user_login (username, password) VALUES ('$u_esc', '$pass_plain')";
@@ -73,7 +77,7 @@ if(isset($_POST['register'])){
         $_SESSION['role'] = 'admin';
         header('location:index.php'); exit;
     } else {
-        echo "<script>alert('Registration Failed');</script>";
+        echo "<script>window.location.href='register.php?toast=" . rawurlencode('Registration failed') . "';</script>";
     }
 }
 ?>

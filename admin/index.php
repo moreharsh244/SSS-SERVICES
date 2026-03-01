@@ -564,5 +564,5 @@ new Chart(pieCtx, {
 });
 </script>
 
-<?php include(__DIR__ . '/../footer.php'); ?>
+<?php include(__DIR__ . '/footer.php'); ?>
 </div>

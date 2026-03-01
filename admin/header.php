@@ -21,7 +21,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('location:login.php');
     exit;
 }
+
 include_once('conn.php');
+include_once('notifications.php');
 
 // Handle notification actions
 if(isset($_GET['delete_notif'])){
@@ -319,6 +321,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             box-shadow: 0 14px 30px rgba(30, 64, 175, 0.12);
             border-radius: 12px;
             margin-top: 10px;
+            z-index: 1100; /* ensure dropdown appears above sticky footer */
         }
 
         .notification-header {
@@ -372,6 +375,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             color: #94a3b8;
         }
 
+        /* Improve visibility of notification messages */
+        .notification-list p.text-muted { color: #475569 !important; }
+
         .notification-footer {
             padding: 12px 20px;
             border-top: 1px solid #e5e7eb;
@@ -384,6 +390,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             border-radius: 12px;
             border: 1px solid #e5e7eb;
+            z-index: 2050;
+        }
+
+        .user-dropdown-menu {
+            min-width: 220px;
+            z-index: 2050;
         }
         
         .dropdown-item {
@@ -486,7 +498,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
       <div class="d-flex align-items-center gap-3">
         <!-- Notification Bell -->
         <div class="dropdown">
-          <a href="#" class="notification-bell" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a id="notifBtn" href="#" class="notification-bell" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-bell-fill"></i>
             <?php if($unread_count > 0): ?>
               <span class="notification-badge"><?php echo $unread_count > 99 ? '99+' : $unread_count; ?></span>
@@ -505,7 +517,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
               </div>
             </div>
             
-            <div class="notification-list">
+                        <div class="notification-list">
+                                                        <!-- Notifications will be shown below -->
               <?php if(!empty($recent_notifications)): ?>
                 <?php foreach($recent_notifications as $notif): 
                   $is_unread = ($notif['is_read'] ?? 0) == 0;
@@ -574,15 +587,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </div>
 
         <!-- User Profile Dropdown -->
-        <div class="dropdown">
-          <a class="user-pill" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="dropdown" id="userMenuWrap">
+                      <a id="userMenuBtn" class="user-pill" href="javascript:void(0)" role="button" aria-expanded="false" aria-haspopup="true" onclick="(function(btn){var menu=document.getElementById('userDropdownMenu');if(!menu){return;}menu.classList.toggle('show');btn.setAttribute('aria-expanded',menu.classList.contains('show')?'true':'false');})(this); return false;">
            <div class="avatar-circle">
               <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
            </div>
            <span class="user-name-text d-none d-sm-inline-block"><?php echo htmlentities($_SESSION['username']); ?></span>
            <i class="bi bi-chevron-down text-muted" style="font-size: 0.7em;"></i>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end" style="background: linear-gradient(180deg, #f5f3ff 0%, #eef6ff 100%); border: 1px solid rgba(191,219,254,0.9); box-shadow: 0 14px 30px rgba(30, 64, 175, 0.12); border-radius: 12px; margin-top: 10px;">
+                <ul id="userDropdownMenu" class="dropdown-menu dropdown-menu-end user-dropdown-menu" style="background: linear-gradient(180deg, #f5f3ff 0%, #eef6ff 100%); border: 1px solid rgba(191,219,254,0.9); box-shadow: 0 14px 30px rgba(30, 64, 175, 0.12); border-radius: 12px; margin-top: 10px;">
            <li><a class="dropdown-item" href="index.php"><i class="bi bi-graph-up-arrow me-2 text-success"></i> Dashboard</a></li>
            <li><a class="dropdown-item" href="delivery_agents.php"><i class="bi bi-people me-2 text-info"></i> Team</a></li>
            <li><hr class="dropdown-divider" style="border-color: rgba(191,219,254,0.7);"></li>
@@ -594,6 +607,25 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
   </div>
 </header>
+
+<script>
+document.addEventListener('click', function(e){
+    var btn = document.getElementById('userMenuBtn');
+    var menu = document.getElementById('userDropdownMenu');
+    if(!btn || !menu) return;
+    if(btn.contains(e.target) || menu.contains(e.target)) return;
+    menu.classList.remove('show');
+    btn.setAttribute('aria-expanded', 'false');
+});
+document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    var btn = document.getElementById('userMenuBtn');
+    var menu = document.getElementById('userDropdownMenu');
+    if(!btn || !menu) return;
+    menu.classList.remove('show');
+    btn.setAttribute('aria-expanded', 'false');
+});
+</script>
 
 <nav class="secondary-navbar">
     <div class="container-fluid">

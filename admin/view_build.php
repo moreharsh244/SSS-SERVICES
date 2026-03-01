@@ -6,7 +6,7 @@ include('../delivery/helpers.php');
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if($id<=0){
   echo "<div class='col-12 col-lg-10 mx-auto'><div class='alert alert-warning'>Invalid build id</div></div>";
-  include(__DIR__ . '/../footer.php');
+  include(__DIR__ . '/footer.php');
   exit;
 }
 
@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_agent'])){
 $bq = mysqli_query($con, "SELECT * FROM builds WHERE id='$id' LIMIT 1");
 if(!$bq || mysqli_num_rows($bq)===0){
   echo "<div class='col-12 col-lg-10 mx-auto'><div class='alert alert-warning'>Build not found</div></div>";
-  include(__DIR__ . '/../footer.php');
+  include(__DIR__ . '/footer.php');
   exit;
 }
 $build = mysqli_fetch_assoc($bq);
@@ -107,8 +107,8 @@ if($agent_result && mysqli_num_rows($agent_result) > 0){
         <thead class="table-light">
           <tr>
             <th>#</th>
+            <th>Component Name</th>
             <th>Category</th>
-            <th>Product</th>
             <th>Price</th>
           </tr>
         </thead>
@@ -123,7 +123,7 @@ if($items_r && mysqli_num_rows($items_r)>0){
     $price = number_format((float)$it['price'],2);
     echo "<tr>\n";
     echo "<td>{$i}</td>\n";
-    echo "<td>{$cat}</td>\n";
+    // Component Name column with image if available
     if($pimg){
       $imgsrc = '../productimg/'.rawurlencode($it['product_img']);
       $prodHtml = "<div class='d-flex align-items-center gap-2'><img src='".$imgsrc."' data-full='".$imgsrc."' class='img-preview rounded' style='width:64px;height:48px;object-fit:cover' alt='".htmlspecialchars($it['product_name'])."'/> <div>".$prod."</div></div>";
@@ -131,6 +131,7 @@ if($items_r && mysqli_num_rows($items_r)>0){
       $prodHtml = $prod;
     }
     echo "<td>{$prodHtml}</td>\n";
+    echo "<td>{$cat}</td>\n";
     echo "<td>₹{$price}</td>\n";
     echo "</tr>\n";
     $i++;
@@ -148,6 +149,6 @@ if($items_r && mysqli_num_rows($items_r)>0){
 
 
 
-<?php include(__DIR__ . '/../footer.php');
+<?php include(__DIR__ . '/footer.php');
 
 ?>
