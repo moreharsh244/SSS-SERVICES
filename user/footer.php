@@ -105,6 +105,7 @@
 				}
 				messageModalInstance.show();
 			}
+			window.showPortalToast = showMessage;
 
 			// OK button click handler
 			var okBtn = document.getElementById('messageOkBtn');
@@ -122,8 +123,19 @@
 			if(msg){ 
 				// Show modal for purchase success with special layout
 				if(msg.toLowerCase().includes('purchase successful')){
-					var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-					successModal.show();
+					var successModalEl = document.getElementById('successModal');
+					try {
+						var successModal = new bootstrap.Modal(successModalEl);
+						successModal.show();
+					} catch(e) {
+						if(successModalEl) successModalEl.style.display = 'block';
+                        // Add fallback message if modal fails
+                        var fallbackMsg = document.createElement('div');
+                        fallbackMsg.textContent = 'Purchase successful!';
+                        fallbackMsg.style = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:16px 32px;border-radius:12px;z-index:9999;font-size:1.3rem;font-weight:700;box-shadow:0 8px 24px rgba(16,185,129,0.18);';
+                        document.body.appendChild(fallbackMsg);
+                        setTimeout(function(){ fallbackMsg.remove(); }, 3500);
+					}
 				} else {
 					// Show generic centered modal for all other messages
 					showMessage(msg);
@@ -135,8 +147,33 @@
 
 			// quick cart storage
 		});
+		window.alert = function(msg){
+			if(typeof window.showPortalToast === 'function') window.showPortalToast(String(msg || ''));
+		};
 		</script>
 </div>
 </div>
 </body>
 </html>
+
+<!-- Bottom footer: copyright / bottom bar (sticky) -->
+<footer id="siteFooter" class="site-footer bg-light py-3 mt-4">
+	<div class="container text-center text-muted">&copy; 2026 Shree Swami Samarth</div>
+</footer>
+
+<style>
+.site-footer{border-top:1px solid #eef2ff;}
+</style>
+<script>
+ (function(){
+	 var f = document.getElementById('siteFooter');
+	 if(!f) return;
+	 f.style.position = 'fixed';
+	 f.style.left = '0';
+	 f.style.right = '0';
+	 f.style.bottom = '0';
+	f.style.zIndex = '900';
+	 function adjust(){ document.body.style.paddingBottom = (f.offsetHeight || 56) + 'px'; }
+	 adjust(); window.addEventListener('resize', adjust);
+ })();
+</script>

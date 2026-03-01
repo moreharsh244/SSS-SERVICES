@@ -59,8 +59,12 @@ if (session_status() === PHP_SESSION_NONE) {
 <body class="pc-theme">
     <?php
     include '../admin/conn.php';
+    $login_error = '';
+    if(isset($_GET['toast']) && trim((string)$_GET['toast']) !== ''){
+        $login_error = trim((string)$_GET['toast']);
+    }
     if(!isset($con) || !$con){
-        echo "<script>alert('Unable to connect to database. Please contact support.');</script>";
+        $login_error = 'Unable to connect to database. Please contact support.';
     }
 
     // Ensure password column can store full hashes (bcrypt ~60 chars)
@@ -91,7 +95,7 @@ if (session_status() === PHP_SESSION_NONE) {
         $password = $_POST['password'] ?? '';
 
         if($username === '' || $password === ''){
-            echo "<script>alert('Please enter your email and password.');</script>";
+            $login_error = 'Please enter your email and password.';
         } else {
             // Select only needed columns that exist in our schema
             $stmt = mysqli_prepare($con, "SELECT c_password, c_name, cid FROM cust_reg WHERE c_email = ? LIMIT 1");
@@ -138,18 +142,19 @@ if (session_status() === PHP_SESSION_NONE) {
                             mysqli_query($con, "UPDATE cust_reg SET remember_token='$tok_esc', remember_expiry='$expiry' WHERE c_email='".mysqli_real_escape_string($con,$username)."' LIMIT 1");
                             setcookie('remember', $token, time()+30*24*3600, '/', '', false, true);
                         }
-                        // Always redirect to view_products.php after login
-                        echo "<script>alert('Login successful! Welcome back.'); window.location.href='view_products.php';</script>"; exit;
+                        // Redirect to view_products.php after login (no popup)
+                        header('Location: view_products.php');
+                        exit;
                     } else {
-                        echo "<script>alert('Incorrect password. Please try again.');</script>";
+                        $login_error = 'Incorrect password. Please try again.';
                     }
                 } else {
-                    echo "<script>alert('No account found with this email address.');</script>";
+                    $login_error = 'No account found with this email address.';
                 }
 
                 mysqli_stmt_close($stmt);
             } else {
-                echo "<script>alert('An error occurred. Please try again later.');</script>";
+                $login_error = 'An error occurred. Please try again later.';
             }
         }
     }
@@ -162,6 +167,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="small text-muted">Welcome back — sign in to your account</div>
         </div>
         <div class="p-4">
+            <?php if(!empty($login_error)): ?>
+                <div class="alert alert-danger py-2"><?php echo htmlspecialchars($login_error); ?></div>
+            <?php endif; ?>
             <form action="login.php<?php if(!empty($return_url)){ echo '?return='.rawurlencode($return_url); } ?>" method="post" class="needs-validation" novalidate>
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Email address</label>
