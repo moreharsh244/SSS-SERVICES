@@ -208,8 +208,9 @@ $result = mysqli_query($con, $sql);
 <script>
     function showProductImage(src){
         if(!src || src.trim() === ''){
-            // Optional: Use a toast notification instead of alert for better UI
-            alert('No image available');
+            if(typeof window.showPortalToast === 'function'){
+                window.showPortalToast('No image available', 'error');
+            }
             return;
         }
         const img = document.getElementById('productImagePreview');
@@ -225,6 +226,6 @@ $result = mysqli_query($con, $sql);
 
 <?php
 if ($included_header) {
-    include(__DIR__ . '/../footer.php');
+    include(__DIR__ . '/footer.php');
 }
 ?>
