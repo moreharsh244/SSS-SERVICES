@@ -29,6 +29,7 @@ $agent = mysqli_real_escape_string($con, $_SESSION['username'] ?? '');
 if($id > 0){
     $u = "UPDATE service_requests SET status='$status' WHERE id='$id' AND assigned_agent='$agent' LIMIT 1";
     mysqli_query($con, $u);
+    // Also update in admin service_requests_history if needed (same table)
     log_delivery_action($con, $_SESSION['username'] ?? '', 'service_update', 'Service request #'.$id.' -> '.$status);
 
     $status_lower = strtolower($status);

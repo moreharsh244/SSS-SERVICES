@@ -110,6 +110,10 @@ if (session_status() === PHP_SESSION_NONE) {
     include '../admin/conn.php';
     include 'helpers.php';
     ensure_delivery_tables($con);
+    $login_error = '';
+    if(isset($_GET['toast']) && trim((string)$_GET['toast']) !== ''){
+        $login_error = trim((string)$_GET['toast']);
+    }
 
     if(isset($_POST['submit'])){
         $username = mysqli_real_escape_string($con, trim($_POST['username'] ?? ''));
@@ -131,7 +135,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 exit;
             }
         }
-        echo "<script>alert('Login Failed');</script>";
+        $login_error = 'Login failed. Please check username and password.';
     }
     ?>
 <div class="container">
@@ -145,6 +149,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <h2>Delivery Agent Login</h2>
                     <div class="text-muted">Secure access to your assigned deliveries</div>
                 </div>
+                <?php if(!empty($login_error)): ?>
+                    <div class="alert alert-danger py-2"><?php echo htmlspecialchars($login_error); ?></div>
+                <?php endif; ?>
                 <form action="login.php" method="post">
                     <div class="mb-3">
                         <label class="form-label">

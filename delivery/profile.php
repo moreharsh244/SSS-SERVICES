@@ -385,7 +385,7 @@ $addrRes = mysqli_query($con, "SELECT * FROM delivery_addresses WHERE agent_user
                                                 <?php endif; ?>
                                             </td>
                                             <td class="text-end">
-                                                <form method="post" action="profile.php" onsubmit="return confirm('Are you sure you want to delete this address?');">
+                                                <form method="post" action="profile.php">
                                                     <input type="hidden" name="address_id" value="<?php echo (int)$a['id']; ?>">
                                                     <button type="submit" name="delete_address" class="btn btn-sm btn-outline-danger">
                                                         <i class="bi bi-trash"></i>

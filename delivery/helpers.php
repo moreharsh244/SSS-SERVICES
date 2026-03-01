@@ -195,6 +195,12 @@ if (!function_exists('ensure_builds_history_table')) {
                 @mysqli_query($con, $alter);
             }
         }
+        // Ensure assigned_agent column exists so delivery agents can see archived builds
+        $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='builds_history' AND COLUMN_NAME='assigned_agent' LIMIT 1";
+        $col_res = mysqli_query($con, $col_check);
+        if(!$col_res || mysqli_num_rows($col_res)===0){
+            @mysqli_query($con, "ALTER TABLE builds_history ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL");
+        }
     }
 }
 

@@ -24,155 +24,64 @@ include('header.php');
         color: var(--text-main);
     }
 
-    /* Vibrant Grainy Hero Section */
-    .vibrant-hero {
-        background: linear-gradient(135deg, #12c2e9 0%, #c471ed 50%, #f64f59 100%);
-        border-radius: 24px;
-        padding: 40px 40px 90px 40px; /* Extra bottom padding for floating cards */
-        color: white;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 15px 30px rgba(196, 113, 237, 0.3);
-        margin-top: 20px;
-    }
-
-    /* Grain Texture Overlay */
-    .vibrant-hero::after {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.4'/%3E%3C/svg%3E");
-        mix-blend-mode: overlay;
-        pointer-events: none;
-    }
-
-    .hero-title {
-        font-weight: 800;
-        font-size: 2.2rem;
-        letter-spacing: -0.5px;
-        position: relative;
-        z-index: 2;
-    }
-
-    .glass-pill {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 12px 24px;
-        border-radius: 50px;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        position: relative;
-        z-index: 2;
-    }
-
-    /* Overlapping Stat Cards */
-    .stat-container {
-        margin-top: -60px; /* Pulls cards up over the hero */
-        position: relative;
-        z-index: 10;
-    }
-
-    .stat-box {
-        background: var(--card-bg);
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: var(--shadow-soft);
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
-        border-bottom: 4px solid transparent;
-    }
-
-    .stat-box:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-hover);
-    }
-
-    .stat-box.pending { border-color: var(--accent-orange); }
-    .stat-box.delivered { border-color: var(--accent-green); }
-    .stat-box.cancelled { border-color: var(--accent-red); }
-
-    .icon-circle {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        flex-shrink: 0;
-    }
-
-    .pending .icon-circle { background: rgba(255, 159, 67, 0.1); color: var(--accent-orange); }
-    .delivered .icon-circle { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
-    .cancelled .icon-circle { background: rgba(234, 84, 85, 0.1); color: var(--accent-red); }
-
-    .stat-info h3 { font-size: 2rem; font-weight: 800; margin: 0; color: var(--text-main); line-height: 1.2; }
-    .stat-info p { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* Modern Tables */
+    /* Modern Tables - compact and attractive */
     .modern-panel {
-        background: var(--card-bg);
-        border-radius: 24px;
-        box-shadow: var(--shadow-soft);
-        padding: 25px;
-        margin-bottom: 30px;
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: var(--shadow-soft);
+      padding: 18px 16px;
+      margin-bottom: 18px;
+      min-height: 220px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
     }
 
     .panel-title {
-        font-weight: 800;
-        font-size: 1.3rem;
-        color: var(--text-main);
-        margin: 0;
+      font-weight: 700;
+      font-size: 1.08rem;
+      color: var(--text-main);
+      margin: 0;
     }
 
-    .table-responsive { border-radius: 12px; }
-    
+    .table-responsive { border-radius: 8px; }
     .table { margin-bottom: 0; }
-    
     .table thead th {
-        background: transparent;
-        color: var(--text-muted);
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
-        border-bottom: 2px solid #edf2f7;
-        padding: 15px 20px;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #edf2f7;
+      padding: 8px 10px;
     }
-
     .table tbody td {
-        padding: 20px;
-        vertical-align: middle;
-        border-bottom: 1px dashed #edf2f7;
-        font-weight: 600;
-        color: #4a5568;
+      padding: 10px 10px;
+      vertical-align: middle;
+      border-bottom: 1px dashed #edf2f7;
+      font-weight: 600;
+      color: #4a5568;
+      font-size: 0.97rem;
     }
-
     .table tbody tr:last-child td { border-bottom: none; }
     .table tbody tr:hover { background-color: #f8fafc; }
 
     /* Glowing Badges */
     .badge-glow {
-        padding: 8px 16px;
-        border-radius: 30px;
-        font-weight: 700;
-        font-size: 0.75rem;
-        display: inline-block;
-        text-align: center;
+      padding: 6px 12px;
+      border-radius: 18px;
+      font-weight: 700;
+      font-size: 0.72rem;
+      display: inline-block;
+      text-align: center;
     }
     .bg-soft-warning { background: rgba(255, 159, 67, 0.15); color: #e67e22; }
     .bg-soft-success { background: rgba(16, 185, 129, 0.15); color: #059669; }
@@ -181,52 +90,65 @@ include('header.php');
 
     /* Form Controls */
     .custom-select {
-        border: 2px solid #edf2f7;
-        border-radius: 12px;
-        padding: 8px 12px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #4a5568;
-        background-color: #f8fafc;
-        transition: 0.2s;
-        cursor: pointer;
+      border: 1px solid #edf2f7;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #4a5568;
+      background-color: #f8fafc;
+      transition: 0.2s;
+      cursor: pointer;
     }
-    .custom-select:focus { border-color: #c471ed; outline: none; box-shadow: 0 0 0 3px rgba(196, 113, 237, 0.2); }
+    .custom-select:focus { border-color: #c471ed; outline: none; box-shadow: 0 0 0 2px rgba(196, 113, 237, 0.15); }
 
     .btn-rounded {
-        background: var(--text-main);
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        transition: 0.3s;
+      background: var(--text-main);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      transition: 0.3s;
     }
-    .btn-rounded:hover { background: #12c2e9; transform: translateY(-2px); color: white; box-shadow: 0 5px 15px rgba(18, 194, 233, 0.4); }
+    .btn-rounded:hover { background: #12c2e9; transform: translateY(-2px); color: white; box-shadow: 0 3px 10px rgba(18, 194, 233, 0.25); }
 
     .btn-outline-custom {
-        border: 2px solid #edf2f7;
-        background: transparent;
-        color: var(--text-main);
-        font-weight: 700;
-        border-radius: 12px;
-        padding: 8px 20px;
-        transition: 0.3s;
+      border: 1px solid #edf2f7;
+      background: transparent;
+      color: var(--text-main);
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 6px 14px;
+      transition: 0.3s;
     }
     .btn-outline-custom:hover { background: var(--text-main); color: white; border-color: var(--text-main); }
 
     .avatar-sm {
-        width: 35px; height: 35px;
-        border-radius: 10px;
-        background: #edf2f7;
-        color: var(--text-main);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        margin-right: 10px;
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      background: #edf2f7;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-right: 7px;
+      font-size: 0.95rem;
     }
+</style>
+
+<style>
+@keyframes pop {
+  0% { transform: scale(0.7); opacity: 0.2; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.row > .col-md-4 > div:hover {
+  box-shadow: 0 8px 32px rgba(44,62,80,0.18);
+  transform: translateY(-2px) scale(1.03);
+}
 </style>
 
 <div class="container py-4 mb-5">
@@ -236,325 +158,496 @@ include('header.php');
         include 'helpers.php';
         ensure_purchase_table($con);
         ensure_service_requests_table($con);
+        ensure_builds_history_table($con);
         
         $agent_raw = $_SESSION['username'] ?? '';
         $agent = mysqli_real_escape_string($con, $agent_raw);
         
-        // Stats Logic
-        $statSql = "SELECT COUNT(*) AS total, SUM(CASE WHEN LOWER(IFNULL(delivery_status,'pending')) NOT IN ('delivered','cancelled') THEN 1 ELSE 0 END) AS pending FROM purchase WHERE assigned_agent='$agent'";
+        // Stats Logic (include builds and support requests)
+        $pending_orders = 0;
+        $pending_builds = 0;
+        $pending_services = 0;
+        $statSql = "SELECT COUNT(*) AS cnt FROM purchase WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,'pending')) NOT IN ('delivered','cancelled')";
         $statRes = mysqli_query($con, $statSql);
-        $stats = ['total'=>0,'pending'=>0,'delivered'=>0];
-        if($statRes && mysqli_num_rows($statRes)>0){ $stats = mysqli_fetch_assoc($statRes); }
+        if($statRes && mysqli_num_rows($statRes)>0){ $pending_orders = (int)mysqli_fetch_assoc($statRes)['cnt']; }
+        $pending_builds_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM builds WHERE assigned_agent='$agent' AND (status IS NULL OR status IN ('pending','out_for_delivery'))");
+        if($pending_builds_res && mysqli_num_rows($pending_builds_res)>0){ $pending_builds = (int)mysqli_fetch_assoc($pending_builds_res)['cnt']; }
+        $pending_services_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM service_requests WHERE assigned_agent='$agent' AND status IN ('pending','in_progress')");
+        if($pending_services_res && mysqli_num_rows($pending_services_res)>0){ $pending_services = (int)mysqli_fetch_assoc($pending_services_res)['cnt']; }
+        $pending_total = $pending_orders + $pending_builds + $pending_services;
 
-        $delivered_count = 0; $cancelled_count = 0;
+        // Completed and Cancelled counts (include builds and support requests)
+        $delivered_count = 0;
+        $cancelled_count = 0;
+        // Product orders
+        $delivered_sql = "SELECT COUNT(*) AS cnt FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,''))='delivered'";
+        $delivered_res = mysqli_query($con, $delivered_sql);
+        if($delivered_res && mysqli_num_rows($delivered_res)>0){ $delivered_count += (int)mysqli_fetch_assoc($delivered_res)['cnt']; }
+        $cancelled_sql = "SELECT COUNT(*) AS cnt FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,''))='cancelled'";
+        $cancelled_res = mysqli_query($con, $cancelled_sql);
+        if($cancelled_res && mysqli_num_rows($cancelled_res)>0){ $cancelled_count += (int)mysqli_fetch_assoc($cancelled_res)['cnt']; }
+        // Builds (count both active table and archived builds_history)
+        $builds_delivered_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM builds WHERE assigned_agent='$agent' AND status IN ('delivered','completed')");
+        if($builds_delivered_res && mysqli_num_rows($builds_delivered_res)>0){ $delivered_count += (int)mysqli_fetch_assoc($builds_delivered_res)['cnt']; }
+        $builds_cancelled_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM builds WHERE assigned_agent='$agent' AND status='cancelled'");
+        if($builds_cancelled_res && mysqli_num_rows($builds_cancelled_res)>0){ $cancelled_count += (int)mysqli_fetch_assoc($builds_cancelled_res)['cnt']; }
+        // include archived builds count
+        $bh_del = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM builds_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(status,'')) IN ('delivered','completed')");
+        if($bh_del && mysqli_num_rows($bh_del)>0){ $delivered_count += (int)mysqli_fetch_assoc($bh_del)['cnt']; }
+        $bh_can = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM builds_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(status,''))='cancelled'");
+        if($bh_can && mysqli_num_rows($bh_can)>0){ $cancelled_count += (int)mysqli_fetch_assoc($bh_can)['cnt']; }
+        // Support requests (include history table)
+        $services_delivered_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM service_requests WHERE assigned_agent='$agent' AND status='completed'");
+        if($services_delivered_res && mysqli_num_rows($services_delivered_res)>0){ $delivered_count += (int)mysqli_fetch_assoc($services_delivered_res)['cnt']; }
+        $services_delivered_hist_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM service_requests_history WHERE assigned_agent='$agent' AND status='completed'");
+        if($services_delivered_hist_res && mysqli_num_rows($services_delivered_hist_res)>0){ $delivered_count += (int)mysqli_fetch_assoc($services_delivered_hist_res)['cnt']; }
+        $services_cancelled_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM service_requests WHERE assigned_agent='$agent' AND status='cancelled'");
+        if($services_cancelled_res && mysqli_num_rows($services_cancelled_res)>0){ $cancelled_count += (int)mysqli_fetch_assoc($services_cancelled_res)['cnt']; }
+        $services_cancelled_hist_res = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM service_requests_history WHERE assigned_agent='$agent' AND status='cancelled'");
+        if($services_cancelled_hist_res && mysqli_num_rows($services_cancelled_hist_res)>0){ $cancelled_count += (int)mysqli_fetch_assoc($services_cancelled_hist_res)['cnt']; }
         $db = ''; $rdb = @mysqli_query($con, "SELECT DATABASE() AS dbname");
         if($rdb && mysqli_num_rows($rdb)>0){ $db = mysqli_fetch_assoc($rdb)['dbname']; }
-        if($db){
-            $tbl = mysqli_real_escape_string($con, 'purchase_history');
-            $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
-            if($qc && mysqli_num_rows($qc)>0){
-                $dc = @mysqli_query($con, "SELECT COUNT(*) AS total FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,''))='delivered'");
-                if($dc && mysqli_num_rows($dc)>0){ $delivered_count = (int)(mysqli_fetch_assoc($dc)['total'] ?? 0); }
-                $cc = @mysqli_query($con, "SELECT COUNT(*) AS total FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,''))='cancelled'");
-                if($cc && mysqli_num_rows($cc)>0){ $cancelled_count = (int)(mysqli_fetch_assoc($cc)['total'] ?? 0); }
-            }
-        }
-        $stats['delivered'] = $delivered_count;
-        $stats['cancelled'] = $cancelled_count;
         ?>
-
-        <div class="vibrant-hero d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <h2 class="hero-title mb-2">Agent Dashboard</h2>
-                <div class="glass-pill mt-2">
-                    <i class="bi bi-person-bounding-box"></i> Welcome back, <?php echo htmlspecialchars($agent_raw); ?>
-                </div>
-            </div>
-            <div class="glass-pill">
-                <i class="bi bi-layers-fill fs-5"></i> 
-                <span>Total Workload: <?php echo (int)($stats['total'] ?? 0); ?> Tasks</span>
-            </div>
-        </div>
-
-        <div class="row g-4 stat-container mb-5">
-            <div class="col-md-4">
-                <div class="stat-box pending">
-                    <div class="icon-circle"><i class="bi bi-clock-history"></i></div>
-                    <div class="stat-info">
-                        <h3><?php echo (int)($stats['pending'] ?? 0); ?></h3>
-                        <p>Pending Orders</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-box delivered">
-                    <div class="icon-circle"><i class="bi bi-check-all"></i></div>
-                    <div class="stat-info">
-                        <h3><?php echo (int)($stats['delivered'] ?? 0); ?></h3>
-                        <p>Successful Deliveries</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-box cancelled">
-                    <div class="icon-circle"><i class="bi bi-x-octagon"></i></div>
-                    <div class="stat-info">
-                        <h3><?php echo (int)($stats['cancelled'] ?? 0); ?></h3>
-                        <p>Cancelled Orders</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Active Purchase Assignments -->
-        <div class="modern-panel">
-            <div class="panel-header">
-                <h5 class="panel-title"><i class="bi bi-truck me-2 text-primary"></i> Active Assignments</h5>
-                <button class="btn btn-outline-custom" onclick="toggleHistory()">
-                    <i class="bi bi-archive-fill me-1"></i> View Archive
-                </button>
-            </div>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Product</th>
-                            <th>Customer</th>
-                            <th>Qty</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Update Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                    $sql = "SELECT * FROM purchase WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,'pending')) NOT IN ('delivered','cancelled') ORDER BY pdate DESC";
-                    $result = mysqli_query($con, $sql);
-                    if($result && mysqli_num_rows($result) > 0){
-                        while($row = mysqli_fetch_assoc($result)){
-                            $id = (int)$row['pid'];
-                            $pname = htmlspecialchars($row['pname'] ?? '');
-                            $user = htmlspecialchars($row['user'] ?? '');
-                            $qty = (int)($row['qty'] ?? 0);
-                            $total = number_format(((float)($row['pprice'] ?? 0) * $qty), 2);
-                            $dstatus = strtolower(trim($row['delivery_status'] ?? 'order_confirmed'));
-                            if($dstatus === 'pending') $dstatus = 'order_confirmed';
-                            if($dstatus === 'shipped') $dstatus = 'out_for_delivery';
-                            $badge = 'bg-soft-warning';
-                            if($dstatus === 'out_for_delivery') $badge = 'bg-soft-primary';
-                            if($dstatus === 'delivered') $badge = 'bg-soft-success';
-                            if($dstatus === 'cancelled') $badge = 'bg-soft-danger';
-                            $status_label = ucwords(str_replace('_', ' ', $dstatus));
-                    ?>
-                        <tr>
-                            <td class="text-muted">#<?php echo str_pad($id, 5, "0", STR_PAD_LEFT); ?></td>
-                            <td><span style="color: var(--text-main);"><?php echo $pname; ?></span></td>
-                            <td>
-                                <div class="avatar-sm"><?php echo strtoupper(substr($user, 0, 1)); ?></div>
-                                <?php echo $user; ?>
-                            </td>
-                            <td><?php echo $qty; ?></td>
-                            <td style="color: var(--accent-green);">₹<?php echo $total; ?></td>
-                            <td><span class="badge-glow <?php echo $badge; ?>"><?php echo $status_label; ?></span></td>
-                            <td>
-                                <form action="update_status.php" method="post" class="d-flex align-items-center gap-2 m-0">
-                                    <input type="hidden" name="order_id" value="<?php echo $id; ?>">
-                                    <select name="delivery_status" class="custom-select" style="width: 130px;">
-                                        <option value="delivered">Delivered</option>
-                                        <option value="cancelled">Cancelled</option>
-                                    </select>
-                                    <button type="submit" class="btn-rounded">Save</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php 
-                        }
-                    } else {
-                        echo "<tr><td colspan='7' class='text-center py-5'><div class='opacity-50'><i class='bi bi-inbox fs-1 d-block mb-2'></i>No active orders assigned</div></td></tr>";
-                    }
-                    ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Assigned Builds Section -->
-        <div class="modern-panel mt-4">
-            <div class="panel-header">
-                <h5 class="panel-title"><i class="bi bi-cpu me-2 text-danger"></i> Assigned Custom PC Builds</h5>
-            </div>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Build ID</th>
-                            <th>Build Name</th>
-                            <th>Customer</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                    $builds_res = mysqli_query($con, "SELECT * FROM builds WHERE assigned_agent='$agent' AND (status IS NULL OR status NOT IN ('delivered','cancelled')) ORDER BY created_at DESC");
-                    if($builds_res && mysqli_num_rows($builds_res) > 0){
-                        while($build = mysqli_fetch_assoc($builds_res)){
-                            $bid = (int)$build['id'];
-                            $bname = htmlspecialchars($build['name'] ?? '');
-                            $buser = htmlspecialchars($build['user_name'] ?? 'User#'.$build['user_id']);
-                            $btotal = number_format((float)($build['total'] ?? 0), 2);
-                            $bstatus = strtolower($build['status'] ?? 'pending');
-                            $bbadge = 'bg-soft-warning';
-                            if($bstatus === 'out_for_delivery') $bbadge = 'bg-soft-primary';
-                            if($bstatus === 'delivered') $bbadge = 'bg-soft-success';
-                            if($bstatus === 'cancelled') $bbadge = 'bg-soft-danger';
-                            $bstatus_label = ucwords(str_replace('_', ' ', $bstatus));
-                    ?>
-                        <tr>
-                            <td class="text-muted">#<?php echo str_pad($bid, 5, "0", STR_PAD_LEFT); ?></td>
-                            <td><?php echo $bname; ?></td>
-                            <td><?php echo $buser; ?></td>
-                            <td style="color: var(--accent-green);">₹<?php echo $btotal; ?></td>
-                            <td><span class="badge-glow <?php echo $bbadge; ?>"><?php echo $bstatus_label; ?></span></td>
-                            <td class="text-muted"><?php echo htmlspecialchars($build['created_at']); ?></td>
-                            <td>
-                                <form action="update_build_status.php" method="post" class="d-flex align-items-center gap-2 m-0">
-                                    <input type="hidden" name="build_id" value="<?php echo $bid; ?>">
-                                    <select name="build_status" class="custom-select" style="width: 130px;">
-                                        <option value="delivered">Delivered</option>
-                                        <option value="cancelled">Cancelled</option>
-                                    </select>
-                                    <button type="submit" class="btn-rounded">Save</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php
-                        }
-                    } else {
-                        echo "<tr><td colspan='7' class='text-center py-5'><div class='opacity-50'><i class='bi bi-inbox fs-1 d-block mb-2'></i>No builds assigned</div></td></tr>";
-                    }
-                    ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="historyPanel" style="display: none;">
-            <div class="modern-panel" style="background: #f8fafc; border: 1px dashed #cbd5e1; box-shadow: none;">
-                <div class="panel-header">
-                    <h5 class="panel-title text-muted"><i class="bi bi-clock-history me-2"></i> Delivery Archive</h5>
-                    <button class="btn btn-sm btn-light rounded-circle" onclick="toggleHistory()"><i class="bi bi-x-lg"></i></button>
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>ID</th><th>Product</th><th>Customer</th><th>Total</th><th>Final Status</th><th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        $history_res = false;
-                        if($db){
-                            $tbl = mysqli_real_escape_string($con, 'purchase_history');
-                            $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
-                            if($qc && mysqli_num_rows($qc)>0){
-                                $history_sql = "SELECT * FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,'')) IN ('delivered','cancelled') ORDER BY pdate DESC";
-                                $history_res = mysqli_query($con, $history_sql);
-                            }
-                        }
-                        if($history_res && mysqli_num_rows($history_res)>0){
-                            while($row = mysqli_fetch_assoc($history_res)){
-                                $dstatus = strtolower($row['delivery_status'] ?? '');
-                                $badge = ($dstatus === 'delivered') ? 'bg-soft-success' : 'bg-soft-danger';
-                                echo "<tr>
-                                    <td class='text-muted'>#".str_pad($row['pid'], 5, "0", STR_PAD_LEFT)."</td>
-                                    <td>".htmlspecialchars($row['pname'])."</td>
-                                    <td>".htmlspecialchars($row['user'])."</td>
-                                    <td>₹".number_format(((float)$row['pprice'] * (int)$row['qty']), 2)."</td>
-                                    <td><span class='badge-glow {$badge}'>".ucfirst($dstatus)."</span></td>
-                                    <td class='text-muted'>".date('M d, Y', strtotime($row['pdate']))."</td>
-                                </tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='6' class='text-center py-4 text-muted'>Archive is empty</td></tr>";
-                        }
-                        ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="modern-panel mt-4">
-            <div class="panel-header">
-                <h5 class="panel-title"><i class="bi bi-tools me-2 text-danger"></i> Hardware Support Tickets</h5>
-            </div>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Ticket ID</th><th>Client</th><th>Equipment</th><th>Service Type</th><th>Status</th><th>Update Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                    $req_res = mysqli_query($con, "SELECT * FROM service_requests WHERE assigned_agent='$agent' ORDER BY created_at DESC");
-                    if($req_res && mysqli_num_rows($req_res) > 0){
-                        while($row = mysqli_fetch_assoc($req_res)){
-                            $status = strtolower($row['status'] ?? 'pending');
-                            $status_map = ['pending'=>'bg-soft-warning', 'in_progress'=>'bg-soft-primary', 'completed'=>'bg-soft-success', 'cancelled'=>'bg-soft-danger'];
-                            $badge = $status_map[$status] ?? 'bg-soft-warning';
-                    ?>
-                        <tr>
-                            <td class="text-muted">#<?php echo str_pad($row['id'], 5, "0", STR_PAD_LEFT); ?></td>
-                            <td>
-                                <div class="avatar-sm" style="background: #e0e7ff; color: #4338ca;"><?php echo strtoupper(substr($row['user'], 0, 1)); ?></div>
-                                <?php echo htmlspecialchars($row['user']); ?>
-                            </td>
-                            <td><?php echo htmlspecialchars($row['item']); ?></td>
-                            <td style="color: #c471ed;"><?php echo htmlspecialchars($row['service_type']); ?></td>
-                            <td><span class="badge-glow <?php echo $badge; ?>"><?php echo ucfirst(str_replace('_',' ', $status)); ?></span></td>
-                            <td>
-                                <form action='update_service_request.php' method='post' class='d-flex align-items-center gap-2 m-0'>
-                                    <input type='hidden' name='id' value='<?php echo $row['id']; ?>'>
-                                    <select name='status' class='custom-select' style='width:130px;'>
-                                        <?php foreach(['pending','in_progress','completed','cancelled'] as $o): ?>
-                                            <option value='<?php echo $o; ?>' <?php echo ($o==$status)?'selected':''; ?>><?php echo ucfirst(str_replace('_',' ',$o)); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <button type='submit' class='btn-rounded'>Update</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php 
-                        }
-                    } else {
-                        echo "<tr><td colspan='6' class='text-center py-5'><div class='opacity-50'><i class='bi bi-pc-display fs-1 d-block mb-2'></i>No support tickets assigned</div></td></tr>";
-                    }
-                    ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
-</div>
+         
 
 <script>
-function toggleHistory() {
-    const historyPanel = document.getElementById('historyPanel');
-    if (historyPanel.style.display === 'none') {
-        historyPanel.style.display = 'block';
-        setTimeout(() => { historyPanel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-    } else {
-        historyPanel.style.display = 'none';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+function showOnlyHistory() {
+    // Hide all panels except history
+    document.querySelectorAll('.modern-panel').forEach(panel => panel.style.display = 'none');
+    document.getElementById('historyPanel').style.display = 'block';
+    document.getElementById('buildHistoryPanel').style.display = 'block';
+    document.getElementById('deliveryHistoryPanel').style.display = 'block';
+    document.getElementById('serviceHistoryPanel').style.display = 'block';
+    // Make service history panel height match others
+    setTimeout(() => {
+        document.getElementById('historyPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Balance service panel height
+        let deliveryPanel = document.getElementById('deliveryHistoryPanel');
+        let servicePanel = document.getElementById('serviceHistoryPanel');
+        if (deliveryPanel && servicePanel) {
+            servicePanel.style.minHeight = deliveryPanel.offsetHeight + 'px';
+        }
+    }, 100);
+}
+function restorePanels() {
+    document.getElementById('historyPanel').style.display = 'none';
+    document.getElementById('buildHistoryPanel').style.display = 'none';
+    document.getElementById('deliveryHistoryPanel').style.display = 'none';
+    document.getElementById('serviceHistoryPanel').style.display = 'none';
+    document.querySelectorAll('.modern-panel').forEach(panel => panel.style.display = '' );
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 
+
+
+<!-- Order Stats Box - Enhanced Attractive Style -->
+<div class="row" style="max-width:1100px;margin:auto;">
+  <div class="col-md-4 mb-2">
+    <div style="background:linear-gradient(135deg,#fffbe6 0%,#ffe9d2 100%);border-radius:18px;box-shadow:0 4px 18px rgba(255,159,67,0.10);padding:22px 0 16px 0;display:flex;flex-direction:column;align-items:center;transition:box-shadow 0.2s;cursor:pointer;">
+      <div style="font-size:2.5rem;color:#ff9f43;margin-bottom:10px;animation:pop 0.7s;"><i class="bi bi-clock-history"></i></div>
+      <div style="font-weight:700;font-size:1.15rem;color:#2b3674;letter-spacing:0.5px;">Pending Orders</div>
+      <div style="font-size:1.8rem;font-weight:900;color:#2b3674;"> <?php echo $pending_total; ?> </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-2">
+    <div style="background:linear-gradient(135deg,#eafff7 0%,#d2fff3 100%);border-radius:18px;box-shadow:0 4px 18px rgba(16,185,129,0.10);padding:22px 0 16px 0;display:flex;flex-direction:column;align-items:center;transition:box-shadow 0.2s;cursor:pointer;">
+      <div style="font-size:2.5rem;color:#10b981;margin-bottom:10px;animation:pop 0.7s;"><i class="bi bi-check2-circle"></i></div>
+      <div style="font-weight:700;font-size:1.15rem;color:#2b3674;letter-spacing:0.5px;">Completed Orders</div>
+      <div style="font-size:1.8rem;font-weight:900;color:#2b3674;">
+        <?php echo $delivered_count; ?>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-2">
+    <div style="background:linear-gradient(135deg,#ffe6ea 0%,#ffd2e2 100%);border-radius:18px;box-shadow:0 4px 18px rgba(234,84,85,0.10);padding:22px 0 16px 0;display:flex;flex-direction:column;align-items:center;transition:box-shadow 0.2s;cursor:pointer;">
+      <div style="font-size:2.5rem;color:#ea5455;margin-bottom:10px;animation:pop 0.7s;"><i class="bi bi-x-circle"></i></div>
+      <div style="font-weight:700;font-size:1.15rem;color:#2b3674;letter-spacing:0.5px;">Cancelled Orders</div>
+      <div style="font-size:1.8rem;font-weight:900;color:#2b3674;">
+        <?php echo $cancelled_count; ?>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Delivery Orders -->
+<div class="modern-panel mt-4" style="min-height:350px;">
+  <div class="panel-header">
+    <span class="panel-title"><i class="bi bi-box-seam me-2 text-primary"></i> Product Delivery Orders</span>
+    <ul class="nav nav-tabs" id="productTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="product-active-tab" data-bs-toggle="tab" data-bs-target="#product-active" type="button" role="tab">Active Assignments</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="product-history-tab" data-bs-toggle="tab" data-bs-target="#product-history" type="button" role="tab">History</button>
+      </li>
+    </ul>
+  </div>
+  <div class="tab-content" id="productTabsContent">
+    <div class="tab-pane fade show active" id="product-active" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Order ID</th><th>Product</th><th>Customer</th><th>Qty</th><th>Amount</th><th>Status</th><th>Update Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          <?php
+          // Filter out build components from product delivery orders
+          $excluded_pids = [];
+          $build_ids_res = mysqli_query($con, "SELECT id FROM builds WHERE assigned_agent='$agent'");
+          $build_ids = [];
+          if($build_ids_res && mysqli_num_rows($build_ids_res) > 0){
+            while($b = mysqli_fetch_assoc($build_ids_res)){
+              $build_ids[] = (int)$b['id'];
+            }
+          }
+          if(!empty($build_ids)){
+            $build_items_res = mysqli_query($con, "SELECT product_id FROM build_items WHERE build_id IN (".implode(',', $build_ids).")");
+            if($build_items_res && mysqli_num_rows($build_items_res) > 0){
+              while($bi = mysqli_fetch_assoc($build_items_res)){
+                $excluded_pids[] = (int)$bi['product_id'];
+              }
+            }
+          }
+          $sql = "SELECT * FROM purchase WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,'pending')) NOT IN ('delivered','cancelled') ORDER BY pdate DESC";
+          $result = mysqli_query($con, $sql);
+          if($result && mysqli_num_rows($result) > 0){
+            while($row = mysqli_fetch_assoc($result)){
+              $id = (int)$row['pid'];
+              if(in_array($id, $excluded_pids)) continue; // skip build components
+              $pname = htmlspecialchars($row['pname'] ?? '');
+              $user = htmlspecialchars($row['user'] ?? '');
+              $qty = (int)($row['qty'] ?? 0);
+              $total = number_format(((float)($row['pprice'] ?? 0) * $qty), 2);
+              $dstatus = strtolower(trim($row['delivery_status'] ?? 'order_confirmed'));
+              if($dstatus === 'pending') $dstatus = 'order_confirmed';
+              if($dstatus === 'shipped') $dstatus = 'out_for_delivery';
+              $badge = 'bg-soft-warning';
+              if($dstatus === 'out_for_delivery') $badge = 'bg-soft-primary';
+              if($dstatus === 'delivered') $badge = 'bg-soft-success';
+              if($dstatus === 'cancelled') $badge = 'bg-soft-danger';
+              $status_label = ucwords(str_replace('_', ' ', $dstatus));
+          ?>
+            <tr>
+              <td class="text-muted">#<?php echo str_pad($id, 5, "0", STR_PAD_LEFT); ?></td>
+              <td><span style="color: var(--text-main);"><?php echo $pname; ?></span></td>
+              <td><div class="avatar-sm"><?php echo strtoupper(substr($user, 0, 1)); ?></div><?php echo $user; ?></td>
+              <td><?php echo $qty; ?></td>
+              <td style="color: var(--accent-green);">₹<?php echo $total; ?></td>
+              <td><span class="badge-glow <?php echo $badge; ?>"><?php echo $status_label; ?></span></td>
+              <td>
+                <form action="update_status.php" method="post" class="d-flex align-items-center gap-2 m-0">
+                  <input type="hidden" name="order_id" value="<?php echo $id; ?>">
+                  <select name="delivery_status" class="custom-select" style="width: 130px;">
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                  <button type="submit" class="btn-rounded">Save</button>
+                </form>
+              </td>
+            </tr>
+          <?php }
+          } else {
+            echo "<tr><td colspan='7' class='text-center py-5'><div class='opacity-50'><i class='bi bi-inbox fs-1 d-block mb-2'></i>No active orders assigned</div></td></tr>";
+          }
+          ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="product-history" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Product</th><th>Customer</th><th>Total</th><th>Final Status</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+          <?php
+          $history_res = false;
+          if($db){
+            $tbl = mysqli_real_escape_string($con, 'purchase_history');
+            $qc = @mysqli_query($con, "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='".mysqli_real_escape_string($con,$db)."' AND TABLE_NAME='{$tbl}' LIMIT 1");
+            if($qc && mysqli_num_rows($qc)>0){
+              $history_sql = "SELECT * FROM purchase_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,'')) IN ('delivered','cancelled') ORDER BY pdate DESC";
+              $history_res = mysqli_query($con, $history_sql);
+            }
+          }
+          if($history_res && mysqli_num_rows($history_res)>0){
+            while($row = mysqli_fetch_assoc($history_res)){
+              $dstatus = strtolower($row['delivery_status'] ?? '');
+              $badge = ($dstatus === 'delivered') ? 'bg-soft-success' : 'bg-soft-danger';
+          ?>
+            <tr>
+              <td class='text-muted'>#<?php echo str_pad($row['pid'], 5, "0", STR_PAD_LEFT); ?></td>
+              <td><?php echo htmlspecialchars($row['pname']); ?></td>
+              <td><?php echo htmlspecialchars($row['user']); ?></td>
+              <td>₹<?php echo number_format(((float)$row['pprice'] * (int)$row['qty']), 2); ?></td>
+              <td><span class='badge-glow <?php echo $badge; ?>'><?php echo ucfirst($dstatus); ?></span></td>
+              <td class='text-muted'><?php echo date('M d, Y', strtotime($row['pdate'])); ?></td>
+            </tr>
+          <?php }
+          } else {
+          ?>
+            <tr><td colspan='6' class='text-center py-4 text-muted'>Archive is empty</td></tr>
+          <?php }
+          ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom PC Build Orders -->
+<div class="modern-panel mt-4" style="min-height:350px;">
+  <div class="panel-header">
+    <span class="panel-title"><i class="bi bi-cpu me-2 text-danger"></i> Custom PC Build Orders</span>
+    <ul class="nav nav-tabs" id="buildTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="build-active-tab" data-bs-toggle="tab" data-bs-target="#build-active" type="button" role="tab">Active Builds</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="build-history-tab" data-bs-toggle="tab" data-bs-target="#build-history" type="button" role="tab">Build History</button>
+      </li>
+    </ul>
+  </div>
+  <div class="tab-content" id="buildTabsContent">
+    <div class="tab-pane fade show active" id="build-active" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Build ID</th><th>Build Name</th><th>Customer</th><th>Total</th><th>Status</th><th>Created</th><th>View</th><th>Update Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          <?php
+          $builds_res = mysqli_query($con, "SELECT * FROM builds WHERE assigned_agent='$agent' AND (status IS NULL OR status IN ('pending','out_for_delivery')) ORDER BY created_at DESC");
+          if($builds_res && mysqli_num_rows($builds_res) > 0){
+            while($build = mysqli_fetch_assoc($builds_res)){
+              $bid = (int)$build['id'];
+              $bname = htmlspecialchars($build['name'] ?? '');
+              $buser = htmlspecialchars($build['user_name'] ?? 'User#'.$build['user_id']);
+              $btotal = number_format((float)($build['total'] ?? 0), 2);
+              $bstatus = strtolower($build['status'] ?? 'pending');
+              $bbadge = 'bg-soft-warning';
+              if($bstatus === 'out_for_delivery') $bbadge = 'bg-soft-primary';
+              if($bstatus === 'delivered') $bbadge = 'bg-soft-success';
+              if($bstatus === 'cancelled') $bbadge = 'bg-soft-danger';
+              $bstatus_label = ucwords(str_replace('_', ' ', $bstatus));
+          ?>
+            <tr>
+              <td class="text-muted">#<?php echo str_pad($bid, 5, "0", STR_PAD_LEFT); ?></td>
+              <td><?php echo $bname; ?></td>
+              <td><?php echo $buser; ?></td>
+              <td style="color: var(--accent-green);">₹<?php echo $btotal; ?></td>
+              <td><span class="badge-glow <?php echo $bbadge; ?>"><?php echo $bstatus_label; ?></span></td>
+              <td class="text-muted"><?php echo htmlspecialchars($build['created_at']); ?></td>
+              <td><a href="view_build.php?id=<?php echo $bid; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
+              <td>
+                <form action="update_build_status.php" method="post" class="d-flex align-items-center gap-2 m-0">
+                  <input type="hidden" name="build_id" value="<?php echo $bid; ?>">
+                  <select name="build_status" class="custom-select" style="width: 130px;">
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                  <button type="submit" class="btn-rounded">Save</button>
+                </form>
+              </td>
+            </tr>
+          <?php }
+          } else {
+            echo "<tr><td colspan='8' class='text-center py-5'><div class='opacity-50'><i class='bi bi-inbox fs-1 d-block mb-2'></i>No builds assigned</div></td></tr>";
+          }
+          ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="build-history" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Build ID</th><th>Build Name</th><th>Customer</th><th>Total</th><th>Status</th><th>Created</th><th>View</th>
+            </tr>
+          </thead>
+          <tbody>
+          <?php
+          // Read archived builds history and fallback to delivered/cancelled/completed rows still present in builds table
+          $history_rows = [];
+          $seen_history_ids = [];
+
+          $builds_hist = mysqli_query($con, "SELECT * FROM builds_history WHERE assigned_agent='$agent' AND LOWER(IFNULL(status,'')) IN ('delivered','completed','cancelled') ORDER BY completed_at DESC");
+          if($builds_hist && mysqli_num_rows($builds_hist) > 0){
+            while($build = mysqli_fetch_assoc($builds_hist)){
+              $history_rows[] = $build;
+              $seen_history_ids[] = (int)$build['id'];
+            }
+          }
+
+          $builds_fallback = mysqli_query($con, "SELECT * FROM builds WHERE assigned_agent='$agent' AND LOWER(IFNULL(status,'')) IN ('delivered','completed','cancelled') ORDER BY created_at DESC");
+          if($builds_fallback && mysqli_num_rows($builds_fallback) > 0){
+            while($build = mysqli_fetch_assoc($builds_fallback)){
+              $bid = (int)$build['id'];
+              if(in_array($bid, $seen_history_ids, true)) continue;
+              $history_rows[] = $build;
+            }
+          }
+
+          if(count($history_rows) > 0){
+            usort($history_rows, function($a, $b){
+              $at = strtotime($a['completed_at'] ?? $a['created_at'] ?? '1970-01-01');
+              $bt = strtotime($b['completed_at'] ?? $b['created_at'] ?? '1970-01-01');
+              return $bt <=> $at;
+            });
+
+            foreach($history_rows as $build){
+              $bid = (int)$build['id'];
+              $bname = htmlspecialchars($build['name'] ?? '');
+              $buser = htmlspecialchars($build['user_name'] ?? 'User#'.$build['user_id']);
+              $btotal = number_format((float)($build['total'] ?? 0), 2);
+              $bstatus = strtolower($build['status'] ?? 'delivered');
+              $bbadge = 'bg-soft-success';
+              if($bstatus === 'cancelled') $bbadge = 'bg-soft-danger';
+              $bstatus_label = ucwords(str_replace('_', ' ', $bstatus));
+              $display_date = !empty($build['completed_at']) ? $build['completed_at'] : ($build['created_at'] ?? '');
+          ?>
+            <tr>
+              <td class="text-muted">#<?php echo str_pad($bid, 5, "0", STR_PAD_LEFT); ?></td>
+              <td><?php echo $bname; ?></td>
+              <td><?php echo $buser; ?></td>
+              <td style="color: var(--accent-green);">₹<?php echo $btotal; ?></td>
+              <td><span class="badge-glow <?php echo $bbadge; ?>"><?php echo $bstatus_label; ?></span></td>
+              <td class="text-muted"><?php echo htmlspecialchars($display_date); ?></td>
+              <td><a href="view_build.php?id=<?php echo $bid; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
+            </tr>
+          <?php }
+          } else {
+            echo "<tr><td colspan='7' class='text-center py-4 text-muted'>No build history found</td></tr>";
+          }
+          ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Support Requests -->
+<div class="modern-panel mt-4" style="min-height:350px;">
+  <div class="panel-header">
+    <span class="panel-title"><i class="bi bi-tools me-2 text-danger"></i> Support Requests</span>
+    <ul class="nav nav-tabs" id="supportTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="support-active-tab" data-bs-toggle="tab" data-bs-target="#support-active" type="button" role="tab">Active Requests</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="support-history-tab" data-bs-toggle="tab" data-bs-target="#support-history" type="button" role="tab">History</button>
+      </li>
+    </ul>
+  </div>
+  <div class="tab-content" id="supportTabsContent">
+    <div class="tab-pane fade show active" id="support-active" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th><th>Client</th><th>Equipment</th><th>Service Type</th><th>Status</th><th>Update Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          <?php
+          $req_res = mysqli_query($con, "SELECT * FROM service_requests WHERE assigned_agent='$agent' AND status IN ('pending','in_progress') ORDER BY created_at DESC");
+          if($req_res && mysqli_num_rows($req_res) > 0){
+            while($row = mysqli_fetch_assoc($req_res)){
+              $status = strtolower($row['status'] ?? 'pending');
+              $status_map = ['pending'=>'bg-soft-warning', 'in_progress'=>'bg-soft-primary', 'completed'=>'bg-soft-success', 'cancelled'=>'bg-soft-danger'];
+              $badge = $status_map[$status] ?? 'bg-soft-warning';
+          ?>
+            <tr>
+              <td class="text-muted">#<?php echo str_pad($row['id'], 5, "0", STR_PAD_LEFT); ?></td>
+              <td><div class="avatar-sm" style="background: #e0e7ff; color: #4338ca;"><?php echo strtoupper(substr($row['user'], 0, 1)); ?></div><?php echo htmlspecialchars($row['user']); ?></td>
+              <td><?php echo htmlspecialchars($row['item']); ?></td>
+              <td style="color: #c471ed;"><?php echo htmlspecialchars($row['service_type']); ?></td>
+              <td><span class="badge-glow <?php echo $badge; ?>"><?php echo ucfirst(str_replace('_',' ', $status)); ?></span></td>
+              <td>
+                <form action='update_service_request.php' method='post' class='d-flex align-items-center gap-2 m-0'>
+                  <input type='hidden' name='id' value='<?php echo $row['id']; ?>'>
+                  <select name='status' class='custom-select' style='width:130px;'>
+                    <?php foreach(['pending','in_progress','completed','cancelled'] as $o): ?>
+                      <option value='<?php echo $o; ?>' <?php echo ($o==$status)?'selected':''; ?>><?php echo ucfirst(str_replace('_',' ',$o)); ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <button type='submit' class='btn-rounded'>Update</button>
+                </form>
+              </td>
+            </tr>
+          <?php }
+          } else {
+            echo "<tr><td colspan='6' class='text-center py-5'><div class='opacity-50'><i class='bi bi-pc-display fs-1 d-block mb-2'></i>No support tickets assigned</div></td></tr>";
+          }
+          ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="support-history" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th><th>Client</th><th>Equipment</th><th>Service Type</th><th>Status</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            $rows = [];
+            $service_res = mysqli_query($con, "SELECT * FROM service_requests WHERE assigned_agent='$agent' AND status IN ('completed','cancelled') ORDER BY created_at DESC");
+            if($service_res && mysqli_num_rows($service_res) > 0){
+              while($row = mysqli_fetch_assoc($service_res)){
+                $rows[] = $row;
+              }
+            }
+            $service_hist_res = mysqli_query($con, "SELECT * FROM service_requests_history WHERE assigned_agent='$agent' AND status IN ('completed','cancelled') ORDER BY created_at DESC");
+            if($service_hist_res && mysqli_num_rows($service_hist_res) > 0){
+              while($row = mysqli_fetch_assoc($service_hist_res)){
+                $rows[] = $row;
+              }
+            }
+            if(count($rows) > 0){
+              // Sort all rows by created_at DESC
+              usort($rows, function($a, $b) {
+                return strtotime($b['created_at']) - strtotime($a['created_at']);
+              });
+              foreach($rows as $row){
+                $status = strtolower($row['status'] ?? 'pending');
+                $status_map = ['completed'=>'bg-soft-success', 'cancelled'=>'bg-soft-danger'];
+                $badge = $status_map[$status] ?? 'bg-soft-warning';
+            ?>
+              <tr>
+                <td class='text-muted'>#<?php echo str_pad($row['id'], 5, "0", STR_PAD_LEFT); ?></td>
+                <td><?php echo htmlspecialchars($row['user']); ?></td>
+                <td><?php echo htmlspecialchars($row['item']); ?></td>
+                <td style='color: #c471ed;'><?php echo htmlspecialchars($row['service_type']); ?></td>
+                <td><span class='badge-glow <?php echo $badge; ?>'><?php echo ucfirst(str_replace('_',' ', $status)); ?></span></td>
+                <td class='text-muted'><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
+              </tr>
+            <?php }
+            } else {
+              echo "<tr><td colspan='6' class='text-center py-4 text-muted'>No completed/cancelled service tickets</td></tr>";
+            }
+            ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 <?php include(__DIR__ . '/../footer.php'); ?>
+</div>
+</div>
