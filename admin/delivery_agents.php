@@ -365,4 +365,4 @@ $res = mysqli_query($con, "SELECT username, full_name, email, phone, role, is_ac
     </div>
 </div>
 
-<?php include(__DIR__ . '/../footer.php'); ?>
+<?php include(__DIR__ . '/footer.php'); ?>

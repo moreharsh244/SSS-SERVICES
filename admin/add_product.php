@@ -242,19 +242,19 @@ if(isset($_POST['add_product'])){
                 add_admin_notification('low_stock', $notif_title, $notif_msg, 'view_product.php');
             }
             
-            echo "<script>
-                    alert('Product Added Successfully');
-                    window.location.href='add_product.php';
-                  </script>";
+            echo "<script>window.location.href='add_product.php?toast=" . rawurlencode('Product added successfully.') . "&toast_type=success';</script>";
+            exit;
         } else {
-            echo "<script>alert('Error: Product Not Added - " . addslashes(mysqli_error($con)) . "');</script>";        
+            echo "<script>window.location.href='add_product.php?toast=" . rawurlencode('Error: Product not added.') . "&toast_type=error';</script>";
+            exit;
         }
     } else {
-        echo "<script>alert('Error Uploading Image. Please check folder permissions.');</script>";
+        echo "<script>window.location.href='add_product.php?toast=" . rawurlencode('Error uploading image. Please check folder permissions.') . "&toast_type=error';</script>";
+        exit;
     }
 }
 ?>
 
 <?php
-include(__DIR__ . '/../footer.php');  
+include(__DIR__ . '/footer.php');  
 ?>
