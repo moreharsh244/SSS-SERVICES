@@ -35,7 +35,7 @@ if($id > 0){
         $sr = mysqli_query($con, "SELECT * FROM purchase WHERE pid='$id' AND assigned_agent='$agent' LIMIT 1");
         if(!$sr || mysqli_num_rows($sr) === 0){
             mysqli_rollback($con);
-            echo '<script>alert("Status Update Failed");window.location.href="index.php";</script>';
+            header('Location: index.php?toast=' . rawurlencode('Status update failed.') . '&toast_type=error');
             exit;
         }
         $row = mysqli_fetch_assoc($sr);
@@ -47,13 +47,14 @@ if($id > 0){
             mysqli_query($con, $stock_update);
             if(mysqli_affected_rows($con) <= 0){
                 mysqli_rollback($con);
-                echo '<script>alert("Insufficient stock for this product.");window.location.href="index.php";</script>';
+                header('Location: index.php?toast=' . rawurlencode('Insufficient stock for this product.') . '&toast_type=error');
                 exit;
             }
         }
 
         $u = "UPDATE purchase SET status='$dstatus', delivery_status='$dstatus' WHERE pid='$id' AND assigned_agent='$agent' LIMIT 1";
         mysqli_query($con, $u);
+        // Also update in admin purchase_history if needed (same table)
 
         $create = "CREATE TABLE IF NOT EXISTS `purchase_history` (
             `pid` INT PRIMARY KEY,
@@ -89,14 +90,35 @@ if($id > 0){
 
         @mysqli_query($con, "DELETE FROM purchase WHERE pid='$id' LIMIT 1");
         mysqli_commit($con);
+        // Add admin notification about delivered order
+        $notif_file = __DIR__ . '/../admin/admin_notifications.json';
+        $notif_item = array(
+            'id' => 'notif_'.uniqid(),
+            'type' => 'order',
+            'title' => 'Order Delivered: '.($pname ?? 'Order #'.$id),
+            'message' => 'Customer: '.($user ?? '').' | Qty: '.($qty ?? 1).' | Total: ₹'.number_format($pprice * ($qty ?? 1),2),
+            'link' => 'orders_list.php?view=history',
+            'is_read' => false,
+            'created_at' => date('Y-m-d H:i:s')
+        );
+        if(is_writable(dirname($notif_file))){
+            $existing = array();
+            if(file_exists($notif_file)){
+                $txt = @file_get_contents($notif_file);
+                $existing = json_decode($txt, true) ?: array();
+            }
+            array_unshift($existing, $notif_item);
+            @file_put_contents($notif_file, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+        }
     } else {
         $u = "UPDATE purchase SET status='$dstatus', delivery_status='$dstatus' WHERE pid='$id' AND assigned_agent='$agent' LIMIT 1";
         mysqli_query($con, $u);
     }
 
     log_delivery_action($con, $_SESSION['username'] ?? '', 'status_update', 'Order #'.$id.' -> '.$dstatus);
-    echo '<script>alert("Status Updated Successfully");window.location.href="index.php";</script>';
+    header('Location: index.php?toast=' . rawurlencode('Status updated successfully.') . '&toast_type=success');
 } else {
-    echo '<script>alert("Status Update Failed");window.location.href="index.php";</script>';
+    header('Location: index.php?toast=' . rawurlencode('Status update failed.') . '&toast_type=error');
 }
+exit;
 ?>

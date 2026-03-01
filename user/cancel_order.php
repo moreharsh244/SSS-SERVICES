@@ -13,6 +13,51 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST'){
     exit;
 }
 
+if(isset($_POST['build_id'])){
+    include('../delivery/helpers.php');
+    ensure_builds_history_table($con);
+
+    $build_id = intval($_POST['build_id'] ?? 0);
+    if($build_id <= 0){
+        header('Location: myorder.php?toast=' . rawurlencode('Unable to process cancellation. Invalid build ID.'));
+        exit;
+    }
+
+    $sessionUser = $_SESSION['username'] ?? '';
+    $sessionUid = $_SESSION['user_id'] ?? null;
+    $possibleUsers = [ $sessionUser ];
+    if(!empty($sessionUid)) $possibleUsers[] = 'user_'.intval($sessionUid);
+    $userList = "'".implode("','", array_map(function($v){ return mysqli_real_escape_string($GLOBALS['con'],$v); }, $possibleUsers))."'";
+
+    $sql = "SELECT * FROM builds WHERE id='$build_id' AND (user_name IN ({$userList}) OR user_id IN ('".intval($sessionUid)."')) AND (assigned_agent IS NULL OR assigned_agent='') AND LOWER(IFNULL(status,'pending')) NOT IN ('out_for_delivery','delivered','completed','cancelled') LIMIT 1";
+    $res = mysqli_query($con, $sql);
+    if(!$res || mysqli_num_rows($res) === 0){
+        header('Location: myorder.php?toast=' . rawurlencode('This build order cannot be cancelled at this time.'));
+        exit;
+    }
+
+    $build = mysqli_fetch_assoc($res);
+    $id = intval($build['id'] ?? 0);
+    $user_id = intval($build['user_id'] ?? 0);
+    $user_name = mysqli_real_escape_string($con, $build['user_name'] ?? '');
+    $name = mysqli_real_escape_string($con, $build['name'] ?? '');
+    $description = mysqli_real_escape_string($con, $build['description'] ?? '');
+    $total = floatval($build['total'] ?? 0);
+    $created_at = mysqli_real_escape_string($con, $build['created_at'] ?? '');
+    $assigned_agent = mysqli_real_escape_string($con, $build['assigned_agent'] ?? '');
+
+    $ins = "INSERT INTO builds_history (id, user_id, user_name, name, description, total, status, created_at, completed_at, assigned_agent)
+            VALUES ($id, $user_id, '$user_name', '$name', '$description', $total, 'cancelled', ".(!empty($created_at) ? "'{$created_at}'" : "NULL").", NOW(), '$assigned_agent')
+            ON DUPLICATE KEY UPDATE status=VALUES(status), user_name=VALUES(user_name), description=VALUES(description), completed_at=VALUES(completed_at), assigned_agent=VALUES(assigned_agent)";
+    @mysqli_query($con, $ins);
+
+    @mysqli_query($con, "DELETE FROM build_items WHERE build_id='$id'");
+    @mysqli_query($con, "DELETE FROM builds WHERE id='$id' LIMIT 1");
+
+    header('Location: myorder.php?toast=' . rawurlencode('Build order has been cancelled successfully.'));
+    exit;
+}
+
 if(isset($_POST['request_id'])){
     include('../delivery/helpers.php');
     ensure_service_requests_table($con);

@@ -3,8 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_name('SSS_USER_SESS');
     session_start();
 }
+
 if(!isset($_SESSION['is_login'])){ header('location:login.php'); exit; }
 include('../admin/conn.php');
+include_once('../admin/notifications.php');
 
 $is_partial = isset($_GET['partial']);
 
@@ -18,7 +20,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $data = json_decode($items_json, true);
     
     if(!$data || !isset($data['items'])){
-        echo '<script>alert("Unable to process build data.");window.history.back();</script>';
+        header('Location: build.php?toast=' . rawurlencode('Unable to process build data.'));
         exit;
     }
 
@@ -43,7 +45,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $missing = array_values(array_diff($required_components, array_keys($present)));
     if(!empty($missing)){
         $msg = 'Required: ' . implode(', ', $missing);
-        echo '<script>alert("'.htmlspecialchars($msg).'");window.history.back();</script>';
+        header('Location: build.php?toast=' . rawurlencode($msg) . '&toast_type=error');
         exit;
     }
 
@@ -72,7 +74,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $pimg = mysqli_real_escape_string($con, $it['img'] ?? '');
             mysqli_query($con, "INSERT INTO build_items (build_id, product_id, category, product_name, product_img, price, qty) VALUES ('$build_id', '$pid', '$cat', '$pname', '$pimg', '$price', '$qty')");
         }
-        echo '<script>sessionStorage.removeItem("buildItemsCurrent"); alert("Build Saved! Your request has been sent to admin."); window.location.href="build.php";</script>';
+        header('Location: build.php?toast=' . rawurlencode('Build saved! Your request has been sent to admin.') . '&toast_type=success');
         exit;
     }
 }
@@ -699,7 +701,7 @@ if(!$is_partial){
         });
 
         if (items.length !== beforeCount) {
-            alert('Some selected components were removed because they do not match the selected motherboard.');
+            if(typeof window.showPortalToast === 'function') window.showPortalToast('Some selected components were removed because they do not match the selected motherboard.', 'info');
             saveItems();
             renderGrid();
         }
@@ -950,14 +952,14 @@ if(!$is_partial){
             saveBtn.dataset.bound = '1';
             saveBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                if(items.length === 0) { alert('Build is empty!'); return; }
+                if(items.length === 0) { if(typeof window.showPortalToast === 'function') window.showPortalToast('Build is empty!', 'error'); return; }
                 
                 const required = ['Processor','Motherboard','GPU','RAM','Storage','PSU','Case'];
                 const currentCats = items.map(i => getCanon(i.category));
                 const missing = required.filter(c => !currentCats.includes(c));
                 
                 if(missing.length > 0) {
-                    if(!confirm('Your build is missing: ' + missing.join(', ') + '. Save anyway?')) return;
+                    if(typeof window.showPortalToast === 'function') window.showPortalToast('Your build is missing: ' + missing.join(', ') + '. Saving anyway.', 'info');
                 }
 
                 const payload = { items: items, total: items.reduce((s,i) => s + i.price, 0) };
