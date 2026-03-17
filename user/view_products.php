@@ -550,7 +550,7 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
                                             <input type="hidden" name="pprice" value="<?php echo $row['pprice']; ?>">
                                             
                                             <div class="col-4">
-                                                <input type="number" name="qty" class="form-control text-center fw-bold" value="1" min="1" max="<?php echo $qty; ?>" style="border-radius: 10px; padding: 10px;">
+                                                <input type="number" name="qty" class="form-control text-center fw-bold" value="1" min="1" max="<?php echo max(1, $qty); ?>" style="border-radius: 10px; padding: 10px;" <?php echo ($qty <= 0 ? 'disabled' : ''); ?>>
                                             </div>
                                             <div class="col-8">
                                                 <?php if($qty>0){ ?>
@@ -559,6 +559,7 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
                                                     </button>
                                                 <?php } else { ?>
                                                     <button class="btn btn-action btn-secondary" disabled>Sold Out</button>
+                                                    <small class="text-danger d-block mt-1 fw-semibold">This product is out of stock</small>
                                                 <?php } ?>
                                             </div>
                                         </form>
@@ -638,3 +639,6 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
 </script>
 
 <?php include(__DIR__ . '/../footer.php'); ?>
+</main>
+</body>
+</html>

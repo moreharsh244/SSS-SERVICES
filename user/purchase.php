@@ -399,3 +399,6 @@ $total = (float)$pprice * (int)$qty;
 </script>
 
 <?php include(__DIR__ . '/../footer.php'); ?>
+</main>
+</body>
+</html>

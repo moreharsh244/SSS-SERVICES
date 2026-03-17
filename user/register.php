@@ -105,7 +105,7 @@ $toast = isset($_GET['toast']) ? trim((string)$_GET['toast']) : '';
                 </div>
             </div>
         </div>
-    
+    <?php include(__DIR__ . '/../footer.php'); ?>
 </body>
 </html>
 <?php
