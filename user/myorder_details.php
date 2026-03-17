@@ -39,6 +39,7 @@ if ($build_id > 0) {
     if (!$build) {
         echo '<div class="container mt-5"><div class="alert alert-warning shadow-sm border-0"><i class="fas fa-exclamation-triangle"></i> Build not found.</div></div>';
         include(__DIR__ . '/../footer.php');
+        echo '</main></body></html>';
         exit;
     }
 }
@@ -77,6 +78,7 @@ if ($order_id > 0 && !$build_id) {
 if (!$row && !$build) {
     echo '<div class="container mt-5"><div class="alert alert-warning shadow-sm border-0"><i class="fas fa-exclamation-triangle"></i> Order not found.</div></div>';
     include(__DIR__ . '/../footer.php');
+    echo '</main></body></html>';
     exit;
 }
 
@@ -300,3 +302,6 @@ if ($build) {
 </div>
 
 <?php include(__DIR__ . '/../footer.php'); ?>
+</main>
+</body>
+</html>

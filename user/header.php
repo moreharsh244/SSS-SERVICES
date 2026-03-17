@@ -438,7 +438,7 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
     </div>
 </nav>
 
-<div class="container-fluid search-wrapper <?php echo in_array($current_page, ['service.php', 'service_submit.php', 'build.php', 'myorder.php', 'myorder_details.php', 'orderstatus.php', 'profile.php', 'product_details.php']) ? 'search-hide' : ''; ?>">
+<div class="container-fluid search-wrapper <?php echo in_array($current_page, ['service.php', 'service_submit.php', 'build.php', 'myorder.php', 'myorder_details.php', 'orderstatus.php', 'profile.php', 'product_details.php', 'purchase.php']) ? 'search-hide' : ''; ?>">
     <form class="search-form" id="site-search-form" action="view_products.php" method="get" autocomplete="off">
         <i class="bi bi-search search-icon"></i>
         <input id="site-search-input" name="q" class="search-input" type="search" placeholder="Search for graphics cards, processors, cases...">
@@ -557,6 +557,3 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
     });
     </script>
 </main>
-
-</body>
-</html>
