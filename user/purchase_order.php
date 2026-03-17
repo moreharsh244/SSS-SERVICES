@@ -48,9 +48,22 @@
     // Verify product exists if pid is provided
     $prod_id_value = 'NULL';
     if($pid > 0){
-        $verify = mysqli_query($con, "SELECT pid FROM products WHERE pid = $pid LIMIT 1");
+        $verify = mysqli_query($con, "SELECT pid, pqty FROM products WHERE pid = $pid LIMIT 1");
         if($verify && mysqli_num_rows($verify) > 0){
+            $prod = mysqli_fetch_assoc($verify);
+            $available_qty = intval($prod['pqty'] ?? 0);
+            if($available_qty <= 0){
+                header('Location: view_products.php?toast='.rawurlencode('This product is out of stock'));
+                exit;
+            }
+            if($qty > $available_qty){
+                header('Location: view_products.php?toast='.rawurlencode('Only '.$available_qty.' item(s) available in stock'));
+                exit;
+            }
             $prod_id_value = $pid;
+        } else {
+            header('Location: view_products.php?toast='.rawurlencode('Product not found'));
+            exit;
         }
     }
 

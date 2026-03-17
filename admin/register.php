@@ -10,6 +10,57 @@ $toast = isset($_GET['toast']) ? trim((string)$_GET['toast']) : '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php
+include 'conn.php';
+
+$toast = isset($_GET['toast']) ? trim((string)$_GET['toast']) : '';
+
+if (isset($_POST['register'])) {
+    $username = trim($_POST['uname'] ?? '');
+    $password = $_POST['pass'] ?? '';
+
+    // ensure created_at column exists
+    $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='user_login' AND COLUMN_NAME='created_at'";
+    $cres = mysqli_query($con, $col_check);
+    if (!$cres || mysqli_num_rows($cres) === 0) {
+        @mysqli_query($con, "ALTER TABLE user_login ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+    }
+
+    // ensure password column exists and can store longer values
+    $colInfoQ = "SELECT CHARACTER_MAXIMUM_LENGTH, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='user_login' AND COLUMN_NAME='password' LIMIT 1";
+    $colRes = mysqli_query($con, $colInfoQ);
+    if ($colRes && mysqli_num_rows($colRes) > 0) {
+        $col = mysqli_fetch_assoc($colRes);
+        $len = intval($col['CHARACTER_MAXIMUM_LENGTH'] ?? 0);
+        $dt = strtolower($col['DATA_TYPE'] ?? '');
+        if (($dt === 'varchar' && $len < 100) || ($dt === 'char' && $len < 100)) {
+            @mysqli_query($con, "ALTER TABLE user_login MODIFY password VARCHAR(255) NOT NULL");
+        }
+    } else {
+        @mysqli_query($con, "ALTER TABLE user_login ADD COLUMN password VARCHAR(255) DEFAULT NULL");
+    }
+
+    $u_esc = mysqli_real_escape_string($con, $username);
+    $check = mysqli_query($con, "SELECT * FROM user_login WHERE username='$u_esc' LIMIT 1");
+    if ($check && mysqli_num_rows($check) > 0) {
+        header('Location: register.php?toast=' . rawurlencode('Username already exists'));
+        exit;
+    }
+
+    $pass_plain = mysqli_real_escape_string($con, $password);
+    $ins = "INSERT INTO user_login (username, password) VALUES ('$u_esc', '$pass_plain')";
+    $result = mysqli_query($con, $ins);
+    if ($result) {
+        $_SESSION['is_login'] = true;
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = 'admin';
+        header('Location: index.php');
+        exit;
+    }
+
+    header('Location: register.php?toast=' . rawurlencode('Registration failed'));
+    exit;
+}
     <title>Admin Register</title>
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <script src="../js/bootstrap.min.js"></script>
@@ -35,8 +86,10 @@ $toast = isset($_GET['toast']) ? trim((string)$_GET['toast']) : '';
                 </div>
         </form>
     </div>
+<?php include(__DIR__ . '/../footer.php'); ?>
 </body>
 </html>
+<?php
 include 'conn.php';
 if(isset($_POST['register'])){
     $username = trim($_POST['uname'] ?? '');
