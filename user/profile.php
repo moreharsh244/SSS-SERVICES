@@ -499,3 +499,6 @@ function previewImage(input) {
 </script>
 
 <?php include(__DIR__ . '/../footer.php'); ?>
+</main>
+</body>
+</html>

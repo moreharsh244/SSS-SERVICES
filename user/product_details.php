@@ -214,7 +214,7 @@ if($pid > 0){
                                 <input type="hidden" name="pname" value="<?php echo $detailName; ?>">
                                 <input type="hidden" name="pprice" value="<?php echo $product['pprice']; ?>">
                                 <div class="col-4 col-md-3">
-                                    <input type="number" name="qty" class="form-control text-center fw-bold" value="1" min="1" max="<?php echo $qty; ?>" style="border-radius: 10px; padding: 10px;">
+                                    <input type="number" name="qty" class="form-control text-center fw-bold" value="1" min="1" max="<?php echo max(1, $qty); ?>" style="border-radius: 10px; padding: 10px;" <?php echo ($qty <= 0 ? 'disabled' : ''); ?>>
                                 </div>
                                 <div class="col-8 col-md-9">
                                     <?php if($qty > 0): ?>
@@ -223,6 +223,7 @@ if($pid > 0){
                                         </button>
                                     <?php else: ?>
                                         <button class="btn btn-main btn-secondary w-100" disabled>Sold Out</button>
+                                        <small class="text-danger d-block mt-2 fw-semibold">This product is out of stock</small>
                                     <?php endif; ?>
                                 </div>
                             </form>
@@ -249,3 +250,6 @@ if($pid > 0){
 </script>
 
 <?php include(__DIR__ . '/../footer.php'); ?>
+</main>
+</body>
+</html>
