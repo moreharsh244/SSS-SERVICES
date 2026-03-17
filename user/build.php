@@ -267,7 +267,7 @@ if(!$is_partial){
     /* --- FLOATING FOOTER --- */
     .sticky-total-bar {
         position: fixed;
-        bottom: 20px;
+        bottom: 88px;
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
@@ -286,7 +286,7 @@ if(!$is_partial){
         animation: slideUp 0.5s ease-out;
     }
 
-    @keyframes slideUp { from { bottom: -100px; } to { bottom: 20px; } }
+    @keyframes slideUp { from { bottom: -100px; } to { bottom: 88px; } }
 
     .total-label { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
     .total-value { font-size: 1.5rem; font-weight: 700; color: #0284c7; text-shadow: none; }
@@ -457,8 +457,6 @@ if(!$is_partial){
                 <i class="bi bi-pc-display text-primary" style="font-size: 3rem; opacity: 0.2;"></i>
             </div>
         </div>
-
-        <div id="buildOpinionPanel" class="build-opinion-card mb-4 d-none"></div>
 
         <div class="row g-4" id="buildGrid">
             </div>
@@ -1048,7 +1046,6 @@ if(!$is_partial){
         });
 
         document.getElementById('totalPrice').innerText = '₹' + total.toFixed(2);
-        renderBuildOpinion();
     }
 
     function openSelector(key) {
@@ -1166,4 +1163,8 @@ if(!$is_partial){
     function escapeAttr(text){ return String(text || '').replace(/"/g, "&quot;"); }
 
 </script>
-<?php if(!$is_partial){ include(__DIR__ . '/../footer.php'); } ?>
+<?php if(!$is_partial){ include(__DIR__ . '/../footer.php'); ?>
+</main>
+</body>
+</html>
+<?php } ?>
