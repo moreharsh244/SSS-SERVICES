@@ -181,6 +181,6 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
     </div>
 </div>
-    
+<?php include(__DIR__ . '/../footer.php'); ?>
 </body>
 </html>

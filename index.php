@@ -7,14 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shree Swami Samarth</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="prefetch" href="admin/login.php" as="document">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/custom.css">
     <link rel="stylesheet" href="css/pc-theme.css">
-    <script src="js/bootstrap.bundle.min.js"></script>
     <style>
       :root {
         --brand-dark: #1f2a44;
@@ -25,7 +21,7 @@
       /* ...existing code... */
 
       body.pc-theme {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-weight: 500;
         color: var(--brand-dark);
         min-height: 100vh;
@@ -110,7 +106,6 @@
       }
 
       .brand-text-main {
-        font-family: 'Poppins', sans-serif;
         font-weight: 900;
         font-size: 2.25rem;
         letter-spacing: -0.03em;
@@ -137,6 +132,23 @@
           padding-right: 1rem;
         }
       }
+
+      .inline-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.1rem;
+        margin-right: 0.45rem;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .hero-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
     </style>
 </head>
 <body class="pc-theme">
@@ -153,9 +165,9 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent" style="font-size: 20px;">
 
       <div class="mx-auto d-flex align-items-center nav-auth">
-        <a class="btn btn-outline-primary me-3 d-none d-lg-inline-flex align-items-center" href="admin/login.php"><i class="bi bi-shield-lock me-2"></i>Admin Portal</a>
+        <a class="btn btn-outline-primary me-3 d-none d-lg-inline-flex align-items-center" href="admin/login.php"></span>Admin Portal</a>
         <div class="btn-group">
-          <button type="button" class="btn btn-primary dropdown-toggle d-inline-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-person me-2"></i>Customer Portal</button>
+          <button type="button" class="btn btn-primary dropdown-toggle d-inline-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false"></span>Customer Portal</button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="user/login.php">Sign In</a></li>
             <li><a class="dropdown-item" href="user/register.php">Sign Up</a></li>
@@ -174,7 +186,7 @@
   <div class="container">
     <div class="row align-items-center g-4">
       <div class="col-lg-6">
-        <span class="hero-chip"><i class="bi bi-stars"></i> Devotional gifts made joyful</span>
+        <span class="hero-chip"><span class="inline-icon">*</span>Devotional gifts made joyful</span>
         <h1 class="hero-title">Shree Swami Samarth
           <span class="hero-title-sub">Where Tools and Service Meet Excellence</span>
         </h1>
@@ -192,13 +204,13 @@
       <div class="col-lg-6">
         <div class="hero-collage">
           <div class="hero-card">
-            <img src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=600&h=400&fit=crop" alt="Gaming PC Setup" class="img-fluid">
+            <img src="img/pc1.jpg" alt="Gaming PC Setup" class="img-fluid" loading="eager" decoding="async" fetchpriority="high">
           </div>
           <div class="hero-card pop">
-            <img src="https://images.unsplash.com/photo-1591799265444-d66432b91588?w=600&h=400&fit=crop" alt="Custom PC Build" class="img-fluid">
+            <img src="img/pc2.jpg" alt="Custom PC Build" class="img-fluid" loading="lazy" decoding="async">
           </div>
           <div class="hero-card tall">
-            <img src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=650&h=400&fit=crop" alt="PC Components" class="img-fluid">
+            <img src="img/pc3.jpg" alt="PC Components" class="img-fluid" loading="lazy" decoding="async">
           </div>
         </div>
       </div>
@@ -237,6 +249,7 @@
     <div class="toast-body"></div>
   </div>
 </div>
+<script src="js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var revealEls = document.querySelectorAll('.reveal');

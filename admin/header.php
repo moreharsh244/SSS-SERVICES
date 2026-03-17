@@ -636,7 +636,7 @@ document.addEventListener('keydown', function(e){
             <a class="nav-link-item <?php echo ($current_page == 'view_product.php') ? 'active' : ''; ?>" href="view_product.php">
                 <i class="bi bi-box-seam-fill"></i> Inventory
             </a>
-            <a class="nav-link-item <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">
+            <a class="nav-link-item <?php echo ($current_page == 'Analytics.php') ? 'active' : ''; ?>" href="Analytics.php">
                 <i class="bi bi-graph-up-arrow"></i> Analytics
             </a>
             <a class="nav-link-item <?php echo ($current_page == 'orders_list.php') ? 'active' : ''; ?>" href="orders_list.php">
