@@ -289,34 +289,16 @@ function restorePanels() {
         <table class="table">
           <thead>
             <tr>
-              <th>Order ID</th><th>Product</th><th>Customer</th><th>Qty</th><th>Amount</th><th>Status</th><th>Update Action</th>
+              <th>Order ID</th><th>Product</th><th>Customer</th><th>Qty</th><th>Amount</th><th>Status</th><th>View</th><th>Update Action</th>
             </tr>
           </thead>
           <tbody>
           <?php
-          // Filter out build components from product delivery orders
-          $excluded_pids = [];
-          $build_ids_res = mysqli_query($con, "SELECT id FROM builds WHERE assigned_agent='$agent'");
-          $build_ids = [];
-          if($build_ids_res && mysqli_num_rows($build_ids_res) > 0){
-            while($b = mysqli_fetch_assoc($build_ids_res)){
-              $build_ids[] = (int)$b['id'];
-            }
-          }
-          if(!empty($build_ids)){
-            $build_items_res = mysqli_query($con, "SELECT product_id FROM build_items WHERE build_id IN (".implode(',', $build_ids).")");
-            if($build_items_res && mysqli_num_rows($build_items_res) > 0){
-              while($bi = mysqli_fetch_assoc($build_items_res)){
-                $excluded_pids[] = (int)$bi['product_id'];
-              }
-            }
-          }
           $sql = "SELECT * FROM purchase WHERE assigned_agent='$agent' AND LOWER(IFNULL(delivery_status,'pending')) NOT IN ('delivered','cancelled') ORDER BY pdate DESC";
           $result = mysqli_query($con, $sql);
           if($result && mysqli_num_rows($result) > 0){
             while($row = mysqli_fetch_assoc($result)){
               $id = (int)$row['pid'];
-              if(in_array($id, $excluded_pids)) continue; // skip build components
               $pname = htmlspecialchars($row['pname'] ?? '');
               $user = htmlspecialchars($row['user'] ?? '');
               $qty = (int)($row['qty'] ?? 0);
@@ -337,6 +319,7 @@ function restorePanels() {
               <td><?php echo $qty; ?></td>
               <td style="color: var(--accent-green);">₹<?php echo $total; ?></td>
               <td><span class="badge-glow <?php echo $badge; ?>"><?php echo $status_label; ?></span></td>
+              <td><a href="view_assignment.php?type=order&id=<?php echo $id; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
               <td>
                 <form action="update_status.php" method="post" class="d-flex align-items-center gap-2 m-0">
                   <input type="hidden" name="order_id" value="<?php echo $id; ?>">
@@ -350,7 +333,7 @@ function restorePanels() {
             </tr>
           <?php }
           } else {
-            echo "<tr><td colspan='7' class='text-center py-5'><div class='opacity-50'><i class='bi bi-inbox fs-1 d-block mb-2'></i>No active orders assigned</div></td></tr>";
+            echo "<tr><td colspan='8' class='text-center py-5'><div class='opacity-50'><i class='bi bi-inbox fs-1 d-block mb-2'></i>No active orders assigned</div></td></tr>";
           }
           ?>
           </tbody>
@@ -362,7 +345,7 @@ function restorePanels() {
         <table class="table">
           <thead>
             <tr>
-              <th>ID</th><th>Product</th><th>Customer</th><th>Total</th><th>Final Status</th><th>Date</th>
+              <th>ID</th><th>Product</th><th>Customer</th><th>Total</th><th>Final Status</th><th>Date</th><th>View</th>
             </tr>
           </thead>
           <tbody>
@@ -388,11 +371,12 @@ function restorePanels() {
               <td>₹<?php echo number_format(((float)$row['pprice'] * (int)$row['qty']), 2); ?></td>
               <td><span class='badge-glow <?php echo $badge; ?>'><?php echo ucfirst($dstatus); ?></span></td>
               <td class='text-muted'><?php echo date('M d, Y', strtotime($row['pdate'])); ?></td>
+              <td><a href="view_assignment.php?type=order&id=<?php echo (int)$row['pid']; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
             </tr>
           <?php }
           } else {
           ?>
-            <tr><td colspan='6' class='text-center py-4 text-muted'>Archive is empty</td></tr>
+            <tr><td colspan='7' class='text-center py-4 text-muted'>Archive is empty</td></tr>
           <?php }
           ?>
           </tbody>
@@ -447,7 +431,7 @@ function restorePanels() {
               <td style="color: var(--accent-green);">₹<?php echo $btotal; ?></td>
               <td><span class="badge-glow <?php echo $bbadge; ?>"><?php echo $bstatus_label; ?></span></td>
               <td class="text-muted"><?php echo htmlspecialchars($build['created_at']); ?></td>
-              <td><a href="view_build.php?id=<?php echo $bid; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
+              <td><a href="view_assignment.php?type=build&id=<?php echo $bid; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
               <td>
                 <form action="update_build_status.php" method="post" class="d-flex align-items-center gap-2 m-0">
                   <input type="hidden" name="build_id" value="<?php echo $bid; ?>">
@@ -524,7 +508,7 @@ function restorePanels() {
               <td style="color: var(--accent-green);">₹<?php echo $btotal; ?></td>
               <td><span class="badge-glow <?php echo $bbadge; ?>"><?php echo $bstatus_label; ?></span></td>
               <td class="text-muted"><?php echo htmlspecialchars($display_date); ?></td>
-              <td><a href="view_build.php?id=<?php echo $bid; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
+              <td><a href="view_assignment.php?type=build&id=<?php echo $bid; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
             </tr>
           <?php }
           } else {
@@ -557,7 +541,7 @@ function restorePanels() {
         <table class="table">
           <thead>
             <tr>
-              <th>Ticket ID</th><th>Client</th><th>Equipment</th><th>Service Type</th><th>Status</th><th>Update Action</th>
+              <th>Ticket ID</th><th>Client</th><th>Equipment</th><th>Service Type</th><th>Status</th><th>View</th><th>Update Action</th>
             </tr>
           </thead>
           <tbody>
@@ -575,6 +559,7 @@ function restorePanels() {
               <td><?php echo htmlspecialchars($row['item']); ?></td>
               <td style="color: #c471ed;"><?php echo htmlspecialchars($row['service_type']); ?></td>
               <td><span class="badge-glow <?php echo $badge; ?>"><?php echo ucfirst(str_replace('_',' ', $status)); ?></span></td>
+              <td><a href="view_assignment.php?type=service&id=<?php echo (int)$row['id']; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
               <td>
                 <form action='update_service_request.php' method='post' class='d-flex align-items-center gap-2 m-0'>
                   <input type='hidden' name='id' value='<?php echo $row['id']; ?>'>
@@ -589,7 +574,7 @@ function restorePanels() {
             </tr>
           <?php }
           } else {
-            echo "<tr><td colspan='6' class='text-center py-5'><div class='opacity-50'><i class='bi bi-pc-display fs-1 d-block mb-2'></i>No support tickets assigned</div></td></tr>";
+            echo "<tr><td colspan='7' class='text-center py-5'><div class='opacity-50'><i class='bi bi-pc-display fs-1 d-block mb-2'></i>No support tickets assigned</div></td></tr>";
           }
           ?>
           </tbody>
@@ -601,7 +586,7 @@ function restorePanels() {
         <table class="table">
           <thead>
             <tr>
-              <th>Ticket ID</th><th>Client</th><th>Equipment</th><th>Service Type</th><th>Status</th><th>Date</th>
+              <th>Ticket ID</th><th>Client</th><th>Equipment</th><th>Service Type</th><th>Status</th><th>Date</th><th>View</th>
             </tr>
           </thead>
           <tbody>
@@ -636,10 +621,11 @@ function restorePanels() {
                 <td style='color: #c471ed;'><?php echo htmlspecialchars($row['service_type']); ?></td>
                 <td><span class='badge-glow <?php echo $badge; ?>'><?php echo ucfirst(str_replace('_',' ', $status)); ?></span></td>
                 <td class='text-muted'><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
+                <td><a href="view_assignment.php?type=service&id=<?php echo (int)$row['id']; ?>" class="btn btn-outline-custom btn-sm">View</a></td>
               </tr>
             <?php }
             } else {
-              echo "<tr><td colspan='6' class='text-center py-4 text-muted'>No completed/cancelled service tickets</td></tr>";
+              echo "<tr><td colspan='7' class='text-center py-4 text-muted'>No completed/cancelled service tickets</td></tr>";
             }
             ?>
           </tbody>

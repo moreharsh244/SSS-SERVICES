@@ -13,6 +13,7 @@ include('header.php');
                         <th>Quantity</th>
                         <th>Price</th>
                         <th>Total Price</th>    
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -20,15 +21,20 @@ include('header.php');
                     <?php
                     include('../admin/conn.php');
                     $username=$_SESSION['username'];
-                    $sql="SELECT * FROM `purchase` WHERE `status`='Pick Up' AND `user`='$username'";
+                    $sql="SELECT * FROM `purchase` WHERE `user`='$username' AND LOWER(IFNULL(`delivery_status`,`status`)) IN ('out_for_delivery','shipped','order_confirmed','pending') ORDER BY pid DESC";
                     $result=mysqli_query($con,$sql);
                     while($row=mysqli_fetch_assoc($result)){
+                        $status = strtolower(trim($row['delivery_status'] ?? ($row['status'] ?? 'order_confirmed')));
+                        if($status === 'pending') $status = 'order_confirmed';
+                        if($status === 'shipped') $status = 'out_for_delivery';
+                        if(!empty($row['assigned_agent']) && $status === 'order_confirmed') $status = 'out_for_delivery';
                         echo '<tr>';
                         echo '<td>'.$row['pname'].'</td>';
                         echo '<td>'.$row['qty'].'</td>';
                         echo '<td>'.$row['pprice'].'</td>';
                         $total=$row['pprice'] * $row['qty'];
                         echo '<td>'.$total.'</td>';
+                        echo '<td>'.ucwords(str_replace('_',' ',$status)).'</td>';
                         ?> 
                         <td>
                        <form action="myorder_details.php" method="post">

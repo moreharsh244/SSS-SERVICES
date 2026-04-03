@@ -40,28 +40,10 @@ if($view === 'history'){
     $res = mysqli_query($con, $q);
 }
 
-// Exclude all products related to assigned builds from orders table
-$excluded_pids = [];
-$assigned_build_ids = [];
-$builds_res = mysqli_query($con, "SELECT id FROM builds WHERE assigned_agent IS NOT NULL AND assigned_agent <> ''");
-if($builds_res && mysqli_num_rows($builds_res) > 0){
-    while($b = mysqli_fetch_assoc($builds_res)){
-        $assigned_build_ids[] = (int)$b['id'];
-    }
-}
-if(!empty($assigned_build_ids)){
-    // Get all product_ids for assigned builds
-    $build_items_res = mysqli_query($con, "SELECT product_id FROM build_items WHERE build_id IN (".implode(',', $assigned_build_ids).")");
-    if($build_items_res && mysqli_num_rows($build_items_res) > 0){
-        while($bi = mysqli_fetch_assoc($build_items_res)){
-            $excluded_pids[] = (int)$bi['product_id'];
-        }
-    }
-}
-// Also exclude purchase orders for these product_ids
-if(!empty($excluded_pids)){
-    $excluded_pids = array_unique($excluded_pids);
-}
+// NOTE:
+// Do not exclude orders by product_id here.
+// A normal store purchase can share the same prod_id as a build component,
+// and broad exclusion hides valid user purchases from admin.
 ?>
 <!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -145,8 +127,6 @@ body {
                                 while($r = mysqli_fetch_assoc($res)){
                                     $pid = $r['pid'];
                                     $assigned = $r['assigned_agent'] ?? '';
-                                    // If this is a build component and its build is assigned, skip
-                                    if(in_array($r['prod_id'], $excluded_pids) || in_array($pid, $excluded_pids)) continue;
                                     $pname = htmlspecialchars($r['prod_name'] ?: $r['pname']);
                                     $img = (!empty($r['prod_img'])) ? '../productimg/'.rawurlencode($r['prod_img']) : '';
                                     $qty = $r['qty'];
@@ -157,6 +137,9 @@ body {
                                     $d_status = strtolower($r['delivery_status'] ?? 'order_confirmed');
                                     if($d_status === 'pending') $d_status = 'order_confirmed';
                                     if($d_status === 'shipped') $d_status = 'out_for_delivery';
+                                    if(!empty($assigned) && in_array($d_status, ['order_confirmed','pending'], true)){
+                                        $d_status = 'out_for_delivery';
+                                    }
                                     $agent_name = '';
                                     $agent_created_by_admin = false;
                                     if($assigned) {
@@ -204,6 +187,7 @@ body {
                                     <?php if($assigned): ?>
                                         <div class="text-truncate" style="font-size:0.8rem; color:#666;">
                                             <i class="bi bi-person-check-fill me-1"></i>
+                                            Assigned to:
                                             <?php echo $agent_name ? htmlspecialchars($agent_name) : $assigned; ?>
                                             <?php if($agent_created_by_admin): ?>
                                                 <span class="badge bg-info bg-opacity-10 text-info ms-2">Created by Admin</span>

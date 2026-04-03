@@ -259,11 +259,13 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
             $tokens = array_values(array_filter(explode(' ', $base)));
             $expanded = $tokens;
             $aliasMap = [
-                'cpu' => ['processor', 'cabinet', 'case'],
-                'processor' => ['cpu', 'cabinet', 'case'],
+                'cpu' => ['processor', 'cooler'],
+                'processor' => ['cpu', 'cooler'],
+                'gpu' => ['graphics', 'graphic card'],
+                'graphics' => ['gpu', 'graphic card'],
                 'cabinate' => ['cabinet', 'case'],
-                'cabinet' => ['case'],
-                'case' => ['cabinet']
+                'cabinet' => ['case', 'cabinate'],
+                'case' => ['cabinet', 'cabinate']
             ];
 
             foreach($tokens as $token){
@@ -276,11 +278,12 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
             return implode(' ', $expanded);
         }
 
-        function computeSearchScore($query, $name, $company, $category = ''){
+        function computeSearchScore($query, $name, $company, $category = '', $description = ''){
             $qNorm = expandSearchText($query);
             $nameNorm = normalizeSearchText($name);
             $companyNorm = normalizeSearchText($company);
             $categoryNorm = normalizeSearchText($category);
+            $descNorm = normalizeSearchText($description);
 
             if($qNorm === '' || $nameNorm === '') return 0;
 
@@ -290,17 +293,24 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
             if(strpos($nameNorm, $qNorm) !== false) $score += 120;
             if($companyNorm !== '' && strpos($companyNorm, $qNorm) !== false) $score += 40;
             if($categoryNorm !== '' && strpos($categoryNorm, $qNorm) !== false) $score += 60;
+            if($descNorm !== '' && strpos($descNorm, $qNorm) !== false) $score += 25;
 
             $qTokens = array_values(array_filter(explode(' ', $qNorm), function($t){ return strlen($t) >= 2; }));
             foreach($qTokens as $token){
                 if(strpos($nameNorm, $token) !== false) $score += 22;
                 else if($companyNorm !== '' && strpos($companyNorm, $token) !== false) $score += 10;
                 else if($categoryNorm !== '' && strpos($categoryNorm, $token) !== false) $score += 18;
+                else if($descNorm !== '' && strpos($descNorm, $token) !== false) $score += 8;
+            }
+
+            if(($qNorm === 'cpu' || strpos($qNorm, 'cpu ') !== false || strpos($qNorm, ' processor') !== false || strpos($qNorm, 'processor ') !== false)
+                && ($categoryNorm === 'cooler' || strpos($categoryNorm, 'cooler') !== false)){
+                $score += 70;
             }
 
             if(($qNorm === 'cpu' || strpos($qNorm, 'cpu ') !== false || strpos($qNorm, ' processor') !== false || strpos($qNorm, 'processor ') !== false)
                 && ($categoryNorm === 'case' || $categoryNorm === 'cabinet' || strpos($categoryNorm, 'case') !== false || strpos($categoryNorm, 'cabinet') !== false)){
-                $score += 80;
+                $score -= 40;
             }
 
             $nameComp = str_replace(' ', '', $nameNorm);
@@ -401,21 +411,33 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
         <?php
         $where = [];
         if($q) {
-            $qLoose = expandSearchText($q_sql);
+            $qLoose = expandSearchText($q);
+            $qNormFilter = normalizeSearchText($q);
             $qWords = array_values(array_filter(explode(' ', $qLoose), function($t){ return strlen($t) >= 2; }));
             $qLikeParts = [];
             if($qLoose !== ''){
-                $qLikeParts[] = "LOWER(pname) LIKE '%$qLoose%'";
-                $qLikeParts[] = "LOWER(pcompany) LIKE '%$qLoose%'";
-                $qLikeParts[] = "LOWER(pcat) LIKE '%$qLoose%'";
+                $qLooseEsc = mysqli_real_escape_string($con, $qLoose);
+                $qLikeParts[] = "LOWER(pname) LIKE '%$qLooseEsc%'";
+                $qLikeParts[] = "LOWER(pcompany) LIKE '%$qLooseEsc%'";
+                $qLikeParts[] = "LOWER(pcat) LIKE '%$qLooseEsc%'";
+                $qLikeParts[] = "LOWER(pdisc) LIKE '%$qLooseEsc%'";
             }
             foreach($qWords as $w){
                 $wEsc = mysqli_real_escape_string($con, $w);
                 $qLikeParts[] = "LOWER(pname) LIKE '%$wEsc%'";
                 $qLikeParts[] = "LOWER(pcompany) LIKE '%$wEsc%'";
                 $qLikeParts[] = "LOWER(pcat) LIKE '%$wEsc%'";
+                $qLikeParts[] = "LOWER(pdisc) LIKE '%$wEsc%'";
             }
             if(!empty($qLikeParts)) $where[] = '(' . implode(' OR ', $qLikeParts) . ')';
+
+            if($qNormFilter === 'cpu' || $qNormFilter === 'processor' || strpos($qNormFilter, 'cpu ') !== false || strpos($qNormFilter, 'processor ') !== false){
+                $where[] = "LOWER(pcat) IN ('processor','cooler')";
+            }
+
+            if($qNormFilter === 'cooler' || strpos($qNormFilter, 'cooler ') !== false || strpos($qNormFilter, ' cooling fan') !== false){
+                $where[] = "LOWER(pcat) = 'cooler'";
+            }
         }
         if($company) $where[] = "pcompany = '$company'";
         if(!empty($categoryTermsLower)){
@@ -438,8 +460,8 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
         if($result){
             while($row = mysqli_fetch_assoc($result)){
                 if($q){
-                    $searchScore = computeSearchScore($q, $row['pname'] ?? '', $row['pcompany'] ?? '', $row['pcat'] ?? '');
-                    if($searchScore < 32) continue;
+                    $searchScore = computeSearchScore($q, $row['pname'] ?? '', $row['pcompany'] ?? '', $row['pcat'] ?? '', $row['pdisc'] ?? '');
+                    if($searchScore < 10) continue;
                     $row['_search_score'] = $searchScore;
                 }
                 $matchedRows[] = $row;
@@ -526,7 +548,7 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
                     <div>
                         <div class="modern-card h-100" data-href="<?php echo htmlspecialchars($detailUrl); ?>" tabindex="0" role="button" aria-label="View details for <?php echo htmlspecialchars($row['pname']); ?>">
                             <div class="card-img-wrapper">
-                                <img src="../productimg/<?php echo $row['pimg']; ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['pname']); ?>">
+                                <img src="../productimg/<?php echo rawurlencode((string)$row['pimg']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['pname']); ?>" onerror="this.onerror=null;this.src='../img/no-image.png';">
                             </div>
                             
                             <div class="card-body">
@@ -540,7 +562,7 @@ if (isset($_GET['toast']) && stripos($_GET['toast'], 'purchase successful') !== 
                                     
                                     <?php if($from === 'build'): ?>
                                         <button class="btn btn-action btn-add-build" 
-                                                onclick="addToBuild('<?php echo $row['pid']; ?>', '<?php echo htmlspecialchars(addslashes($row['pname'])); ?>', '<?php echo $row['pprice']; ?>', '<?php echo htmlspecialchars($row['pcat']); ?>', '../productimg/<?php echo $row['pimg']; ?>')">
+                                                onclick="addToBuild('<?php echo $row['pid']; ?>', '<?php echo htmlspecialchars(addslashes($row['pname'])); ?>', '<?php echo $row['pprice']; ?>', '<?php echo htmlspecialchars($row['pcat']); ?>', '../productimg/<?php echo rawurlencode((string)$row['pimg']); ?>')">
                                             <i class="bi bi-plus-circle-fill"></i> Add to Build
                                         </button>
                                     <?php else: ?>

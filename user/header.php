@@ -458,15 +458,28 @@ if($avatar_initial === ''){ $avatar_initial = 'U'; }
 
       function hideSuggestions(){ suggBox.style.display='none'; suggBox.innerHTML=''; }
 
+      function escHtml(v){
+        return String(v || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
       function renderSuggestions(items){
         if(!items.length){ hideSuggestions(); return; }
         suggBox.innerHTML = items.map(it=>{
-          const img = it.pimg ? `<img src="../productimg/${it.pimg}" style="height:40px;width:40px;object-fit:contain;background:#f8fafc;border-radius:8px;padding:2px;margin-right:12px;">` : '';
+          const pName = escHtml(it.pname);
+          const pCompany = escHtml(it.pcompany);
+          const pPrice = Number(it.pprice || 0).toFixed(2);
+          const pimg = it.pimg ? encodeURIComponent(String(it.pimg)) : '';
+          const img = pimg ? `<img src="../productimg/${pimg}" style="height:40px;width:40px;object-fit:contain;background:#f8fafc;border-radius:8px;padding:2px;margin-right:12px;" onerror="this.style.display='none'">` : '';
           return `<a href="view_products.php?q=${encodeURIComponent(it.pname)}" class="list-group-item list-group-item-action d-flex align-items-center py-3" style="border-bottom: 1px solid #f1f5f9;">
                   <div class="d-flex align-items-center w-100">${img}
                     <div>
-                        <div class="fw-bold text-dark" style="font-size:0.95rem;">${it.pname}</div>
-                        <div class="small text-muted">${it.pcompany} • <span class="fw-bold" style="color:var(--accent-gold);">₹${Number(it.pprice).toFixed(2)}</span></div>
+                        <div class="fw-bold text-dark" style="font-size:0.95rem;">${pName}</div>
+                        <div class="small text-muted">${pCompany} • <span class="fw-bold" style="color:var(--accent-gold);">₹${pPrice}</span></div>
                     </div>
                   </div>
                 </a>`;

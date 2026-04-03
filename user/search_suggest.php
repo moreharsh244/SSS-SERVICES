@@ -27,8 +27,23 @@ $parts = preg_split('/\s+/', $query, -1, PREG_SPLIT_NO_EMPTY);
 $conditions = [
     "LOWER(pname) LIKE '%{$queryEscaped}%'",
     "LOWER(pcompany) LIKE '%{$queryEscaped}%'",
-    "LOWER(pcat) LIKE '%{$queryEscaped}%'"
+    "LOWER(pcat) LIKE '%{$queryEscaped}%'",
+    "LOWER(pdisc) LIKE '%{$queryEscaped}%'"
 ];
+
+if ($queryEscaped === 'cpu') {
+    $conditions[] = "LOWER(pcat) = 'processor'";
+    $conditions[] = "LOWER(pcat) = 'cooler'";
+}
+if ($queryEscaped === 'processor') {
+    $conditions[] = "LOWER(pcat) = 'processor'";
+}
+if ($queryEscaped === 'gpu') {
+    $conditions[] = "LOWER(pcat) = 'gpu'";
+}
+if ($queryEscaped === 'cooler' || $queryEscaped === 'cooling fan') {
+    $conditions[] = "LOWER(pcat) = 'cooler'";
+}
 
 foreach ($parts as $part) {
     $part = strtolower(trim($part));
@@ -40,12 +55,16 @@ foreach ($parts as $part) {
     $conditions[] = "LOWER(pname) LIKE '%{$partEscaped}%'";
     $conditions[] = "LOWER(pcompany) LIKE '%{$partEscaped}%'";
     $conditions[] = "LOWER(pcat) LIKE '%{$partEscaped}%'";
+    $conditions[] = "LOWER(pdisc) LIKE '%{$partEscaped}%'";
 }
 
 $sql = "SELECT pid, pname, pcompany, pprice, pimg
         FROM products
         WHERE " . implode(' OR ', array_unique($conditions)) . "
-        ORDER BY pid DESC
+        ORDER BY
+            CASE WHEN LOWER(pname) LIKE '{$queryEscaped}%' THEN 0 ELSE 1 END,
+            CASE WHEN LOWER(pcat) LIKE '{$queryEscaped}%' THEN 0 ELSE 1 END,
+            pid DESC
         LIMIT 6";
 
 $result = mysqli_query($con, $sql);

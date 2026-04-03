@@ -240,6 +240,10 @@ if(!empty($purchase_rows)){
         $status = strtolower($raw_delivery !== '' ? $raw_delivery : ($raw_status !== '' ? $raw_status : 'order_confirmed'));
         if($status==='pending') $status='order_confirmed';
         if($status==='shipped') $status='out_for_delivery';
+        $assigned_agent = trim((string)($row['assigned_agent'] ?? ''));
+        if($assigned_agent !== '' && in_array($status, ['pending','order_confirmed'], true)){
+            $status = 'out_for_delivery';
+        }
         $badge_class = 'badge-'.$status;
         $status_label = ucfirst(str_replace('_',' ',$status));
         if($status==='order_confirmed') $status_label='Order Confirmed';

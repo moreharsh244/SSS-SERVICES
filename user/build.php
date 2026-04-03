@@ -552,6 +552,31 @@ if(!$is_partial){
         return c;
     }
 
+    function inferCategoryFromText(text) {
+        const t = String(text || '').toLowerCase();
+        if (/cooler|cooling fan|heatsink|aio|liquid cooler|case fan/.test(t)) return 'Cooler';
+        if (/power supply|\bpsu\b|\bmwe\b|\b[0-9]{3,4}\s*w\b|bronze|gold|platinum|smps/.test(t)) return 'PSU';
+        if (/cabinet|chassis|mid[- ]tower|computer case|\bcase\b/.test(t)) return 'Case';
+        if (/motherboard|\bb450\b|\bb550\b|\bh61\b|\bh81\b|\ba520\b|\bb760\b|\blga\b|\bam4\b|\bam5\b/.test(t)) return 'Motherboard';
+        if (/rtx|geforce|radeon|graphics|\bgpu\b/.test(t)) return 'GPU';
+        if (/\bram\b|ddr3|ddr4|ddr5|memory|vengeance|aegis|desktop memory/.test(t) && !/ssd|hdd|nvme|storage|flash drive|pen drive/.test(t)) return 'RAM';
+        if (/ssd|hdd|nvme|storage|hard drive|flash drive|pen drive|sata ssd|m\.2/.test(t)) return 'Storage';
+        if (/processor|intel|ryzen|core i|core ultra|desktop pc|cpu/.test(t) && !/cooler|fan|heatsink|aio|liquid cooler/.test(t)) return 'Processor';
+        if (/monitor|display|curved|\bfhd\b|\bips\b|va panel/.test(t)) return 'Monitor';
+        if (/keyboard|mouse|combo|cable|ethernet|lan|usb|adapter|hub|headset|speaker|webcam|microphone|dongle/.test(t)) return 'Accessory';
+        return getCanon(t);
+    }
+
+    function getProductCategory(product) {
+        const rawCategory = product?.pcat || product?.category || '';
+        const fromDb = getCanon(rawCategory);
+        if (['Processor','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler','Monitor','Accessory'].includes(fromDb)) {
+            return fromDb;
+        }
+        const inferred = inferCategoryFromText(`${product?.pname || product?.name || ''} ${product?.pdisc || product?.desc || ''} ${rawCategory}`);
+        return inferred || fromDb;
+    }
+
     function parsePrice(value) {
         const cleaned = String(value || '').replace(/[^0-9.]/g, '');
         const parsed = parseFloat(cleaned);
@@ -563,7 +588,7 @@ if(!$is_partial){
     }
 
     function getCategoryProducts(catKey) {
-        return productsData.filter(p => getCanon(p.pcat) === catKey);
+        return productsData.filter(p => getProductCategory(p) === catKey);
     }
 
     function combinedText(product) {
@@ -611,7 +636,7 @@ if(!$is_partial){
     }
 
     function findMotherboardItem() {
-        return items.find(i => getCanon(i.category) === 'Motherboard') || null;
+        return items.find(i => getProductCategory(i) === 'Motherboard' || getCanon(i.category) === 'Motherboard') || null;
     }
 
     function findProductByPid(pid) {
@@ -621,6 +646,9 @@ if(!$is_partial){
 
     function isProductCompatibleWithMotherboard(slotKey, product, boardProfile) {
         const productText = combinedText(product);
+        const productCat = getProductCategory(product);
+
+        if (productCat !== slotKey) return false;
 
         if (slotKey === 'Processor') {
             if (!boardProfile.socket) return false;
@@ -670,6 +698,63 @@ if(!$is_partial){
         return true;
     }
 
+    function getCompatibilityScore(slotKey, product, boardProfile) {
+        const text = combinedText(product);
+        let score = 0;
+
+        if (slotKey === 'Processor') {
+            const cpuSocket = extractSocket(text);
+            if (boardProfile.socket && cpuSocket && cpuSocket === boardProfile.socket) score += 100;
+            else if (boardProfile.socket && !cpuSocket) score += 35;
+            else score += 10;
+        } else if (slotKey === 'RAM') {
+            const ramType = extractRamType(text);
+            if (boardProfile.ram && ramType && ramType === boardProfile.ram) score += 90;
+            else if (boardProfile.ram && !ramType) score += 30;
+            else score += 10;
+        } else if (slotKey === 'Case') {
+            const ff = boardProfile.formFactor;
+            if (ff === 'mini-itx' && /mini[-\s]?itx|itx/.test(text)) score += 85;
+            else if (ff === 'micro-atx' && /micro[-\s]?atx|m[-\s]?atx/.test(text)) score += 85;
+            else if (ff === 'atx' && /\batx\b|e[-\s]?atx/.test(text)) score += 85;
+            else if (ff === 'e-atx' && /e[-\s]?atx/.test(text)) score += 85;
+            else if (!ff) score += 15;
+            else score += 20;
+        } else if (slotKey === 'Storage') {
+            const hasNvme = /\bm\.2\b|\bnvme\b/.test(text);
+            const hasSata = /\bsata\b/.test(text);
+            if (/\bm\.2\b|\bnvme\b/.test(boardProfile.text || '') && hasNvme) score += 80;
+            else if (/\bsata\b/.test(boardProfile.text || '') && hasSata) score += 70;
+            else score += 35;
+        } else if (slotKey === 'Cooler') {
+            const coolerSocket = extractSocket(text);
+            if (boardProfile.socket && coolerSocket && coolerSocket === boardProfile.socket) score += 85;
+            else if (boardProfile.socket && !coolerSocket) score += 45;
+            else score += 25;
+        } else if (slotKey === 'GPU') {
+            score += /\bpcie\b|graphics|\bgpu\b/.test(text) ? 70 : 30;
+        } else if (slotKey === 'PSU') {
+            score += /\b\d{3,4}\s*w\b|watt|bronze|gold|platinum/.test(text) ? 70 : 35;
+        } else {
+            score += 40;
+        }
+
+        const stock = parseInt(product?.pqty, 10);
+        if (Number.isFinite(stock)) {
+            if (stock > 0) score += 12;
+            if (stock > 5) score += 8;
+        }
+
+        return score;
+    }
+
+    function rankByBoardRelevance(slotKey, list, boardProfile) {
+        return [...list]
+            .map(p => ({ p, score: getCompatibilityScore(slotKey, p, boardProfile) }))
+            .sort((a, b) => b.score - a.score || parsePrice(a.p.pprice) - parsePrice(b.p.pprice))
+            .map(x => x.p);
+    }
+
     function getMotherboardCompatibleProducts(slotKey) {
         const boardItem = findMotherboardItem();
         if (!boardItem) return [];
@@ -678,7 +763,7 @@ if(!$is_partial){
         if (!boardProduct) return [];
 
         const boardProfile = extractMotherboardProfile(boardProduct);
-        const base = productsData.filter(p => getCanon(p.pcat) === slotKey);
+        const base = productsData.filter(p => getProductCategory(p) === slotKey);
 
         if (slotKey === 'Motherboard') return base;
         return base.filter(p => isProductCompatibleWithMotherboard(slotKey, p, boardProfile));
@@ -690,7 +775,7 @@ if(!$is_partial){
 
         const beforeCount = items.length;
         items = items.filter(item => {
-            const key = getCanon(item.category);
+            const key = getProductCategory(item);
             if (key === 'Motherboard') return true;
             const sourceProduct = findProductByPid(item.pid);
             if (!sourceProduct) return false;
@@ -706,7 +791,7 @@ if(!$is_partial){
     }
 
     function compareWithinCategory(item) {
-        const cat = getCanon(item.category);
+        const cat = getProductCategory(item);
         const candidates = getCategoryProducts(cat)
             .map(p => ({
                 pid: String(p.pid),
@@ -840,7 +925,7 @@ if(!$is_partial){
         const altPoints = [];
 
         items.forEach(item => {
-            const cat = getCanon(item.category);
+            const cat = getProductCategory(item);
             const slotInfo = SLOTS.find(s => s.key === cat);
             const catLabel = slotInfo ? slotInfo.label : cat;
             const selectedPrice = parsePrice(item.price);
@@ -953,7 +1038,7 @@ if(!$is_partial){
                 if(items.length === 0) { if(typeof window.showPortalToast === 'function') window.showPortalToast('Build is empty!', 'error'); return; }
                 
                 const required = ['Processor','Motherboard','GPU','RAM','Storage','PSU','Case'];
-                const currentCats = items.map(i => getCanon(i.category));
+                const currentCats = items.map(i => getProductCategory(i));
                 const missing = required.filter(c => !currentCats.includes(c));
                 
                 if(missing.length > 0) {
@@ -983,10 +1068,10 @@ if(!$is_partial){
     else { initBuildPage(); }
 
     function addItem(p) {
-        const cat = getCanon(p.category);
+        const cat = getProductCategory(p);
         // Replace existing item in same category (except multi-slot logic which we simplify here for UI)
         if(['Processor','Motherboard','GPU','RAM','Storage','PSU','Case','Cooler','Monitor'].includes(cat)){
-            items = items.filter(i => getCanon(i.category) !== cat);
+            items = items.filter(i => getProductCategory(i) !== cat);
         }
         items.push({
             pid: p.pid, name: p.name, price: parsePrice(p.price),
@@ -1004,7 +1089,7 @@ if(!$is_partial){
         let total = 0;
 
         SLOTS.forEach(slot => {
-            const item = items.find(i => getCanon(i.category) === slot.key);
+            const item = items.find(i => getProductCategory(i) === slot.key);
             const col = document.createElement('div');
             col.className = 'col-12 col-sm-6 col-lg-4 col-xl-3'; 
 
@@ -1051,13 +1136,25 @@ if(!$is_partial){
     function openSelector(key) {
         const boardItem = findMotherboardItem();
         let filtered = [];
+        let fallbackMessage = '';
 
         if (key === 'Motherboard') {
-            filtered = productsData.filter(p => getCanon(p.pcat) === key);
+            filtered = productsData.filter(p => getProductCategory(p) === key);
         } else if (!boardItem) {
             filtered = [];
         } else {
-            filtered = getMotherboardCompatibleProducts(key);
+            const boardProduct = findProductByPid(boardItem.pid);
+            const boardProfile = boardProduct ? extractMotherboardProfile(boardProduct) : { socket: null, ram: null, formFactor: null, text: '' };
+
+            const strictMatches = getMotherboardCompatibleProducts(key);
+            if (strictMatches.length > 0) {
+                filtered = rankByBoardRelevance(key, strictMatches, boardProfile).slice(0, 8);
+                fallbackMessage = 'Showing top matched ' + key + ' components for your motherboard.';
+            } else {
+                const sameCategory = productsData.filter(p => getProductCategory(p) === key);
+                filtered = rankByBoardRelevance(key, sameCategory, boardProfile).slice(0, 6);
+                fallbackMessage = 'Exact matches are unavailable. Showing best alternative ' + key + ' options for your configuration.';
+            }
         }
 
         const body = document.getElementById('productSelectorBody');
@@ -1068,11 +1165,16 @@ if(!$is_partial){
             body.innerHTML = `
             <div class="col-12 text-center py-5">
                 <i class="bi bi-box-seam display-4 text-muted"></i>
-                <p class="mt-3 text-muted">${noBoard ? 'Select Motherboard first to see compatible parts.' : `No compatible ${key} available for selected motherboard.`}</p>
+                <p class="mt-3 text-muted">${noBoard ? 'Select Motherboard first to get smart compatible suggestions.' : `No ${key} components available in product inventory.`}</p>
                 <a href="view_products.php" class="btn btn-outline-primary mt-2">Browse All Products</a>
             </div>`;
         } else {
-            body.innerHTML = filtered.map(p => {
+            const notice = fallbackMessage ? `
+                <div class="col-12">
+                    <div class="alert alert-info py-2 mb-1">${escapeHtml(fallbackMessage)}</div>
+                </div>
+            ` : '';
+            body.innerHTML = notice + filtered.map(p => {
                 const img = p.pimg ? `../productimg/${encodeURIComponent(p.pimg)}` : '../img/pc1.jpg';
                 const priceVal = parsePrice(p.pprice);
                 const productName = escapeHtml(String(p.pname || 'Unnamed Product'));
@@ -1140,23 +1242,21 @@ if(!$is_partial){
     }
 
     function removeItem(pid, cat) {
-        items = items.filter(i => !(i.pid == pid && i.category == cat));
+        items = items.filter(i => !(i.pid == pid && getProductCategory(i) == cat));
         saveItems();
         renderGrid();
     }
 
     function saveItems() {
-        const raw = JSON.stringify(items);
-        try { localStorage.setItem(STORAGE_KEY, raw); } catch(e){}
-        try { sessionStorage.setItem(STORAGE_KEY, raw); } catch(e){}
+        // Intentionally disabled: build should not persist on refresh.
+        return;
     }
 
     function loadItems() {
-        let raw = null;
-        try { raw = localStorage.getItem(STORAGE_KEY); } catch(e){}
-        if(!raw){ raw = sessionStorage.getItem(STORAGE_KEY); }
-        if(!raw) return;
-        try { items = JSON.parse(raw) || []; } catch(e){ items = []; }
+        // Always start fresh when build page loads.
+        items = [];
+        try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+        try { sessionStorage.removeItem(STORAGE_KEY); } catch(e){}
     }
 
     function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }

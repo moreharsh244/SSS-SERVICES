@@ -11,6 +11,30 @@
     $payment_method = mysqli_real_escape_string($con, $_POST['payment_method'] ?? 'cod');
     $payment_ref = mysqli_real_escape_string($con, trim($_POST['payment_ref'] ?? ''));
     $payment_status = ($payment_method === 'online') ? 'paid' : 'pending';
+    $delivery_address = trim((string)($_POST['delivery_address'] ?? ''));
+    $delivery_city = trim((string)($_POST['delivery_city'] ?? ''));
+    $delivery_state = trim((string)($_POST['delivery_state'] ?? ''));
+    $delivery_pincode = trim((string)($_POST['delivery_pincode'] ?? ''));
+
+    // Hard validation: delivery address is mandatory before purchase.
+    if($delivery_address === '' || $delivery_city === '' || $delivery_state === '' || $delivery_pincode === ''){
+        $profile_q = mysqli_query($con, "SELECT c_address, c_city, c_state, c_pincode FROM cust_reg WHERE c_email='".mysqli_real_escape_string($con, $username)."' LIMIT 1");
+        if($profile_q && mysqli_num_rows($profile_q) > 0){
+            $pr = mysqli_fetch_assoc($profile_q);
+            if($delivery_address === '') $delivery_address = trim((string)($pr['c_address'] ?? ''));
+            if($delivery_city === '') $delivery_city = trim((string)($pr['c_city'] ?? ''));
+            if($delivery_state === '') $delivery_state = trim((string)($pr['c_state'] ?? ''));
+            if($delivery_pincode === '') $delivery_pincode = trim((string)($pr['c_pincode'] ?? ''));
+        }
+    }
+    if($delivery_address === '' || $delivery_city === '' || $delivery_state === '' || $delivery_pincode === ''){
+        header('Location: profile.php?toast='.rawurlencode('Delivery address is required before purchase. Please complete your address first.') . '&toast_type=warning');
+        exit;
+    }
+    $delivery_address_esc = mysqli_real_escape_string($con, $delivery_address);
+    $delivery_city_esc = mysqli_real_escape_string($con, $delivery_city);
+    $delivery_state_esc = mysqli_real_escape_string($con, $delivery_state);
+    $delivery_pincode_esc = mysqli_real_escape_string($con, $delivery_pincode);
 
     // ensure purchase table exists
     $create = "CREATE TABLE IF NOT EXISTS `purchase` (
@@ -23,6 +47,10 @@
         `payment_method` VARCHAR(20) DEFAULT 'cod',
         `payment_ref` VARCHAR(100) DEFAULT NULL,
         `payment_status` VARCHAR(20) DEFAULT 'pending',
+        `delivery_address` TEXT NULL,
+        `delivery_city` VARCHAR(128) DEFAULT NULL,
+        `delivery_state` VARCHAR(128) DEFAULT NULL,
+        `delivery_pincode` VARCHAR(32) DEFAULT NULL,
         `status` VARCHAR(50) DEFAULT 'pending',
         `delivery_status` VARCHAR(50) DEFAULT 'pending',
         `assigned_agent` VARCHAR(100) DEFAULT NULL,
@@ -35,7 +63,11 @@
         'payment_method' => "ALTER TABLE purchase ADD COLUMN payment_method VARCHAR(20) DEFAULT 'cod'",
         'payment_ref' => "ALTER TABLE purchase ADD COLUMN payment_ref VARCHAR(100) DEFAULT NULL",
         'payment_status' => "ALTER TABLE purchase ADD COLUMN payment_status VARCHAR(20) DEFAULT 'pending'",
-        'assigned_agent' => "ALTER TABLE purchase ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL"
+        'assigned_agent' => "ALTER TABLE purchase ADD COLUMN assigned_agent VARCHAR(100) DEFAULT NULL",
+        'delivery_address' => "ALTER TABLE purchase ADD COLUMN delivery_address TEXT NULL",
+        'delivery_city' => "ALTER TABLE purchase ADD COLUMN delivery_city VARCHAR(128) DEFAULT NULL",
+        'delivery_state' => "ALTER TABLE purchase ADD COLUMN delivery_state VARCHAR(128) DEFAULT NULL",
+        'delivery_pincode' => "ALTER TABLE purchase ADD COLUMN delivery_pincode VARCHAR(32) DEFAULT NULL"
     ];
     foreach($columns_to_add as $col => $ddl){
         $col_check = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase' AND COLUMN_NAME='$col'";
@@ -67,7 +99,7 @@
         }
     }
 
-    $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`payment_method`,`payment_ref`,`payment_status`,`status`,`delivery_status`) VALUES ('$pname','$username','$pprice','$qty',$prod_id_value,'$payment_method','$payment_ref','$payment_status','order_confirmed','order_confirmed')";
+    $sql = "INSERT INTO `purchase` (`pname`,`user`,`pprice`,`qty`,`prod_id`,`payment_method`,`payment_ref`,`payment_status`,`delivery_address`,`delivery_city`,`delivery_state`,`delivery_pincode`,`status`,`delivery_status`) VALUES ('$pname','$username','$pprice','$qty',$prod_id_value,'$payment_method','$payment_ref','$payment_status','$delivery_address_esc','$delivery_city_esc','$delivery_state_esc','$delivery_pincode_esc','order_confirmed','order_confirmed')";
         if(mysqli_query($con,$sql)){
             // Create admin notification for new order
             $order_total = $pprice * $qty;
